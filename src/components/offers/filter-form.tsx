@@ -82,7 +82,7 @@ export async function FilterForm({ action, filters, variant }: FilterFormProps) 
             {t("Reset")}
           </Link>
         )}
-        <button type="submit" className={buttonClass({ block: true })}>
+        <button type="submit" className={buttonClass({ className: "min-w-0 flex-1 shrink" })}>
           {t("Show offers")}
         </button>
       </div>

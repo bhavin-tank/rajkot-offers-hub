@@ -101,7 +101,7 @@ async function OffersContent({
 
   return (
     <>
-      <div className="mb-5 flex flex-col gap-6 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
+      <div className="mb-2 flex flex-col gap-6 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
         <PageTitle title={category?.name ?? t("All offers")} subtitle={subtitle} />
         <SearchBar variant="pageLarge" defaultValue={filters.q} action={basePath} className="hidden w-[480px] lg:flex" />
       </div>

@@ -185,7 +185,7 @@ export async function OffersExplorer({
 
       <div className="flex flex-col gap-4 lg:gap-6">
         {/* Mobile: sticky search and chips. */}
-        <div className="sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 pt-1 pb-3 lg:static lg:mx-0 lg:border-0 lg:p-0">
+        <div className="sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 py-3 lg:static lg:mx-0 lg:border-0 lg:p-0">
           <div className="flex gap-2 lg:hidden">
             <SearchBar defaultValue={filters.q} action={basePath} className="flex-1" />
             <FilterSheet count={panelCount}>{filterForm("sheet")}</FilterSheet>

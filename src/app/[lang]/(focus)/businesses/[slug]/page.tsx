@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/businesses
 
 function Avatar({ className }: { className?: string }) {
   return (
-    <span className={`flex items-center justify-center rounded-full border-4 border-white bg-surface shadow-card ${className}`}>
+    <span className={`relative flex items-center justify-center rounded-full border-4 border-white bg-surface shadow-card ${className}`}>
       <Store size={32} strokeWidth={1.6} aria-hidden />
     </span>
   );
