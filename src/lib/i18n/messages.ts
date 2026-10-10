@@ -250,7 +250,10 @@ export const gu = {
   "Frequently asked questions": "વારંવાર પૂછાતા પ્રશ્નો",
   "Choose your area": "તમારો વિસ્તાર પસંદ કરો",
   "All Rajkot": "આખું રાજકોટ",
-  "{count} areas": "{count} વિસ્તાર",
+  "Offers in {area}": "{area}ની ઓફર્સ",
+  "All live offers in {area}: search by category and offer type.": "{area}ની બધી ચાલુ ઓફર્સ: કેટેગરી અને ઓફરના પ્રકાર પ્રમાણે શોધો.",
+  "{count} live offer in {area}": "{area}માં {count} ચાલુ ઓફર",
+  "{count} live offers in {area}": "{area}માં {count} ચાલુ ઓફર્સ",
 } as const;
 
 export type MessageKey = keyof typeof gu;

@@ -1,6 +1,5 @@
 import type { Area } from "@/types";
 
-/** The first seven are offered as filters. */
 export const areas: Area[] = [
   { slug: "kalawad-road", name: "Kalawad Road" },
   { slug: "yagnik-road", name: "Yagnik Road" },
@@ -14,5 +13,3 @@ export const areas: Area[] = [
   { slug: "palace-road", name: "Palace Road" },
   { slug: "amin-marg", name: "Amin Marg" },
 ];
-
-export const FILTER_AREA_COUNT = 7;

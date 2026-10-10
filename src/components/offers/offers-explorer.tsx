@@ -1,6 +1,6 @@
 import { Link } from "@/components/i18n/link";
 import { SearchX } from "lucide-react";
-import type { Area, OfferFilters, OfferSummary, Paged, SortKey } from "@/types";
+import type { OfferFilters, OfferSummary, Paged, SortKey } from "@/types";
 import { SearchBar } from "@/components/marketing/search-bar";
 import { ButtonLink } from "@/components/ui/button";
 import { ChipLink, RemovableChip } from "@/components/ui/chip";
@@ -28,11 +28,10 @@ export interface ChipOption {
 }
 
 interface OffersExplorerProps {
-  /** "/offers" or "/categories/<slug>". */
+  /** "/offers" or "/categories/<slug>"; links add the visitor's area automatically. */
   basePath: string;
   filters: OfferFilters;
   result: Paged<OfferSummary>;
-  areas: Area[];
   chips: ChipOption[];
   /** "sidebar": /offers layout. "inline": category page layout. */
   layout: "sidebar" | "inline";
@@ -46,7 +45,6 @@ export async function OffersExplorer({
   basePath,
   filters,
   result,
-  areas,
   chips,
   layout,
   emptyTitle,
@@ -65,19 +63,12 @@ export async function OffersExplorer({
     <FilterForm
       action={basePath}
       filters={filters}
-      areas={areas}
       keepCategory={keepCategory}
       variant={variant}
-      idPrefix={variant}
     />
   );
 
   const active = [
-    ...(filters.areas ?? []).map((slug) => ({
-      key: `area-${slug}`,
-      label: areas.find((a) => a.slug === slug)?.name ?? slug,
-      href: href({ areas: filters.areas!.filter((a) => a !== slug) }),
-    })),
     ...(filters.type
       ? [{ key: "type", label: t(OFFER_TYPES.find((o) => o.value === filters.type)!.label), href: href({ type: undefined }) }]
       : []),

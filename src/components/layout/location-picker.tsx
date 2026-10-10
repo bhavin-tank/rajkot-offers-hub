@@ -1,12 +1,13 @@
 "use client";
 
 import { Check, ChevronDown, MapPin } from "lucide-react";
-import { usePathname, useSearchParams } from "next/navigation";
+import NextLink from "next/link";
+import { useParams, usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { Link } from "@/components/i18n/link";
 import { Sheet } from "@/components/ui/sheet";
-import { splitLocale } from "@/lib/i18n/config";
-import { useT } from "@/lib/i18n/client";
+import { isAreaScoped, stripArea } from "@/lib/areas";
+import { localizePath, splitLocale } from "@/lib/i18n/config";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { formatOfferCount } from "@/lib/format";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
@@ -22,9 +23,10 @@ const pillClass =
   "inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border bg-white pr-2.5 pl-2.5 text-[13px] font-medium lg:h-10 lg:px-3.5 lg:text-sm";
 
 /**
- * Header city pill. Opens a list of Rajkot's areas; picking one filters
- * offers by it, "All Rajkot" clears the filter. The choice lives in the
- * URL (`?area=`), so it can be shared and needs no extra storage.
+ * Header city pill. Opens a list of Rajkot's areas; picking one moves to
+ * that area's version of the page ("/kalawad-road/offers"), "All Rajkot"
+ * moves back to the plain one ("/offers"). The choice lives in the URL, so
+ * it can be shared and needs no extra storage.
  */
 export function LocationPicker(props: LocationPickerProps) {
   const t = useT();
@@ -46,26 +48,27 @@ export function LocationPicker(props: LocationPickerProps) {
 
 function Picker({ areas, total }: LocationPickerProps) {
   const t = useT();
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { area: currentSlug } = useParams<{ area?: string }>();
 
-  const selected = searchParams.getAll("area").flatMap((value) => value.split(",")).filter(Boolean);
-  const single = selected.length === 1 ? areas.find((area) => area.slug === selected[0]) : undefined;
-  const label = selected.length === 0 ? t(site.city) : single ? single.name : t("{count} areas", { count: selected.length });
-  const narrowed = selected.length > 0;
+  const current = areas.find((area) => area.slug === currentSlug);
+  const label = current ? current.name : t(site.city);
+  const narrowed = Boolean(current);
 
-  // Area filters work on the offers list and on category pages; anywhere else goes to the offers list.
-  const { path } = splitLocale(pathname);
-  const onFilterPage = path === "/offers" || path.startsWith("/categories/");
+  // The offers and categories pages exist per area, so stay on the same page (and keep its
+  // search, category and sort); from any other page go to the offers list.
+  const page = stripArea(splitLocale(pathname).path, currentSlug);
+  const scoped = isAreaScoped(page);
 
   function hrefFor(slug?: string) {
-    const params = new URLSearchParams(onFilterPage ? searchParams.toString() : "");
-    params.delete("area");
+    const params = new URLSearchParams(scoped ? searchParams.toString() : "");
     params.delete("page");
-    if (slug) params.set("area", slug);
     const query = params.toString();
-    return `${onFilterPage ? path : "/offers"}${query ? `?${query}` : ""}`;
+    const base = scoped ? page : "/offers";
+    return localizePath(locale, `${slug ? `/${slug}` : ""}${base}${query ? `?${query}` : ""}`);
   }
 
   return (
@@ -96,7 +99,7 @@ function Picker({ areas, total }: LocationPickerProps) {
             <AreaRow
               key={area.slug}
               href={hrefFor(area.slug)}
-              selected={selected.length === 1 && selected[0] === area.slug}
+              selected={area.slug === currentSlug}
               name={area.name}
               count={formatOfferCount(area.offerCount, t)}
               onPick={() => setOpen(false)}
@@ -123,9 +126,8 @@ function AreaRow({
 }) {
   return (
     <li>
-      <Link
+      <NextLink
         href={href}
-        scroll={false}
         aria-current={selected ? "true" : undefined}
         onClick={onPick}
         className={cn(
@@ -140,7 +142,7 @@ function AreaRow({
         )}
         <span className="flex-1">{name}</span>
         <span className={cn("text-[13px]", selected ? "text-primary" : "text-muted")}>{count}</span>
-      </Link>
+      </NextLink>
     </li>
   );
 }

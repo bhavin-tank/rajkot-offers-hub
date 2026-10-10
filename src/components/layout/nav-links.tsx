@@ -1,28 +1,30 @@
 "use client";
 
 import { Link } from "@/components/i18n/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { Bookmark, House, LayoutGrid, Tag } from "lucide-react";
+import { stripArea } from "@/lib/areas";
 import { splitLocale } from "@/lib/i18n/config";
 import { useT } from "@/lib/i18n/client";
 import type { MessageKey } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 import { mainNav } from "@/lib/site";
 
-function isActive(pathname: string, href: string) {
-  const path = splitLocale(pathname).path;
+function isActive(pathname: string, href: string, area?: string) {
+  const path = stripArea(splitLocale(pathname).path, area);
   return href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
 }
 
 /** Desktop header navigation. */
 export function HeaderNav() {
   const pathname = usePathname();
+  const { area } = useParams<{ area?: string }>();
   const t = useT();
   return (
     <nav aria-label={t("Main menu")}>
       <ul className="flex items-center gap-5 text-[15px] xl:gap-9 font-medium">
         {mainNav.map((item) => {
-          const active = isActive(pathname, item.href);
+          const active = isActive(pathname, item.href, area);
           return (
             <li key={item.href}>
               <Link
@@ -50,6 +52,7 @@ const bottomNav = [
 /** Mobile tab bar, fixed to the bottom of the screen. */
 export function BottomNav() {
   const pathname = usePathname();
+  const { area } = useParams<{ area?: string }>();
   const t = useT();
   return (
     <nav
@@ -58,7 +61,7 @@ export function BottomNav() {
     >
       <ul className="grid h-16 grid-cols-4">
         {bottomNav.map(({ href, label, icon: Icon }) => {
-          const active = isActive(pathname, href);
+          const active = isActive(pathname, href, area);
           return (
             <li key={href}>
               <Link

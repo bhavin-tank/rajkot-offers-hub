@@ -138,7 +138,7 @@ export function AreaPills({ areas, className }: { areas: Area[]; className?: str
     >
       {areas.map((a) => (
         <li key={a.slug}>
-          <AreaChip href={`/offers?area=${a.slug}`}>{a.name}</AreaChip>
+          <AreaChip href={`/${a.slug}/offers`}>{a.name}</AreaChip>
         </li>
       ))}
     </ul>

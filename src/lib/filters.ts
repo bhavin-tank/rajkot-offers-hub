@@ -40,16 +40,11 @@ function oneOf<T extends string>(value: string | undefined, options: { value: T 
 
 /** Reads offer filters from URL search params; unknown values are dropped. */
 export function parseFilters(params: RawParams): OfferFilters {
-  const areaParam = params.area;
-  const areas = (Array.isArray(areaParam) ? areaParam : areaParam ? [areaParam] : []).flatMap(
-    (a) => a.split(","),
-  );
   const page = Number(first(params.page));
   return {
     q: first(params.q)?.slice(0, 100) || undefined,
     category: first(params.category) || undefined,
     subcategory: first(params.sub) || undefined,
-    areas: areas.length ? areas : undefined,
     type: oneOf(first(params.type), OFFER_TYPES),
     validity: oneOf(first(params.validity), VALIDITY_OPTIONS),
     sort: oneOf(first(params.sort), SORT_OPTIONS),
@@ -57,9 +52,9 @@ export function parseFilters(params: RawParams): OfferFilters {
   };
 }
 
-/** Number of filters set in the filter panel (area, type, validity). */
+/** Number of filters set in the filter panel (type, validity). */
 export function countPanelFilters(filters: OfferFilters) {
-  return (filters.areas?.length ?? 0) + (filters.type ? 1 : 0) + (filters.validity ? 1 : 0);
+  return (filters.type ? 1 : 0) + (filters.validity ? 1 : 0);
 }
 
 /**
@@ -74,7 +69,6 @@ export function filtersToQuery(filters: OfferFilters, patch: Partial<OfferFilter
   if (next.q) params.set("q", next.q);
   if (next.category) params.set("category", next.category);
   if (next.subcategory) params.set("sub", next.subcategory);
-  next.areas?.forEach((a) => params.append("area", a));
   if (next.type) params.set("type", next.type);
   if (next.validity) params.set("validity", next.validity);
   if (next.sort && next.sort !== "newest") params.set("sort", next.sort);

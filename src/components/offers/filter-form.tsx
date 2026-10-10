@@ -1,8 +1,8 @@
 import { Form } from "@/components/i18n/link";
 import { Link } from "@/components/i18n/link";
-import type { Area, OfferFilters } from "@/types";
+import type { OfferFilters } from "@/types";
 import { buttonClass } from "@/components/ui/button";
-import { FilterCheckbox, Radio } from "@/components/ui/checkbox";
+import { Radio } from "@/components/ui/checkbox";
 import { chipClass } from "@/components/ui/chip";
 import { OFFER_TYPES, VALIDITY_OPTIONS } from "@/lib/filters";
 import { getT } from "@/lib/i18n/server";
@@ -12,13 +12,10 @@ interface FilterFormProps {
   /** Page the form submits to, e.g. "/offers" or "/categories/food". */
   action: string;
   filters: OfferFilters;
-  areas: Area[];
   /** Keep the category in the query (only on /offers). */
   keepCategory?: boolean;
   /** "sidebar": desktop card. "sheet": inside the mobile sheet. */
   variant: "sidebar" | "sheet";
-  /** Distinguishes input ids when the form is rendered twice. */
-  idPrefix: string;
 }
 
 function Group({ title, children }: { title: string; children: React.ReactNode }) {
@@ -31,10 +28,10 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
 }
 
 /**
- * Area, offer type and validity filters as a plain GET form, so filtering
+ * Offer type and validity filters as a plain GET form, so filtering
  * works without JavaScript and every state is a shareable URL.
  */
-export async function FilterForm({ action, filters, areas, keepCategory, variant, idPrefix }: FilterFormProps) {
+export async function FilterForm({ action, filters, keepCategory, variant }: FilterFormProps) {
   const t = await getT();
   const sheet = variant === "sheet";
   return (
@@ -43,21 +40,6 @@ export async function FilterForm({ action, filters, areas, keepCategory, variant
       {keepCategory && filters.category && <input type="hidden" name="category" value={filters.category} />}
       {filters.subcategory && <input type="hidden" name="sub" value={filters.subcategory} />}
       {filters.sort && <input type="hidden" name="sort" value={filters.sort} />}
-
-      <Group title={t("Area")}>
-        <div className={cn("flex flex-col gap-3", sheet && "grid grid-cols-2")}>
-          {areas.map((area) => (
-            <FilterCheckbox
-              key={area.slug}
-              id={`${idPrefix}-area-${area.slug}`}
-              name="area"
-              value={area.slug}
-              defaultChecked={filters.areas?.includes(area.slug)}
-              label={area.name}
-            />
-          ))}
-        </div>
-      </Group>
 
       <Group title={t("Offer type")}>
         <div className="flex flex-wrap gap-2">
