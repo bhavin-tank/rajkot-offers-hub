@@ -43,7 +43,6 @@ export function parseFilters(params: RawParams): OfferFilters {
   const page = Number(first(params.page));
   return {
     q: first(params.q)?.slice(0, 100) || undefined,
-    category: first(params.category) || undefined,
     subcategory: first(params.sub) || undefined,
     type: oneOf(first(params.type), OFFER_TYPES),
     validity: oneOf(first(params.validity), VALIDITY_OPTIONS),
@@ -67,7 +66,6 @@ export function filtersToQuery(filters: OfferFilters, patch: Partial<OfferFilter
 
   const params = new URLSearchParams();
   if (next.q) params.set("q", next.q);
-  if (next.category) params.set("category", next.category);
   if (next.subcategory) params.set("sub", next.subcategory);
   if (next.type) params.set("type", next.type);
   if (next.validity) params.set("validity", next.validity);

@@ -3,7 +3,7 @@ import { ArrowLeft, Heart } from "lucide-react";
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { IconLink } from "@/components/ui/icon-button";
-import { getAreasWithCounts } from "@/lib/data";
+import { getAreasWithCounts, getCategorySlugs } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 import { Container } from "./container";
@@ -14,7 +14,7 @@ import { HeaderNav } from "./nav-links";
 /** City pill that opens the Rajkot area list. */
 export async function LocationPill() {
   const { total, areas } = await getAreasWithCounts();
-  return <LocationPicker areas={areas} total={total} />;
+  return <LocationPicker areas={areas} total={total} categorySlugs={getCategorySlugs()} />;
 }
 
 /** Desktop header (72px). */

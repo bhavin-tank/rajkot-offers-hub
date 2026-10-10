@@ -20,6 +20,10 @@ export function getCategorySlugs() {
   return categories.map((c) => c.slug);
 }
 
+export function isCategorySlug(slug: string) {
+  return categories.some((c) => c.slug === slug);
+}
+
 export async function getAreas(): Promise<Area[]> {
   return localizedAreas(await getLocale());
 }

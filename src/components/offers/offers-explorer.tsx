@@ -23,7 +23,9 @@ import { SortMenu } from "./sort-menu";
 export interface ChipOption {
   label: string;
   /** The filter patch this chip applies. */
-  patch: Partial<OfferFilters>;
+  patch?: Partial<OfferFilters>;
+  /** Link to use instead of applying `patch` to the current page (e.g. another category's path). */
+  href?: string;
   selected: boolean;
 }
 
@@ -53,7 +55,6 @@ export async function OffersExplorer({
 }: OffersExplorerProps) {
   const t = await getT();
   const href = (patch: Partial<OfferFilters> = {}) => `${basePath}${filtersToQuery(filters, patch)}`;
-  const keepCategory = layout === "sidebar";
   const panelCount = countPanelFilters(filters);
   const sortHrefs = Object.fromEntries(
     SORT_OPTIONS.map((o) => [o.value, href({ sort: o.value })]),
@@ -63,7 +64,6 @@ export async function OffersExplorer({
     <FilterForm
       action={basePath}
       filters={filters}
-      keepCategory={keepCategory}
       variant={variant}
     />
   );
@@ -92,7 +92,7 @@ export async function OffersExplorer({
       )}
     >
       {chips.map((chip) => (
-        <ChipLink key={chip.label} href={href(chip.patch)} scroll={false} selected={chip.selected} className="lg:h-[38px] lg:px-[18px] lg:text-sm">
+        <ChipLink key={chip.label} href={chip.href ?? href(chip.patch)} scroll={false} selected={chip.selected} className="lg:h-[38px] lg:px-[18px] lg:text-sm">
           {chip.label}
         </ChipLink>
       ))}
@@ -187,11 +187,7 @@ export async function OffersExplorer({
         {/* Mobile: sticky search and chips. */}
         <div className="sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 pt-1 pb-3 lg:static lg:mx-0 lg:border-0 lg:p-0">
           <div className="flex gap-2 lg:hidden">
-            <SearchBar
-              defaultValue={filters.q}
-              className="flex-1"
-              hidden={filters.category && <input type="hidden" name="category" value={filters.category} />}
-            />
+            <SearchBar defaultValue={filters.q} action={basePath} className="flex-1" />
             <FilterSheet count={panelCount}>{filterForm("sheet")}</FilterSheet>
           </div>
           {chipRow}

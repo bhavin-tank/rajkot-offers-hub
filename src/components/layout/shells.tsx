@@ -1,0 +1,31 @@
+import type { ReactNode } from "react";
+import { Footer } from "./footer";
+import { DesktopHeader, MobileHeader } from "./header";
+import { BottomNav } from "./nav-links";
+
+/** Browsing pages: full header, footer and the mobile tab bar. */
+export function MainShell({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <DesktopHeader />
+      <MobileHeader />
+      <main className="flex-1">{children}</main>
+      <Footer className="pb-16 lg:pb-0" />
+      <BottomNav />
+    </>
+  );
+}
+
+/**
+ * Detail and task pages. On mobile each page draws its own top bar and
+ * sticky action bar, so the shared header and footer show on desktop only.
+ */
+export function FocusShell({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <DesktopHeader />
+      <main className="flex-1">{children}</main>
+      <Footer className="hidden lg:block" />
+    </>
+  );
+}

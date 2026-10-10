@@ -15,17 +15,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button, ButtonAnchor } from "@/components/ui/button";
 import { DetailRow, Divider } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
-import { getBusiness, getCategory, getOffer, getOfferSlugs, getSimilarOffers } from "@/lib/data";
+import { getBusiness, getCategory, getOffer, getSimilarOffers } from "@/lib/data";
 import { formatRange } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { cn, directionsHref, telHref, whatsappHref } from "@/lib/utils";
 
-export function generateStaticParams() {
-  return getOfferSlugs().map((slug) => ({ slug }));
-}
-
-export async function generateMetadata({ params }: PageProps<"/[lang]/offers/[slug]">): Promise<Metadata> {
-  const [t, offer] = await Promise.all([getT(), params.then((p) => getOffer(p.slug))]);
+export async function offerMetadata(slug: string): Promise<Metadata> {
+  const [t, offer] = await Promise.all([getT(), getOffer(slug)]);
   if (!offer) return {};
   return {
     title: offer.title,
@@ -38,9 +34,9 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/offers/[sl
   };
 }
 
-async function OfferContent({ params }: Pick<PageProps<"/[lang]/offers/[slug]">, "params">) {
+async function OfferContent({ slug }: { slug: string }) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
-  const offer = await getOffer((await params).slug);
+  const offer = await getOffer(slug);
   if (!offer) notFound();
   const [business, category, similar] = await Promise.all([
     getBusiness(offer.businessSlug),
@@ -210,10 +206,10 @@ async function OfferContent({ params }: Pick<PageProps<"/[lang]/offers/[slug]">,
   );
 }
 
-export default function OfferPage({ params }: PageProps<"/[lang]/offers/[slug]">) {
+export function OfferDetailView({ slug }: { slug: string }) {
   return (
     <Suspense fallback={<DetailSkeleton />}>
-      <OfferContent params={params} />
+      <OfferContent slug={slug} />
     </Suspense>
   );
 }

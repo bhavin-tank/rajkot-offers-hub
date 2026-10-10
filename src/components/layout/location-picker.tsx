@@ -17,6 +17,8 @@ interface LocationPickerProps {
   areas: AreaWithCount[];
   /** Live offers across all of Rajkot. */
   total: number;
+  /** Needed to tell "/offers/electronics" (a category list) from "/offers/<offer>" (a single offer). */
+  categorySlugs: string[];
 }
 
 const pillClass =
@@ -46,7 +48,7 @@ export function LocationPicker(props: LocationPickerProps) {
   );
 }
 
-function Picker({ areas, total }: LocationPickerProps) {
+function Picker({ areas, total, categorySlugs }: LocationPickerProps) {
   const t = useT();
   const locale = useLocale();
   const [open, setOpen] = useState(false);
@@ -61,7 +63,8 @@ function Picker({ areas, total }: LocationPickerProps) {
   // The offers and categories pages exist per area, so stay on the same page (and keep its
   // search, category and sort); from any other page go to the offers list.
   const page = stripArea(splitLocale(pathname).path, currentSlug);
-  const scoped = isAreaScoped(page);
+  const categoryList = /^\/offers\/([^/?#]+)$/.exec(page)?.[1];
+  const scoped = isAreaScoped(page) || (categoryList !== undefined && categorySlugs.includes(categoryList));
 
   function hrefFor(slug?: string) {
     const params = new URLSearchParams(scoped ? searchParams.toString() : "");

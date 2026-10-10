@@ -2,7 +2,6 @@
 
 import { Form } from "@/components/i18n/link";
 import { Search } from "lucide-react";
-import type { ReactNode } from "react";
 import { buttonClass } from "@/components/ui/button";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
@@ -19,18 +18,18 @@ const variants = {
 interface SearchBarProps {
   variant?: keyof typeof variants;
   defaultValue?: string;
-  /** Hidden inputs to keep the current filters on submit. */
-  hidden?: ReactNode;
+  /** Page the search submits to, e.g. "/offers" or "/offers/food". */
+  action?: string;
   className?: string;
 }
 
-/** GET form to /offers?q=…, so search works without JavaScript. */
-export function SearchBar({ variant = "page", defaultValue, hidden, className }: SearchBarProps) {
+/** GET form to <action>?q=…, so search works without JavaScript. */
+export function SearchBar({ variant = "page", defaultValue, action = "/offers", className }: SearchBarProps) {
   const t = useT();
   const placeholder = t("Search for a shop, offer or category");
   return (
     <Form
-      action="/offers"
+      action={action}
       role="search"
       className={cn(
         "flex items-center gap-2.5 border bg-white pl-4 focus-within:border-primary focus-within:shadow-ring",
@@ -38,7 +37,6 @@ export function SearchBar({ variant = "page", defaultValue, hidden, className }:
         className,
       )}
     >
-      {hidden}
       <Search size={variant === "hero" ? 20 : 18} className="shrink-0 text-muted" aria-hidden />
       <input
         type="search"

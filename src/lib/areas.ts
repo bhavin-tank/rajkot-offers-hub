@@ -15,6 +15,15 @@ export function areaHref(area: string | undefined, href: string) {
   return area && isAreaScoped(href) ? `/${area}${href}` : href;
 }
 
+/**
+ * The offers list for an area and/or category: "/offers", "/offers/electronics",
+ * "/kalawad-road/offers", "/kalawad-road/offers/electronics". Built explicitly
+ * because "/offers/electronics" looks like an offer page to `areaHref`.
+ */
+export function offersPath(area?: string, category?: string) {
+  return `${area ? `/${area}` : ""}/offers${category ? `/${category}` : ""}`;
+}
+
 /** "/kalawad-road/offers" → "/offers" (the path without its area prefix). */
 export function stripArea(path: string, area: string | undefined) {
   if (!area) return path;
