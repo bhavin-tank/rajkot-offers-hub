@@ -7,7 +7,7 @@ import { hasUnknownSlug } from "@/lib/known-paths";
  * Locale routing. English pages live at "/en/..." internally but are
  * served without a prefix; Gujarati pages are served at "/gu/...".
  */
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const { locale, path } = splitLocale(pathname);
 
@@ -24,7 +24,7 @@ export function proxy(request: NextRequest) {
 
   // Unknown slugs go to the catch-all 404 page now, while a 404 status can still be sent.
   // Four segments are deeper than any real route, so only the catch-all matches.
-  if (hasUnknownSlug(path)) {
+  if (await hasUnknownSlug(path)) {
     return NextResponse.rewrite(new URL(`/${locale ?? defaultLocale}/_/not/found/page`, request.url));
   }
 
