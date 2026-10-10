@@ -11,6 +11,13 @@ export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = "en";
 
+/**
+ * Whether visitors can choose a language. While false the toggle is hidden and
+ * the proxy serves English only (/gu URLs and the saved-language cookie are
+ * ignored). Set it to true to bring the Gujarati site back.
+ */
+export const languageSwitchEnabled = false;
+
 /** Cookie that remembers the visitor's chosen language. */
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 

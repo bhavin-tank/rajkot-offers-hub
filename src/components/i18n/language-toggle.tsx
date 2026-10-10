@@ -3,7 +3,14 @@
 import { Languages } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LOCALE_COOKIE, localeNames, localizePath, splitLocale, type Locale } from "@/lib/i18n/config";
+import {
+  LOCALE_COOKIE,
+  languageSwitchEnabled,
+  localeNames,
+  localizePath,
+  splitLocale,
+  type Locale,
+} from "@/lib/i18n/config";
 import { useLocale } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +21,10 @@ const ONE_YEAR = 60 * 60 * 24 * 365;
  * choice in a cookie so the proxy opens the site in it next time.
  */
 export function LanguageToggle({ className }: { className?: string }) {
+  return languageSwitchEnabled ? <Toggle className={className} /> : null;
+}
+
+function Toggle({ className }: { className?: string }) {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();

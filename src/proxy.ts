@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { defaultLocale, LOCALE_COOKIE, localizePath, splitLocale } from "@/lib/i18n/config";
+import { defaultLocale, LOCALE_COOKIE, languageSwitchEnabled, localizePath, splitLocale } from "@/lib/i18n/config";
 
 /**
  * Locale routing. English pages live at "/en/..." internally but are
@@ -9,14 +9,14 @@ export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const { locale, path } = splitLocale(pathname);
 
-  // "/en/offers" is not a public URL: send it to "/offers".
-  if (locale === defaultLocale) {
+  // "/en/offers" is not a public URL: send it to "/offers". With the switcher off, so is "/gu/offers".
+  if (locale === defaultLocale || (locale && !languageSwitchEnabled)) {
     return NextResponse.redirect(new URL(`${path}${search}`, request.url), 308);
   }
   if (locale) return NextResponse.next();
 
   // No prefix: honour a saved Gujarati choice, otherwise serve English.
-  if (request.cookies.get(LOCALE_COOKIE)?.value === "gu") {
+  if (languageSwitchEnabled && request.cookies.get(LOCALE_COOKIE)?.value === "gu") {
     return NextResponse.redirect(new URL(`${localizePath("gu", pathname)}${search}`, request.url));
   }
   return NextResponse.rewrite(new URL(`/${defaultLocale}${pathname === "/" ? "" : pathname}${search}`, request.url));
