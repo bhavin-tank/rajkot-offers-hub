@@ -208,14 +208,11 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
           className="mt-6 lg:mt-8"
           label={t("Page sections")}
           topBar={
-            <div className="grid h-full grid-cols-[40px_1fr_40px] items-center gap-2 border-b border-line px-2">
+            <div className="flex h-full items-center justify-between border-b border-line px-2">
               <IconLink href="/offers" variant="plain" size="lg" aria-label={t("Go back")}>
                 <ArrowLeft size={22} aria-hidden />
               </IconLink>
-              <p className="truncate text-center text-base font-semibold">{business.name}</p>
-              <div className="flex justify-end">
-                <ShareButton title={business.name} path={path} variant="plain" />
-              </div>
+              <ShareButton title={business.name} path={path} variant="plain" />
             </div>
           }
           items={[
