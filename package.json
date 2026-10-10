@@ -9,10 +9,14 @@
     "lint": "eslint",
     "db:seed": "node --env-file-if-exists=.env.local --import tsx src/server/db/seed.ts",
     "db:indexes": "node --env-file-if-exists=.env.local --import tsx src/server/db/ensure-indexes.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "admin:add": "node --env-file-if-exists=.env.local --import tsx src/server/db/add-admin.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1148.0",
+    "@aws-sdk/s3-request-presigner": "3.1148.0",
     "clsx": "2.1.1",
+    "jose": "6.2.12",
     "lucide-react": "1.52.0",
     "mongodb": "7.7.0",
     "next": "16.4.0",

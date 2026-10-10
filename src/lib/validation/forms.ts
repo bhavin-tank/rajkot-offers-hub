@@ -6,6 +6,7 @@ import type { MessageKey } from "@/lib/i18n/translate";
  * they render, so the server never needs to know the visitor's language.
  */
 
+/** Field name → message. `form` holds a problem with the whole form (e.g. too many attempts). */
 export type FieldErrors = Record<string, MessageKey>;
 
 export type FormState =
@@ -39,7 +40,7 @@ export const SUBMIT_STEPS = ["Business details", "Offer details", "Photos and co
 export const SUBMIT_STEP_FIELDS = [
   ["businessName", "category", "area", "address", "ownerName", "mobile", "instagram"],
   ["title", "type", "description", "terms", "startDate", "endDate"],
-  ["confirm"],
+  ["photos", "confirm", "form"],
 ] as const;
 
 export function validateSubmitStep(step: number, data: FormData): FieldErrors {
@@ -59,6 +60,8 @@ export function validateSubmitStep(step: number, data: FormData): FieldErrors {
     if (start && end && end < start) errors.endDate = "The end date must be after the start date";
   }
   if (step === 2) {
+    if (data.get("photosUploading") === "true") errors.photos = "Please wait for the photos to finish uploading";
+    else if (data.get("photosFailed") === "true") errors.photos = "Upload failed. Remove the photo and try again.";
     if (data.get("confirm") !== "on") errors.confirm = "Please confirm to continue";
   }
   return errors;

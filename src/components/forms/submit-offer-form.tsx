@@ -246,7 +246,7 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
         {/* Step 3: photos and confirmation */}
         <fieldset hidden={step !== 2} className="flex flex-col gap-6">
           <legend className="sr-only">{t(SUBMIT_STEPS[2])}</legend>
-          <PhotoPicker />
+          <PhotoPicker error={err("photos")} />
           <ReviewCard values={values} categories={categories} areas={areas} onEdit={goTo} />
           <div className="flex flex-col gap-2">
             <Checkbox
@@ -265,7 +265,13 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
             step === 1 && "grid grid-cols-[1fr_2fr] lg:flex",
           )}
         >
-          <p className="hidden text-[13px] text-muted lg:mr-auto lg:block">{t("Takes about 2–3 minutes")}</p>
+          {err("form") ? (
+            <p role="alert" className="text-[13px] text-danger lg:mr-auto">
+              {err("form")}
+            </p>
+          ) : (
+            <p className="hidden text-[13px] text-muted lg:mr-auto lg:block">{t("Takes about 2–3 minutes")}</p>
+          )}
           {step > 0 && (
             <Button variant="outline" onClick={() => goTo(step - 1)} className={cn(step === 2 && "order-2 lg:order-none", "lg:px-7")}>
               {t("Back")}

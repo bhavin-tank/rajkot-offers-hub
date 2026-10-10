@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { canonicalAreaUrl } from "@/lib/areas";
 import { defaultLocale, LOCALE_COOKIE, languageSwitchEnabled, localizePath, splitLocale } from "@/lib/i18n/config";
+import { clearSessionCookies, setSessionCookies } from "@/lib/auth/cookies";
+import { renewSession } from "@/lib/auth/proxy-session";
 import { hasUnknownSlug } from "@/lib/known-paths";
 
 /**
@@ -14,6 +16,18 @@ export async function proxy(request: NextRequest) {
   // "/en/offers" is not a public URL: send it to "/offers". With the switcher off, so is "/gu/offers".
   if (locale === defaultLocale || (locale && !languageSwitchEnabled)) {
     return NextResponse.redirect(new URL(`${path}${search}`, request.url), 308);
+  }
+
+  // Admin panel: English only, never indexed, and the session is renewed here because pages can't set cookies.
+  if (path === "/admin" || path.startsWith("/admin/")) {
+    const session = await renewSession(request);
+    const response = NextResponse.rewrite(new URL(`/${defaultLocale}${path}${search}`, request.url), {
+      request: { headers: request.headers },
+    });
+    if (session === "signed-out") clearSessionCookies(response.cookies);
+    else if (session) setSessionCookies(response.cookies, session);
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
   }
 
   // Old-style "/offers?area=x&category=y" links become "/x/offers/y".
