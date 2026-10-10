@@ -1,8 +1,9 @@
 import { CategoryView, categoryMetadata } from "@/components/pages/category-view";
 import { getAreaSlugs, getCategorySlugs } from "@/lib/data";
 
-export function generateStaticParams() {
-  return getAreaSlugs().flatMap((area) => getCategorySlugs().map((slug) => ({ area, slug })));
+export async function generateStaticParams() {
+  const [areas, categories] = await Promise.all([getAreaSlugs(), getCategorySlugs()]);
+  return areas.flatMap((area) => categories.map((slug) => ({ area, slug })));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/[area]/categories/[slug]">) {

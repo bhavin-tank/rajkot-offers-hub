@@ -13,8 +13,8 @@ import { HeaderNav } from "./nav-links";
 
 /** City pill that opens the Rajkot area list. */
 export async function LocationPill() {
-  const { total, areas } = await getAreasWithCounts();
-  return <LocationPicker areas={areas} total={total} categorySlugs={getCategorySlugs()} />;
+  const [{ total, areas }, categorySlugs] = await Promise.all([getAreasWithCounts(), getCategorySlugs()]);
+  return <LocationPicker areas={areas} total={total} categorySlugs={categorySlugs} />;
 }
 
 /** Desktop header (72px). */

@@ -1,11 +1,19 @@
-import type { Business } from "@/types";
+import type { Locale } from "@/lib/i18n/config";
 import { getLocale } from "@/lib/i18n/server";
-import { buildBusinesses } from "./catalog";
+import { findBusiness } from "@/server/services/businesses";
+import type { Business } from "@/types";
+import { cacheFor, getSlugs, TAGS } from "./cache";
 
-export async function getBusiness(slug: string): Promise<Business | undefined> {
-  return buildBusinesses(await getLocale()).find((b) => b.slug === slug);
+export async function businessFor(locale: Locale, slug: string): Promise<Business | undefined> {
+  "use cache";
+  cacheFor(TAGS.businesses, TAGS.catalog);
+  return findBusiness(slug, locale);
 }
 
-export function getBusinessSlugs() {
-  return buildBusinesses("en").map((b) => b.slug);
+export async function getBusiness(slug: string): Promise<Business | undefined> {
+  return businessFor(await getLocale(), slug);
+}
+
+export async function getBusinessSlugs() {
+  return (await getSlugs()).businesses;
 }

@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
-import { cacheLife } from "next/cache";
-import { areas, buildBusinesses, buildOffers, categories } from "@/lib/data/catalog";
+import { cacheFor, getSlugs, TAGS, today } from "@/lib/data/cache";
 import { offersPath } from "@/lib/areas";
 import { absoluteUrl } from "@/lib/site";
+import { findBusinesses } from "@/server/services/businesses";
+import { findLiveOffers } from "@/server/services/offers";
 import type { Offer } from "@/types";
 
 /** Newest offer date in `list`, as the last-modified date of the page listing them. */
@@ -19,10 +20,9 @@ function newest(list: Offer[]) {
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   "use cache";
-  cacheLife("hours");
+  cacheFor(TAGS.offers, TAGS.catalog, TAGS.businesses);
 
-  const offers = buildOffers(new Date(), "en");
-  const live = offers.filter((o) => !o.isExpired);
+  const [live, businesses, slugs] = await Promise.all([findLiveOffers("en", today()), findBusinesses("en"), getSlugs()]);
   const entry = (path: string, list?: Offer[], images?: string[]): MetadataRoute.Sitemap[number] => ({
     url: absoluteUrl(path),
     ...(list && { lastModified: newest(list) }),
@@ -30,11 +30,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const lists: MetadataRoute.Sitemap = [];
-  for (const area of [undefined, ...areas.map((a) => a.slug)]) {
+  for (const area of [undefined, ...slugs.areas]) {
     const inArea = live.filter((o) => !area || o.areaSlug === area);
     if (!inArea.length) continue;
     if (area) lists.push(entry(offersPath(area), inArea));
-    for (const { slug } of categories) {
+    for (const slug of slugs.categories) {
       const inCategory = inArea.filter((o) => o.categorySlug === slug);
       if (inCategory.length) lists.push(entry(offersPath(area, slug), inCategory));
     }
@@ -49,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/submit-offer"),
     ...lists,
     ...live.map((o) => entry(`/offers/${o.slug}`, [o], o.images.slice(0, 1))),
-    ...buildBusinesses("en").map((b) =>
+    ...businesses.map((b) =>
       entry(
         `/businesses/${b.slug}`,
         live.filter((o) => o.businessSlug === b.slug),

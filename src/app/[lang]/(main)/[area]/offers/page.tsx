@@ -1,8 +1,8 @@
 import { OffersView, offersMetadata } from "@/components/pages/offers-view";
 import { getAreaSlugs } from "@/lib/data";
 
-export function generateStaticParams() {
-  return getAreaSlugs().map((area) => ({ area }));
+export async function generateStaticParams() {
+  return (await getAreaSlugs()).map((area) => ({ area }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/[area]/offers">) {

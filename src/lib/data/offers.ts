@@ -1,87 +1,74 @@
-import { cacheLife, cacheTag } from "next/cache";
-import type { Category, Offer, OfferFilters, OfferSummary, Paged, ValidityKey } from "@/types";
-import { offers as offerRecords } from "@/lib/mock/offers";
+import type { Locale } from "@/lib/i18n/config";
 import { getLocale } from "@/lib/i18n/server";
-import { buildOffers, localizedCategories } from "./catalog";
+import {
+  findAllOfferSummaries,
+  findBusinessOffers,
+  findOffer,
+  findOffers,
+  findOffersBySlugs,
+  findSimilarOffers,
+  type Window,
+} from "@/server/services/offers";
+import type { Offer, OfferFilters, OfferSummary, Paged } from "@/types";
+import { cacheFor, getSlugs, TAGS, today } from "./cache";
 
 export const PAGE_SIZE = 9;
 
-const VALIDITY_DAYS: Record<ValidityKey, number> = { today: 1, week: 7, month: 30 };
+/*
+ * The `…For(locale, …)` functions are the cached reads. Pages use the getters
+ * below them, which take the locale from the route; API routes, which have no
+ * [lang] segment, call the `…For` functions with `?lang=`.
+ */
 
-/** Every offer, including expired ones. */
-export async function getAllOffers(): Promise<Offer[]> {
+export async function offersFor(locale: Locale, filters: OfferFilters, window: Window) {
   "use cache";
-  cacheLife("hours");
-  cacheTag("offers");
-  return buildOffers(new Date(), await getLocale());
+  cacheFor(TAGS.offers, TAGS.catalog);
+  return findOffers(filters, locale, today(), window);
 }
 
-export function toSummary(offer: Offer): OfferSummary {
-  return {
-    slug: offer.slug,
-    title: offer.title,
-    badge: offer.badge,
-    businessName: offer.businessName,
-    areaName: offer.areaName,
-    images: offer.images.slice(0, 1),
-    validTo: offer.validTo,
-    isExpired: offer.isExpired,
-    daysLeft: offer.daysLeft,
-  };
+export async function offerFor(locale: Locale, slug: string) {
+  "use cache";
+  cacheFor(TAGS.offers);
+  return findOffer(slug, locale, today());
 }
 
-function matchesQuery(offer: Offer, q: string, categories: Category[]) {
-  const needle = q.trim().toLowerCase();
-  if (!needle) return true;
-  const category = categories.find((c) => c.slug === offer.categorySlug);
-  return [offer.title, offer.businessName, offer.areaName, category?.name, category?.shortName]
-    .filter(Boolean)
-    .some((field) => field!.toLowerCase().includes(needle));
+export async function similarOffersFor(locale: Locale, offer: Pick<Offer, "slug" | "categorySlug">, limit: number) {
+  "use cache";
+  cacheFor(TAGS.offers);
+  return findSimilarOffers(offer, locale, today(), limit);
+}
+
+export async function businessOffersFor(locale: Locale, businessSlug: string) {
+  "use cache";
+  cacheFor(TAGS.offers);
+  return findBusinessOffers(businessSlug, locale, today());
+}
+
+export async function offersBySlugsFor(locale: Locale, slugs: string[]) {
+  "use cache";
+  cacheFor(TAGS.offers);
+  return findOffersBySlugs(slugs, locale, today());
+}
+
+async function allOfferSummariesFor(locale: Locale) {
+  "use cache";
+  cacheFor(TAGS.offers);
+  return findAllOfferSummaries(locale, today());
 }
 
 export async function getOffers(filters: OfferFilters = {}): Promise<Paged<OfferSummary>> {
   const page = Math.max(1, filters.page ?? 1);
-  let list = (await getAllOffers()).filter((o) => !o.isExpired);
-
-  if (filters.q) {
-    const localized = localizedCategories(await getLocale());
-    list = list.filter((o) => matchesQuery(o, filters.q!, localized));
-  }
-  if (filters.category) list = list.filter((o) => o.categorySlug === filters.category);
-  if (filters.subcategory) list = list.filter((o) => o.subcategory === filters.subcategory);
-  if (filters.areas?.length) list = list.filter((o) => filters.areas!.includes(o.areaSlug));
-  if (filters.type) list = list.filter((o) => o.type === filters.type);
-  if (filters.validity) {
-    const max = VALIDITY_DAYS[filters.validity];
-    list = list.filter((o) => o.daysLeft <= max);
-  }
-
-  const sort = filters.sort ?? "newest";
-  list = [...list].sort((a, b) => {
-    if (sort === "ending") return a.daysLeft - b.daysLeft;
-    if (sort === "discount") return b.discount - a.discount;
-    return b.createdAt.localeCompare(a.createdAt) || a.daysLeft - b.daysLeft;
-  });
-
   // "Load more" shows every page up to the requested one.
-  const items = list.slice(0, page * PAGE_SIZE);
-  return {
-    items: items.map(toSummary),
-    total: list.length,
-    page,
-    hasMore: items.length < list.length,
-  };
+  const { items, total } = await offersFor(await getLocale(), { ...filters, page: undefined }, { limit: page * PAGE_SIZE });
+  return { items, total, page, hasMore: items.length < total };
 }
 
 export async function getOffer(slug: string): Promise<Offer | undefined> {
-  return (await getAllOffers()).find((o) => o.slug === slug);
+  return offerFor(await getLocale(), slug);
 }
 
 export async function getSimilarOffers(offer: Offer, limit = 4): Promise<OfferSummary[]> {
-  const all = (await getAllOffers()).filter((o) => !o.isExpired && o.slug !== offer.slug);
-  const sameCategory = all.filter((o) => o.categorySlug === offer.categorySlug);
-  const others = all.filter((o) => o.categorySlug !== offer.categorySlug);
-  return [...sameCategory, ...others].slice(0, limit).map(toSummary);
+  return similarOffersFor(await getLocale(), { slug: offer.slug, categorySlug: offer.categorySlug }, limit);
 }
 
 /** Offers ending soonest; shown as "today's offers" on the home page. */
@@ -96,17 +83,13 @@ export async function getLatestOffers(limit = 6): Promise<OfferSummary[]> {
 }
 
 export async function getBusinessOffers(businessSlug: string) {
-  const list = (await getAllOffers()).filter((o) => o.businessSlug === businessSlug);
-  return {
-    active: list.filter((o) => !o.isExpired).map(toSummary),
-    expired: list.filter((o) => o.isExpired).map(toSummary),
-  };
+  return businessOffersFor(await getLocale(), businessSlug);
 }
 
 export async function getOfferSummaries(): Promise<OfferSummary[]> {
-  return (await getAllOffers()).map(toSummary);
+  return allOfferSummariesFor(await getLocale());
 }
 
-export function getOfferSlugs() {
-  return offerRecords.map((o) => o.slug);
+export async function getOfferSlugs() {
+  return (await getSlugs()).offers;
 }

@@ -21,8 +21,8 @@ import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
 import { telHref } from "@/lib/utils";
 import type { Business, OfferSummary } from "@/types";
 
-export function generateStaticParams() {
-  return getBusinessSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  return (await getBusinessSlugs()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/businesses/[slug]">): Promise<Metadata> {

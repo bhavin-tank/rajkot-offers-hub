@@ -7,5 +7,5 @@ import { isCategorySlug } from "@/lib/data";
  */
 export default async function OffersSlugLayout({ children, params }: LayoutProps<"/[lang]/offers/[slug]">) {
   const { slug } = await params;
-  return isCategorySlug(slug) ? <MainShell>{children}</MainShell> : <FocusShell>{children}</FocusShell>;
+  return (await isCategorySlug(slug)) ? <MainShell>{children}</MainShell> : <FocusShell>{children}</FocusShell>;
 }
