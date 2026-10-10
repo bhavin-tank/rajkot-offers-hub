@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #e91e63;
+  --color-primary-soft: rgb(233 30 99 / 0.07);
+  --color-ink: #111827;
+  --color-muted: #6b7280;
+  --color-faint: #9ca3af;
+  --color-line-strong: #d1d5db;
+  --color-input: #e5e7eb;
+  --color-line: #eeeeee;
+  --color-surface: #f6f7f9;
+  --color-surface-2: #fafafb;
+  --color-skeleton: #f0f1f3;
+  --color-canvas: #eef0f3;
+  --color-danger: #dc2626;
+  --color-success: #10b981;
+  --color-success-soft: #ecfdf5;
+  --color-open: #16a34a;
+  --color-warning: #b45309;
+
+  --font-sans: var(--font-inter), var(--font-anek), ui-sans-serif, system-ui, sans-serif;
+  --font-gujarati: var(--font-anek), var(--font-inter), sans-serif;
+
+  --shadow-card: 0 4px 20px rgb(0 0 0 / 0.06);
+  --shadow-float: 0 4px 20px rgb(0 0 0 / 0.12);
+  --shadow-form: 0 2px 12px rgb(0 0 0 / 0.04);
+  --shadow-ring: 0 0 0 3px rgb(233 30 99 / 0.14);
+  --shadow-ring-danger: 0 0 0 3px rgb(220 38 38 / 0.1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  a:hover {
+    color: inherit;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-faint);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility map-stripes {
+  background-color: var(--color-surface);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 12px,
+    rgb(17 24 39 / 0.035) 12px 24px
+  );
+}
