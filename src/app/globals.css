@@ -4,7 +4,7 @@
   --color-primary: #e11654;
   --color-primary-hover: #c8124a;
   --color-primary-soft: rgb(225 22 84 / 0.07);
-  --color-ink: #111827;
+  --color-ink: #041c32;
   --color-muted: #6b7280;
   --color-faint: #9ca3af;
   --color-line-strong: #d1d5db;
@@ -69,6 +69,6 @@
   background-image: repeating-linear-gradient(
     45deg,
     transparent 0 12px,
-    rgb(17 24 39 / 0.035) 12px 24px
+    rgb(4 28 50 / 0.035) 12px 24px
   );
 }
