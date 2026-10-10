@@ -1,0 +1,28 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+/** Digits only, for tel: and wa.me links. */
+export function digits(value: string) {
+  return value.replace(/\D/g, "");
+}
+
+export function telHref(phone: string) {
+  return `tel:+${digits(phone)}`;
+}
+
+export function whatsappHref(phone: string, text?: string) {
+  const query = text ? `?text=${encodeURIComponent(text)}` : "";
+  return `https://wa.me/${digits(phone)}${query}`;
+}
+
+export function directionsHref(lat: number, lng: number) {
+  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+}
+
+export function instagramHref(handle: string) {
+  return `https://instagram.com/${handle.replace(/^@/, "")}`;
+}

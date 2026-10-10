@@ -1,0 +1,88 @@
+import Link from "next/link";
+import { ArrowRight, ChevronRight } from "lucide-react";
+import type { ComponentProps, ReactNode } from "react";
+import { cn } from "@/lib/utils";
+
+/** 1200px content column with 20px gutters. */
+export function Container({ className, ...props }: ComponentProps<"div">) {
+  return <div className={cn("mx-auto w-full max-w-[1240px] px-5", className)} {...props} />;
+}
+
+interface SectionProps extends ComponentProps<"section"> {
+  tone?: "white" | "surface";
+  /** Use the tighter page padding instead of the 80px desktop section padding. */
+  compact?: boolean;
+}
+
+export function Section({ tone = "white", compact, className, children, ...props }: SectionProps) {
+  return (
+    <section
+      className={cn(
+        tone === "surface" ? "bg-surface" : "bg-white",
+        compact ? "py-8 lg:py-12" : "py-8 lg:py-20",
+        className,
+      )}
+      {...props}
+    >
+      <Container>{children}</Container>
+    </section>
+  );
+}
+
+interface SectionHeaderProps {
+  title: ReactNode;
+  href?: string;
+  linkLabel?: string;
+  className?: string;
+  as?: "h1" | "h2";
+}
+
+/** Section title with an optional pink "see all" link. */
+export function SectionHeader({ title, href, linkLabel = "બધી જુઓ", className, as: Tag = "h2" }: SectionHeaderProps) {
+  return (
+    <div className={cn("mb-4 flex items-baseline justify-between gap-4 lg:mb-7", className)}>
+      <Tag className="text-xl leading-[1.3] font-semibold lg:text-[28px]">{title}</Tag>
+      {href && (
+        <Link
+          href={href}
+          className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline lg:text-[15px]"
+        >
+          {linkLabel}
+          <ArrowRight size={16} aria-hidden />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+export function PageTitle({ title, subtitle, className }: { title: string; subtitle?: ReactNode; className?: string }) {
+  return (
+    <div className={className}>
+      <h1 className="text-[28px] leading-[1.25] font-bold lg:text-[40px] lg:leading-[1.2]">{title}</h1>
+      {subtitle && <p className="mt-1.5 text-[15px] text-muted lg:mt-2 lg:text-[17px]">{subtitle}</p>}
+    </div>
+  );
+}
+
+export function Breadcrumb({ items }: { items: { href?: string; label: string }[] }) {
+  return (
+    <nav aria-label="Breadcrumb" className="hidden text-sm text-muted lg:block">
+      <ol className="flex flex-wrap items-center gap-1.5">
+        {items.map((item, i) => (
+          <li key={item.label} className="flex items-center gap-1.5">
+            {i > 0 && <ChevronRight size={14} className="text-line-strong" aria-hidden />}
+            {item.href ? (
+              <Link href={item.href} className="hover:text-ink">
+                {item.label}
+              </Link>
+            ) : (
+              <span aria-current="page" className="text-ink">
+                {item.label}
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
