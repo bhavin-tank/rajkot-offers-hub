@@ -23,7 +23,7 @@ function useNow() {
   return minute === null ? null : new Date(minute * 60_000);
 }
 
-/** "હમણાં ખુલ્લું • રાત્રે 9 સુધી" pill. */
+/** "Open now • until 9 PM" pill. */
 export function OpenStatusPill({ hours, className }: { hours: OpeningHours[]; className?: string }) {
   const now = useNow();
   const status = now ? getOpenStatus(hours, now) : null;
@@ -68,7 +68,7 @@ export function HoursTable({ hours, compact }: { hours: OpeningHours[]; compact?
             <tr key={h.day} className={cn(isToday && "bg-surface font-semibold")}>
               <th scope="row" className="border-b border-line px-4 py-3 text-left font-[inherit] [tr:last-child_&]:border-0">
                 {DAYS[h.day]}
-                {isToday && <span className="sr-only"> (આજે)</span>}
+                {isToday && <span className="sr-only"> (today)</span>}
               </th>
               <td className={cn("border-b border-line px-4 py-3 text-right [tr:last-child_&]:border-0", !isToday && "text-muted")}>
                 {formatHours(h)}

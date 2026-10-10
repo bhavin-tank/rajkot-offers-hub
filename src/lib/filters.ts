@@ -1,30 +1,30 @@
 import type { OfferFilters, OfferType, SortKey, ValidityKey } from "@/types";
 
 export const OFFER_TYPES: { value: OfferType; label: string }[] = [
-  { value: "percent", label: "% ડિસ્કાઉન્ટ" },
-  { value: "flat", label: "ફ્લેટ ડિસ્કાઉન્ટ" },
-  { value: "bogo", label: "1 પર 1 ફ્રી" },
-  { value: "combo", label: "કોમ્બો" },
+  { value: "percent", label: "% discount" },
+  { value: "flat", label: "Flat discount" },
+  { value: "bogo", label: "Buy 1 get 1 free" },
+  { value: "combo", label: "Combo" },
 ];
 
 export const SUBMIT_OFFER_TYPES: { value: OfferType; label: string }[] = [
-  { value: "percent", label: "% ડિસ્કાઉન્ટ" },
-  { value: "flat", label: "ફ્લેટ ડિસ્કાઉન્ટ" },
-  { value: "bogo", label: "1 પર 1 ફ્રી" },
-  { value: "combo", label: "કોમ્બો / પેકેજ" },
-  { value: "other", label: "બીજું" },
+  { value: "percent", label: "% discount" },
+  { value: "flat", label: "Flat discount" },
+  { value: "bogo", label: "Buy 1 get 1 free" },
+  { value: "combo", label: "Combo / package" },
+  { value: "other", label: "Other" },
 ];
 
 export const VALIDITY_OPTIONS: { value: ValidityKey; label: string }[] = [
-  { value: "today", label: "આજે" },
-  { value: "week", label: "આ અઠવાડિયે" },
-  { value: "month", label: "આ મહિને" },
+  { value: "today", label: "Today" },
+  { value: "week", label: "This week" },
+  { value: "month", label: "This month" },
 ];
 
 export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: "newest", label: "નવી ઓફર્સ" },
-  { value: "ending", label: "જલ્દી પૂરી થતી" },
-  { value: "discount", label: "સૌથી વધુ ડિસ્કાઉન્ટ" },
+  { value: "newest", label: "Newest offers" },
+  { value: "ending", label: "Ending soon" },
+  { value: "discount", label: "Highest discount" },
 ];
 
 type RawParams = Record<string, string | string[] | undefined>;

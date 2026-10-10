@@ -48,7 +48,7 @@ export function Sheet({ open, onClose, title, children, footer, className }: She
         </div>
         <div className="flex items-center justify-between px-5 pt-3 pb-4 lg:px-6 lg:pt-5">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <IconButton variant="soft" size="sm" aria-label="બંધ કરો" onClick={onClose}>
+          <IconButton variant="soft" size="sm" aria-label="Close" onClick={onClose}>
             <X size={18} />
           </IconButton>
         </div>

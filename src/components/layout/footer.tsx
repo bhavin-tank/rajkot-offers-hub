@@ -14,7 +14,7 @@ export function Footer({ className }: { className?: string }) {
           <p className="text-sm text-muted">{site.tagline}</p>
         </div>
 
-        <nav aria-label="ફૂટર મેનુ">
+        <nav aria-label="Footer menu">
           <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm lg:gap-8">
             {footerNav.map((item) => (
               <li key={item.href}>

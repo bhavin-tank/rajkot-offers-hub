@@ -8,8 +8,8 @@ import { getCategories, getFilterAreas, getOffers } from "@/lib/data";
 import { parseFilters } from "@/lib/filters";
 
 export const metadata: Metadata = {
-  title: "બધી ઓફર્સ",
-  description: "રાજકોટની બધી ચાલુ ઓફર્સ: વિસ્તાર, કેટેગરી અને ઓફરના પ્રકાર પ્રમાણે શોધો.",
+  title: "All offers",
+  description: "All live offers in Rajkot: search by area, category and offer type.",
 };
 
 export default function OffersPage({ searchParams }: PageProps<"/offers">) {
@@ -31,7 +31,7 @@ async function OffersContent({ searchParams }: Pick<PageProps<"/offers">, "searc
   ]);
 
   const chips = [
-    { label: "બધી", patch: { category: undefined }, selected: !filters.category },
+    { label: "All", patch: { category: undefined }, selected: !filters.category },
     ...categories.map((c) => ({
       label: c.shortName,
       patch: { category: c.slug },
@@ -42,7 +42,7 @@ async function OffersContent({ searchParams }: Pick<PageProps<"/offers">, "searc
   return (
     <>
       <div className="mb-5 flex flex-col gap-6 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
-        <PageTitle title="બધી ઓફર્સ" subtitle={`રાજકોટની ${liveCount} ચાલુ ઓફર્સ`} />
+        <PageTitle title="All offers" subtitle={`${liveCount} live ${liveCount === 1 ? "offer" : "offers"} in Rajkot`} />
         <SearchBar
           variant="pageLarge"
           defaultValue={filters.q}

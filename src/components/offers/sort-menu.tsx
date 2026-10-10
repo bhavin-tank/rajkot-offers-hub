@@ -14,7 +14,7 @@ interface SortMenuProps {
   className?: string;
 }
 
-/** "સૉર્ટ: …" pill that opens a small menu of sort links. */
+/** "Sort: …" pill that opens a small menu of sort links. */
 export function SortMenu({ value, hrefs, className }: SortMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -43,7 +43,7 @@ export function SortMenu({ value, hrefs, className }: SortMenuProps) {
         onClick={() => setOpen((v) => !v)}
         className="inline-flex h-[34px] cursor-pointer items-center gap-1 rounded-full border border-line bg-white px-3 text-[13px] hover:border-input lg:h-[38px] lg:px-4 lg:text-sm"
       >
-        <span className="text-muted">સૉર્ટ:</span>
+        <span className="text-muted">Sort:</span>
         <span className="font-medium">{current.label}</span>
         <ChevronDown size={14} className="text-muted" aria-hidden />
       </button>
@@ -52,7 +52,7 @@ export function SortMenu({ value, hrefs, className }: SortMenuProps) {
           role="menu"
           className="absolute top-full right-0 z-20 mt-2 w-[220px] rounded-2xl border border-line bg-white p-2 shadow-card"
         >
-          <p className="px-3 pt-1 pb-2 text-xs font-semibold tracking-[0.04em] text-muted">સૉર્ટ</p>
+          <p className="px-3 pt-1 pb-2 text-xs font-semibold tracking-[0.04em] text-muted">Sort</p>
           {SORT_OPTIONS.map((option) => {
             const selected = option.value === value;
             return (

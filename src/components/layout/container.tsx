@@ -38,7 +38,7 @@ interface SectionHeaderProps {
 }
 
 /** Section title with an optional pink "see all" link. */
-export function SectionHeader({ title, href, linkLabel = "બધી જુઓ", className, as: Tag = "h2" }: SectionHeaderProps) {
+export function SectionHeader({ title, href, linkLabel = "See all", className, as: Tag = "h2" }: SectionHeaderProps) {
   return (
     <div className={cn("mb-4 flex items-baseline justify-between gap-4 lg:mb-7", className)}>
       <Tag className="text-xl leading-[1.3] font-semibold lg:text-[28px]">{title}</Tag>

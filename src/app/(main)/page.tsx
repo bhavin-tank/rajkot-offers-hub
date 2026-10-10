@@ -27,12 +27,12 @@ export default async function HomePage() {
       <section className="bg-white pt-6 pb-8 lg:py-20">
         <Container className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-16">
           <div className="lg:max-w-[520px]">
-            <Eyebrow className="lg:text-[15px]">રાજકોટ માટે</Eyebrow>
+            <Eyebrow className="lg:text-[15px]">For Rajkot</Eyebrow>
             <h1 className="mt-2 text-[34px] leading-[1.25] font-bold tracking-[-0.01em] lg:mt-3 lg:text-[56px] lg:leading-[1.15] lg:tracking-[-0.015em]">
-              આજે શું ઓફર્સ છે?
+              What’s on offer today?
             </h1>
             <p className="mt-3 text-base leading-[1.55] text-muted lg:mt-4 lg:text-lg lg:leading-relaxed">
-              રાજકોટની દુકાનો, કેફે અને સલૂનની તાજી ઓફર્સ એક જ જગ્યાએ.
+              Fresh offers from Rajkot’s shops, cafés and salons, all in one place.
             </p>
             <SearchBar variant="hero" className="mt-6 lg:mt-8" />
           </div>
@@ -47,21 +47,21 @@ export default async function HomePage() {
       </section>
 
       <Section className="pt-0 lg:pt-0">
-        <SectionHeader title="કેટેગરી" href="/categories" />
+        <SectionHeader title="Category" href="/categories" />
         <CategoryIconRow categories={categories.filter((c) => c.inHomeRow)} />
       </Section>
 
       <Section tone="surface">
-        <SectionHeader title="આજની ઓફર્સ" href="/offers?sort=ending" />
+        <SectionHeader title="Today's offers" href="/offers?sort=ending" />
         <OfferCarousel offers={today} />
       </Section>
 
       <Section>
-        <SectionHeader title="નવી ઓફર્સ" />
+        <SectionHeader title="New offers" />
         <OfferGrid offers={latest} />
         <div className="mt-6 flex justify-center lg:mt-10">
           <ButtonLink href="/offers" variant="outline" className="w-full lg:w-auto lg:px-7">
-            બધી ઓફર્સ જુઓ
+            See all offers
           </ButtonLink>
         </div>
       </Section>

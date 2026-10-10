@@ -9,7 +9,7 @@ import { Container } from "./container";
 import { Logo } from "./logo";
 import { HeaderNav } from "./nav-links";
 
-/** "રાજકોટ" city pill. Only Rajkot is served, so it links to the area list. */
+/** "Rajkot" city pill. Only Rajkot is served, so it links to the area list. */
 export function LocationPill({ className, showChevron }: { className?: string; showChevron?: boolean }) {
   return (
     <Link
@@ -35,11 +35,11 @@ export function DesktopHeader({ className }: { className?: string }) {
         <HeaderNav />
         <div className="flex items-center justify-end gap-3">
           <LocationPill />
-          <IconLink href="/saved" variant="plain" size="lg" aria-label="સેવ કરેલ ઓફર્સ">
+          <IconLink href="/saved" variant="plain" size="lg" aria-label="Saved offers">
             <Heart size={20} aria-hidden />
           </IconLink>
           <ButtonLink href="/submit-offer" size="sm">
-            ઓફર સબમિટ કરો
+            Submit an offer
           </ButtonLink>
         </div>
       </Container>
@@ -54,7 +54,7 @@ export function MobileHeader() {
       <div className="flex h-14 items-center justify-between px-5">
         <Logo priority />
         <div className="flex items-center gap-2">
-          <IconLink href="/offers" variant="plain" size="md" aria-label="શોધો">
+          <IconLink href="/offers" variant="plain" size="md" aria-label="Search">
             <Search size={20} aria-hidden />
           </IconLink>
           <LocationPill showChevron />
@@ -77,7 +77,7 @@ export function MobileTopBar({
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white lg:hidden">
       <div className="grid h-14 grid-cols-[40px_1fr_40px] items-center px-2">
-        <IconLink href={backHref} variant="plain" size="lg" aria-label="પાછળ જાઓ">
+        <IconLink href={backHref} variant="plain" size="lg" aria-label="Go back">
           <ArrowLeft size={22} aria-hidden />
         </IconLink>
         <h1 className="truncate text-center text-base font-semibold">{title}</h1>

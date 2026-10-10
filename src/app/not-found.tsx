@@ -11,16 +11,16 @@ export default function NotFound() {
         <p aria-hidden className="text-[72px] leading-none font-bold tracking-[-0.03em] text-input lg:text-[120px]">
           404
         </p>
-        <h1 className="mt-4 text-2xl font-semibold lg:text-4xl">આ પેજ મળ્યું નથી</h1>
+        <h1 className="mt-4 text-2xl font-semibold lg:text-4xl">Page not found</h1>
         <p className="mt-3 max-w-[520px] text-[15px] leading-relaxed text-muted lg:text-[17px]">
-          લિંક બદલાઈ ગઈ હોય અથવા પેજ હવે ઉપલબ્ધ ન હોય એવું બની શકે.
+          The link may have changed, or the page may no longer be available.
         </p>
         <div className="mt-8 flex w-full flex-col gap-3 lg:w-auto lg:flex-row">
           <ButtonLink href="/" className="lg:px-7">
-            હોમ પર જાઓ
+            Go to home
           </ButtonLink>
           <ButtonLink href="/offers" variant="outline" className="lg:px-7">
-            ઓફર્સ જુઓ
+            Browse offers
           </ButtonLink>
         </div>
       </main>

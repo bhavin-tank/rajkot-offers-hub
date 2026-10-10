@@ -11,9 +11,9 @@ export type CategoryIcon =
 
 export interface Category {
   slug: string;
-  /** Full name, e.g. "ફેશન અને કપડાં". */
+  /** Full name, e.g. "Fashion & Clothing". */
   name: string;
-  /** Short label for chips and the home icon row, e.g. "ફેશન". */
+  /** Short label for chips and the home icon row, e.g. "Fashion". */
   shortName: string;
   icon: CategoryIcon;
   image: string;
@@ -32,8 +32,6 @@ export interface CategoryWithCount extends Category {
 export interface Area {
   slug: string;
   name: string;
-  /** Gujarati name used in forms. */
-  nameGu: string;
 }
 
 export type OfferType = "percent" | "flat" | "bogo" | "combo" | "other";

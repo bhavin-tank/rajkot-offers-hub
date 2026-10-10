@@ -12,7 +12,7 @@ interface ReviewCardProps {
 
 /** Summary of steps 1 and 2 before the final submit. */
 export function ReviewCard({ values, categories, areas, onEdit }: ReviewCardProps) {
-  const area = areas.find((a) => a.slug === values.area)?.nameGu;
+  const area = areas.find((a) => a.slug === values.area)?.name;
   const category = categories.find((c) => c.slug === values.category)?.shortName;
   const type = SUBMIT_OFFER_TYPES.find((t) => t.value === values.type)?.label;
   const dates =
@@ -20,29 +20,29 @@ export function ReviewCard({ values, categories, areas, onEdit }: ReviewCardProp
 
   const sections = [
     {
-      title: "બિઝનેસની માહિતી",
+      title: "Business details",
       step: 0,
       rows: [
-        ["બિઝનેસ", values.businessName],
-        ["કેટેગરી", category],
-        ["વિસ્તાર", area],
-        ["મોબાઇલ", values.mobile && `+91 ${values.mobile}${values.whatsapp ? " · WhatsApp" : ""}`],
+        ["Business", values.businessName],
+        ["Category", category],
+        ["Area", area],
+        ["Mobile", values.mobile && `+91 ${values.mobile}${values.whatsapp ? " · WhatsApp" : ""}`],
       ],
     },
     {
-      title: "ઓફરની વિગતો",
+      title: "Offer details",
       step: 1,
       rows: [
-        ["શીર્ષક", values.title],
-        ["પ્રકાર", type],
-        ["તારીખ", dates],
+        ["Title", values.title],
+        ["Type", type],
+        ["Dates", dates],
       ],
     },
   ];
 
   return (
     <section className="rounded-2xl border border-line p-4 lg:p-5">
-      <h3 className="mb-3 text-[13px] font-semibold text-muted">સમીક્ષા</h3>
+      <h3 className="mb-3 text-[13px] font-semibold text-muted">Review</h3>
       <div className="flex flex-col divide-y divide-line">
         {sections.map((section) => (
           <div key={section.title} className="py-3 first:pt-0 last:pb-0">
@@ -53,7 +53,7 @@ export function ReviewCard({ values, categories, areas, onEdit }: ReviewCardProp
                 onClick={() => onEdit(section.step)}
                 className="cursor-pointer text-[13px] font-semibold text-primary hover:underline"
               >
-                ફેરફાર કરો
+                Edit
               </button>
             </div>
             <dl className="grid grid-cols-[96px_1fr] gap-x-3 gap-y-1.5 text-[13px]">

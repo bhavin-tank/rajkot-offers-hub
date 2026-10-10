@@ -22,13 +22,13 @@ export function BusinessRow({
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-[15px] font-semibold">{name}</p>
-        <p className="truncate text-[13px] text-muted">{area}, રાજકોટ</p>
+        <p className="truncate text-[13px] text-muted">{area}, Rajkot</p>
       </div>
       <Link
         href={`/businesses/${slug}`}
         className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline"
       >
-        દુકાન જુઓ
+        View store
         <ArrowRight size={15} aria-hidden />
       </Link>
     </div>
@@ -39,7 +39,7 @@ export function BusinessRow({
 export function HowToGetSteps({ steps }: { steps: OfferStep[] }) {
   return (
     <section className="rounded-2xl bg-surface p-5 lg:p-6">
-      <h2 className="mb-4 text-base font-semibold lg:text-lg">ઓફર કેવી રીતે મેળવવી</h2>
+      <h2 className="mb-4 text-base font-semibold lg:text-lg">How to get this offer</h2>
       <ol className="flex flex-col gap-3 lg:grid lg:grid-cols-3 lg:gap-4">
         {steps.map((step, i) => (
           <li key={step.text} className="flex items-center gap-3 text-[15px]">
@@ -56,7 +56,7 @@ export function HowToGetSteps({ steps }: { steps: OfferStep[] }) {
 
 export function TermsAccordion({ terms }: { terms: string[] }) {
   return (
-    <AccordionItem variant="card" title="શરતો અને નિયમો" defaultOpen>
+    <AccordionItem variant="card" title="Terms and conditions" defaultOpen>
       <ul className="flex flex-col gap-2.5">
         {terms.map((term) => (
           <li key={term} className="flex gap-2.5 text-[13px] leading-relaxed text-muted lg:text-sm">
@@ -83,7 +83,7 @@ export function MapCard({
 }) {
   return (
     <section
-      aria-label="નકશો"
+      aria-label="Map"
       className={cn(
         "overflow-hidden rounded-2xl border border-line",
         layout === "split" && "lg:grid lg:grid-cols-2",
@@ -96,7 +96,7 @@ export function MapCard({
         </span>
       </div>
       <div className="flex flex-col items-start gap-3 p-4 lg:p-5">
-        {layout === "split" && <p className="text-xs text-muted">સરનામું</p>}
+        {layout === "split" && <p className="text-xs text-muted">Address</p>}
         <p className="text-sm leading-relaxed">{address}</p>
         <ButtonAnchor
           href={directionsHref(geo.lat, geo.lng)}
@@ -106,7 +106,7 @@ export function MapCard({
           className="h-[38px] px-4 text-sm"
         >
           <Navigation size={16} aria-hidden />
-          દિશા મેળવો
+          Get directions
         </ButtonAnchor>
       </div>
     </section>

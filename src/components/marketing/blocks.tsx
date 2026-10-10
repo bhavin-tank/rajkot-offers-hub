@@ -15,13 +15,13 @@ export function BusinessCta({ image }: { image: string }) {
       </div>
       <div className="flex flex-col items-start gap-3 p-5 lg:justify-center lg:gap-4 lg:px-14 lg:py-16">
         <h2 className="text-[22px] leading-[1.3] font-semibold lg:text-4xl lg:leading-tight">
-          તમારી ઓફર રાજકોટ સુધી પહોંચાડો
+          Take your offer to Rajkot
         </h2>
         <p className="text-[15px] leading-relaxed text-muted lg:text-lg">
-          તમારી દુકાનની ઓફર મફતમાં લિસ્ટ કરો અને સ્થાનિક ગ્રાહકો સુધી પહોંચો.
+          List your shop’s offer for free and reach local customers.
         </p>
         <ButtonLink href="/submit-offer" className="mt-2 w-full lg:w-auto lg:px-7">
-          ઓફર સબમિટ કરો
+          Submit an offer
         </ButtonLink>
       </div>
     </div>
@@ -70,7 +70,7 @@ export function FollowBand({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between", className)}>
       <div>
-        <p className="text-lg font-semibold lg:text-2xl">દરરોજની ઓફર્સ માટે Instagram પર ફોલો કરો</p>
+        <p className="text-lg font-semibold lg:text-2xl">Follow us on Instagram for daily offers</p>
         <p className="mt-1 text-[15px] text-muted lg:text-base">{site.instagram}</p>
       </div>
       <ButtonAnchor
@@ -81,7 +81,7 @@ export function FollowBand({ className }: { className?: string }) {
         className="h-11 self-start lg:h-12 lg:self-auto"
       >
         <InstagramIcon size={18} />
-        ફોલો કરો
+        Follow
       </ButtonAnchor>
     </div>
   );

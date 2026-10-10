@@ -44,12 +44,12 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
   if (!business) notFound();
 
   const expired = offer.isExpired;
-  const validity = `${formatRange(offer.validFrom, offer.validTo)}${expired ? " · પૂરી થઈ" : ""}`;
+  const validity = `${formatRange(offer.validFrom, offer.validTo)}${expired ? " · Expired" : ""}`;
   const path = `/offers/${offer.slug}`;
 
   const badge = (
     <Badge variant={expired ? "expired" : "offer"} size="md">
-      {expired ? "પૂરી થઈ" : offer.badge}
+      {expired ? "Expired" : offer.badge}
     </Badge>
   );
 
@@ -71,7 +71,7 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
     <>
       {expired && (
         <div role="status" className="bg-surface px-5 py-3 text-center text-sm font-medium text-muted">
-          આ ઓફર પૂરી થઈ ગઈ છે
+          This offer has ended
         </div>
       )}
 
@@ -79,8 +79,8 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
         <div className="hidden lg:mb-6 lg:block">
           <Breadcrumb
             items={[
-              { href: "/", label: "હોમ" },
-              { href: "/offers", label: "ઓફર્સ" },
+              { href: "/", label: "Home" },
+              { href: "/offers", label: "Offers" },
               ...(category ? [{ href: `/categories/${category.slug}`, label: category.shortName }] : []),
             ]}
           />
@@ -95,7 +95,7 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
               badge={badge}
               overlay={
                 <div className="absolute inset-x-4 top-4 flex justify-between lg:hidden">
-                  <IconLink href="/offers" variant="floating" size="lg" aria-label="પાછળ જાઓ">
+                  <IconLink href="/offers" variant="floating" size="lg" aria-label="Go back">
                     <ArrowLeft size={20} aria-hidden />
                   </IconLink>
                   <div className="flex gap-2">
@@ -113,16 +113,16 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
               </div>
 
               <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5">
-                <DetailRow icon={Tag} label="ઓફર">
+                <DetailRow icon={Tag} label="Offer">
                   {offer.offerText}
                 </DetailRow>
-                <DetailRow icon={CalendarDays} label="માન્યતા">
+                <DetailRow icon={CalendarDays} label="Validity">
                   {validity}
                 </DetailRow>
-                <DetailRow icon={Clock} label="સમય">
+                <DetailRow icon={Clock} label="Timings">
                   {offer.timings}
                 </DetailRow>
-                <DetailRow icon={MapPin} label="સરનામું">
+                <DetailRow icon={MapPin} label="Address">
                   {offer.address}
                 </DetailRow>
               </div>
@@ -131,7 +131,7 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
               <TermsAccordion terms={offer.terms} />
               <MapCard address={offer.address} geo={business.geo} layout="split" />
               <p className="text-xs leading-relaxed text-faint">
-                ઓફરની વિગતો બિઝનેસ દ્વારા આપવામાં આવી છે. ખરીદી પહેલાં દુકાન પર ખાતરી કરો.
+                Offer details are provided by the business. Please confirm with the store before you buy.
               </p>
             </div>
           </div>
@@ -151,12 +151,12 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
             </div>
             {expired ? (
               <Button disabled block>
-                ઓફર પૂરી થઈ
+                Offer expired
               </Button>
             ) : (
               <ButtonAnchor href={telHref(business.phone)} block>
                 <Phone size={18} aria-hidden />
-                કૉલ કરો · {business.phone}
+                Call · {business.phone}
               </ButtonAnchor>
             )}
             <div className="grid grid-cols-2 gap-2.5">
@@ -177,7 +177,7 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
                 rel="noreferrer"
                 variant="outline"
               >
-                દિશા
+                Directions
               </ButtonAnchor>
             </div>
             <div className="flex justify-center gap-4">
@@ -191,7 +191,7 @@ async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "param
       {similar.length > 0 && (
         <section className="bg-surface py-8 lg:py-20">
           <Container>
-            <SectionHeader title="આવી બીજી ઓફર્સ" />
+            <SectionHeader title="Similar offers" />
             <OfferCarousel offers={similar} />
           </Container>
         </section>

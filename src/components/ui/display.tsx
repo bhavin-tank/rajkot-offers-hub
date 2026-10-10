@@ -74,7 +74,7 @@ export function Stepper({ title, step, total, labels }: StepperProps) {
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-base font-semibold lg:text-xl">{title}</h2>
         <span className="text-[13px] whitespace-nowrap text-muted lg:text-sm">
-          પગલું {step} / {total}
+          Step {step} of {total}
         </span>
       </div>
       <div

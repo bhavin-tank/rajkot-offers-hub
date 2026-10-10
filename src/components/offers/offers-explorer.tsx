@@ -12,6 +12,7 @@ import {
   countPanelFilters,
   filtersToQuery,
 } from "@/lib/filters";
+import { formatOfferCount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { FilterForm } from "./filter-form";
 import { FilterSheet } from "./filter-sheet";
@@ -47,8 +48,8 @@ export function OffersExplorer({
   areas,
   chips,
   layout,
-  emptyTitle = "કોઈ ઓફર મળી નથી",
-  emptyHint = "ફિલ્ટર બદલીને ફરી પ્રયાસ કરો",
+  emptyTitle = "No offers found",
+  emptyHint = "Change the filters and try again",
   emptyAction,
 }: OffersExplorerProps) {
   const href = (patch: Partial<OfferFilters> = {}) => `${basePath}${filtersToQuery(filters, patch)}`;
@@ -105,7 +106,7 @@ export function OffersExplorer({
     </div>
   );
 
-  const countLabel = <p className="text-sm font-medium lg:text-[15px]">{result.total} ઓફર્સ</p>;
+  const countLabel = <p className="text-sm font-medium lg:text-[15px]">{formatOfferCount(result.total)}</p>;
 
   const results = (
     <>
@@ -117,7 +118,7 @@ export function OffersExplorer({
             </RemovableChip>
           ))}
           <ButtonLink href={basePath} scroll={false} variant="ghost" size="sm" className="h-[34px] px-2 text-[13px]">
-            બધું હટાવો
+            Clear all
           </ButtonLink>
         </div>
       )}
@@ -132,7 +133,7 @@ export function OffersExplorer({
                 variant="outline"
                 className="w-full lg:w-auto lg:px-7"
               >
-                વધુ ઓફર્સ જુઓ
+                Show more offers
               </ButtonLink>
             </div>
           )}
@@ -148,7 +149,7 @@ export function OffersExplorer({
               variant="outline"
               className="h-11"
             >
-              {emptyAction?.label ?? "ફિલ્ટર રીસેટ કરો"}
+              {emptyAction?.label ?? "Reset filters"}
             </ButtonLink>
           }
         />
@@ -181,9 +182,9 @@ export function OffersExplorer({
     <div className="lg:grid lg:grid-cols-[260px_1fr] lg:items-start lg:gap-12">
       <aside className="sticky top-6 hidden rounded-2xl border border-line p-6 lg:block">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">ફિલ્ટર</h2>
+          <h2 className="text-lg font-semibold">Filter</h2>
           <Link href={basePath} scroll={false} className="text-[13px] font-medium text-muted hover:text-ink">
-            બધું રીસેટ કરો
+            Reset all
           </Link>
         </div>
         {filterForm("sidebar")}

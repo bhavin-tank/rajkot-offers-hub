@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { buttonClass } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export const SEARCH_PLACEHOLDER = "દુકાન, ઓફર અથવા કેટેગરી શોધો";
+export const SEARCH_PLACEHOLDER = "Search for a shop, offer or category";
 
 const variants = {
   /** Home hero: tall, shadowed, with a "search" button on desktop. */
@@ -47,7 +47,7 @@ export function SearchBar({ variant = "page", defaultValue, hidden, className }:
       />
       {variant === "hero" && (
         <button type="submit" className={buttonClass({ size: "sm", className: "hidden h-11 px-6 lg:inline-flex" })}>
-          શોધો
+          Search
         </button>
       )}
     </Form>

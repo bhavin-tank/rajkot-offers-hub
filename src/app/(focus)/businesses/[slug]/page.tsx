@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps<"/businesses/[slug]
   if (!business) return {};
   return {
     title: business.name,
-    description: `${business.categoryName} • ${business.areaName}, રાજકોટ. ${business.about}`,
+    description: `${business.categoryName} • ${business.areaName}, Rajkot. ${business.about}`,
   };
 }
 
@@ -44,10 +44,10 @@ function Avatar({ className }: { className?: string }) {
 function InfoRows({ business }: { business: Business }) {
   return (
     <div className="flex flex-col gap-4">
-      <DetailRow icon={MapPin} label="સરનામું">
+      <DetailRow icon={MapPin} label="Address">
         {business.address}
       </DetailRow>
-      <DetailRow icon={Phone} label="ફોન">
+      <DetailRow icon={Phone} label="Phone">
         <a href={telHref(business.phone)} className="hover:text-primary">
           {business.phone}
         </a>
@@ -58,7 +58,7 @@ function InfoRows({ business }: { business: Business }) {
         </DetailRow>
       )}
       {business.website && (
-        <DetailRow icon={Globe} label="વેબસાઇટ">
+        <DetailRow icon={Globe} label="Website">
           {business.website}
         </DetailRow>
       )}
@@ -69,9 +69,9 @@ function InfoRows({ business }: { business: Business }) {
 function SubmitOfferLink() {
   return (
     <p className="text-sm text-muted">
-      આ તમારો બિઝનેસ છે?{" "}
+      Is this your business?{" "}
       <Link href="/submit-offer" className="inline-flex items-center gap-1 font-semibold text-primary hover:underline">
-        ઓફર સબમિટ કરો
+        Submit an offer
         <ArrowRight size={14} aria-hidden />
       </Link>
     </p>
@@ -91,18 +91,18 @@ function OffersTab({ active, expired }: { active: OfferSummary[]; expired: Offer
         <EmptyState
           icon={Tag}
           size="md"
-          title="હાલમાં કોઈ ચાલુ ઓફર નથી"
-          hint="નવી ઓફર આવે ત્યારે અહીં દેખાશે."
+          title="No live offers right now"
+          hint="New offers will appear here."
           action={
             <ButtonLink href="/offers" variant="outline" className="h-11">
-              બીજી ઓફર્સ જુઓ
+              Browse other offers
             </ButtonLink>
           }
         />
       )}
       {expired.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xs font-semibold tracking-[0.04em] text-muted">પૂરી થયેલી ઓફર્સ</h2>
+          <h2 className="mb-4 text-xs font-semibold tracking-[0.04em] text-muted">Past offers</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
             {expired.map((offer) => (
               <OfferCard key={offer.slug} offer={offer} sizes="(min-width: 1024px) 400px, 100vw" />
@@ -119,19 +119,19 @@ function InfoTab({ business }: { business: Business }) {
   return (
     <div className="flex flex-col gap-7 pt-5 lg:pt-8">
       <section>
-        <h2 className="mb-2 text-lg font-semibold lg:text-[22px]">અમારા વિશે</h2>
+        <h2 className="mb-2 text-lg font-semibold lg:text-[22px]">About us</h2>
         <p className="max-w-[640px] text-[15px] leading-relaxed text-muted lg:text-base">{business.about}</p>
       </section>
       <div className="lg:hidden">
         <InfoRows business={business} />
       </div>
       <section className="lg:hidden">
-        <h2 className="mb-3 text-lg font-semibold">સમય</h2>
+        <h2 className="mb-3 text-lg font-semibold">Hours</h2>
         <HoursTable hours={business.hours} />
       </section>
       <MapCard address={business.address} geo={business.geo} layout="split" />
       <section>
-        <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">ફોટા</h2>
+        <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">Photos</h2>
         <ul className="grid grid-cols-3 gap-2 lg:gap-4">
           {business.photos.map((src) => (
             <li key={src} className="relative aspect-square overflow-hidden rounded-xl bg-surface lg:aspect-[4/3]">
@@ -152,7 +152,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/businesses/[slug]">,
   if (!business) notFound();
   const { active, expired } = await getBusinessOffers(business.slug);
   const path = `/businesses/${business.slug}`;
-  const subtitle = `${business.categoryName} • ${business.areaName}, રાજકોટ`;
+  const subtitle = `${business.categoryName} • ${business.areaName}, Rajkot`;
 
   return (
     <>
@@ -160,7 +160,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/businesses/[slug]">,
         <div className="relative aspect-video overflow-hidden bg-surface lg:aspect-auto lg:h-80 lg:rounded-2xl">
           <Image src={business.cover} alt="" fill priority sizes="(min-width: 1240px) 1200px, 100vw" className="object-cover" />
           <div className="absolute inset-x-4 top-4 flex justify-between lg:inset-x-auto lg:top-auto lg:right-5 lg:bottom-5">
-            <IconLink href="/offers" variant="floating" size="lg" aria-label="પાછળ જાઓ" className="lg:hidden">
+            <IconLink href="/offers" variant="floating" size="lg" aria-label="Go back" className="lg:hidden">
               <ArrowLeft size={20} aria-hidden />
             </IconLink>
             <div className="lg:hidden">
@@ -195,7 +195,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/businesses/[slug]">,
           <OpenStatusPill hours={business.hours} className="self-start" />
           <ButtonAnchor href={telHref(business.phone)} block>
             <Phone size={18} aria-hidden />
-            કૉલ કરો · {business.phone}
+            Call · {business.phone}
           </ButtonAnchor>
           <ActionTiles contact={business} />
           <Divider />
@@ -210,10 +210,10 @@ async function BusinessContent({ params }: Pick<PageProps<"/businesses/[slug]">,
           items={[
             {
               value: "offers",
-              label: `ઓફર્સ (${active.length})`,
+              label: `Offers (${active.length})`,
               content: <OffersTab active={active} expired={expired} />,
             },
-            { value: "info", label: "માહિતી", content: <InfoTab business={business} /> },
+            { value: "info", label: "Info", content: <InfoTab business={business} /> },
           ]}
         />
       </Container>

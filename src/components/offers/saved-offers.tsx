@@ -39,9 +39,9 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
     return (
       <EmptyState
         icon={Heart}
-        title="હજુ કોઈ ઓફર સેવ નથી કરી"
-        hint="ગમતી ઓફર પર ♡ દબાવો અને અહીં જુઓ."
-        action={<ButtonLink href="/offers">ઓફર્સ જુઓ</ButtonLink>}
+        title="No saved offers yet"
+        hint="Tap ♡ on an offer you like to see it here."
+        action={<ButtonLink href="/offers">Browse offers</ButtonLink>}
       />
     );
   }
@@ -49,7 +49,7 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
   function onRemove(slug: string) {
     const index = saved.indexOf(slug);
     remove(slug);
-    toast("ઓફર દૂર કરી", { actionLabel: "પાછું લાવો", onAction: () => restore(slug, index) });
+    toast("Offer removed", { actionLabel: "Undo", onAction: () => restore(slug, index) });
   }
 
   return (
@@ -57,7 +57,7 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
       items={[
         {
           value: "active",
-          label: `ચાલુ (${active.length})`,
+          label: `Live (${active.length})`,
           content: (
             <div className="pt-5 lg:pt-8">
               {active.length ? (
@@ -78,14 +78,14 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
                   ))}
                 </Grid>
               ) : (
-                <p className="py-10 text-center text-[15px] text-muted">કોઈ ચાલુ ઓફર સેવ નથી.</p>
+                <p className="py-10 text-center text-[15px] text-muted">No live offers saved.</p>
               )}
             </div>
           ),
         },
         {
           value: "expired",
-          label: `પૂરી થયેલી (${expired.length})`,
+          label: `Expired (${expired.length})`,
           content: (
             <div className="pt-5 lg:pt-8">
               {expired.length ? (
@@ -96,14 +96,14 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
                       offer={offer}
                       footer={
                         <Button variant="outline" size="sm" block onClick={() => onRemove(offer.slug)}>
-                          દૂર કરો
+                          Remove
                         </Button>
                       }
                     />
                   ))}
                 </Grid>
               ) : (
-                <p className="py-10 text-center text-[15px] text-muted">કોઈ પૂરી થયેલી ઓફર નથી.</p>
+                <p className="py-10 text-center text-[15px] text-muted">No expired offers saved.</p>
               )}
             </div>
           ),

@@ -40,7 +40,7 @@ src/
     actions/       server actions
     validation/    form rules shared by client and server
     filters.ts     offer filter options and URL query helpers
-    format.ts      Gujarati dates, times and opening status
+    format.ts      Dates, times and opening status
   types/           domain types
 ```
 

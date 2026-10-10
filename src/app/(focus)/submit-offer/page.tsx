@@ -9,24 +9,24 @@ import { getAreas, getCategories } from "@/lib/data";
 import { img } from "@/lib/mock/images";
 
 export const metadata: Metadata = {
-  title: "ઓફર સબમિટ કરો",
-  description: "તમારી દુકાનની ઓફર મફતમાં લિસ્ટ કરો અને રાજકોટના ગ્રાહકો સુધી પહોંચો.",
+  title: "Submit an offer",
+  description: "List your shop's offer for free and reach customers in Rajkot.",
 };
 
 const how = [
-  { icon: PencilLine, text: "ઓફરની વિગતો ભરો" },
-  { icon: ShieldCheck, text: "અમારી ટીમ ચકાસણી કરશે" },
-  { icon: InstagramIcon, text: "મંજૂર થયા પછી ઓફર વેબસાઇટ અને Instagram પર દેખાશે" },
+  { icon: PencilLine, text: "Fill in the offer details" },
+  { icon: ShieldCheck, text: "Our team will verify it" },
+  { icon: InstagramIcon, text: "Once approved, the offer appears on the website and Instagram" },
 ];
 
 function Intro({ large }: { large?: boolean }) {
   return (
     <div>
       <h1 className={large ? "text-4xl leading-tight font-bold" : "text-2xl leading-[1.3] font-bold"}>
-        તમારી ઓફર રાજકોટ સુધી પહોંચાડો
+        Take your offer to Rajkot
       </h1>
       <p className={large ? "mt-3 max-w-[440px] text-base text-muted" : "mt-2 text-sm text-muted"}>
-        તમારી દુકાનની ઓફર મોકલો. અમારી ટીમ વિગતો ચકાસીને પ્રકાશિત કરશે.
+        Send us your shop’s offer. Our team will verify the details and publish it.
       </p>
     </div>
   );
@@ -47,7 +47,7 @@ function HowSteps({ large }: { large?: boolean }) {
             <Icon size={18} aria-hidden />
           </span>
           <span>
-            {large && <span className="block text-xs text-faint">પગલું {i + 1}</span>}
+            {large && <span className="block text-xs text-faint">Step {i + 1}</span>}
             <span className={large ? "text-[15px]" : "text-sm"}>{text}</span>
           </span>
         </li>
@@ -62,7 +62,7 @@ export default async function SubmitOfferPage() {
 
   return (
     <>
-      <MobileTopBar title="ઓફર સબમિટ કરો" backHref="/" />
+      <MobileTopBar title="Submit an offer" backHref="/" />
       <div className="lg:bg-surface">
         <Container className="pt-5 pb-7 lg:grid lg:grid-cols-[2fr_3fr] lg:items-start lg:gap-16 lg:pt-16 lg:pb-20">
           <div className="hidden flex-col gap-8 lg:flex">
@@ -77,7 +77,7 @@ export default async function SubmitOfferPage() {
               />
             </div>
             <div className="flex flex-col gap-4">
-              <h2 className="text-lg font-semibold">આ રીતે કામ કરે છે</h2>
+              <h2 className="text-lg font-semibold">How it works</h2>
               <HowSteps large />
             </div>
           </div>

@@ -20,7 +20,7 @@ export function Field({ id, label, optional, helper, error, className, children 
         <label htmlFor={id} className="text-sm font-medium text-ink">
           {label}
         </label>
-        {optional && <span className="text-xs text-faint">વૈકલ્પિક</span>}
+        {optional && <span className="text-xs text-faint">Optional</span>}
       </div>
       {children}
       {error ? (

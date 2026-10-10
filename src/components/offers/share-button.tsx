@@ -37,9 +37,9 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(url);
-      toast("લિંક કૉપી થઈ ગઈ");
+      toast("Link copied");
     } catch {
-      toast("લિંક કૉપી ન થઈ શકી");
+      toast("Could not copy the link");
     }
     setOpen(false);
   }
@@ -56,7 +56,7 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
   return (
     <>
       {variant === "floating" ? (
-        <IconButton variant="floating" size="lg" aria-label="શેર કરો" onClick={onShare}>
+        <IconButton variant="floating" size="lg" aria-label="Share" onClick={onShare}>
           <Share2 size={20} aria-hidden />
         </IconButton>
       ) : variant === "pill" ? (
@@ -66,16 +66,16 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
           className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-white px-4 text-sm font-medium shadow-card hover:bg-surface"
         >
           <Share2 size={16} aria-hidden />
-          શેર કરો
+          Share
         </button>
       ) : (
         <Button variant="ghost" size="sm" onClick={onShare} className="px-2">
           <Share2 size={18} aria-hidden />
-          શેર કરો
+          Share
         </Button>
       )}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="મિત્રો સાથે શેર કરો">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Share with friends">
         <div className="grid grid-cols-3 gap-3">
           {options.map((option) => (
             <a
@@ -96,7 +96,7 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
             className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl bg-surface py-4 text-xs font-medium hover:bg-canvas"
           >
             <Link2 size={22} aria-hidden />
-            લિંક કૉપી કરો
+            Copy link
           </button>
         </div>
         <p className="mt-4 truncate rounded-xl border border-line px-3.5 py-3 text-[13px] text-muted">

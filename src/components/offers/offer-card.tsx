@@ -45,7 +45,7 @@ export function OfferCard({
           className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
         />
         <Badge variant={expired ? "expired" : "offer"} className="absolute top-3 left-3">
-          {expired ? "પૂરી થઈ ગઈ" : offer.badge}
+          {expired ? "Expired" : offer.badge}
         </Badge>
       </div>
       <div className={cn("flex flex-col gap-1.5 px-4 pt-4 pb-[18px]", expired && "opacity-65")}>

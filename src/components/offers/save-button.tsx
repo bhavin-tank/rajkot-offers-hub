@@ -13,7 +13,7 @@ function useToggleSave(slug: string) {
   const saved = isSaved(slug);
   const onToggle = () => {
     const nowSaved = toggle(slug);
-    toast(nowSaved ? "ઓફર સેવ થઈ ગઈ" : "સેવ કરેલમાંથી દૂર કરી");
+    toast(nowSaved ? "Offer saved" : "Removed from saved");
   };
   return { saved, onToggle };
 }
@@ -35,7 +35,7 @@ export function SaveButton({ slug, size = "md", className }: { slug: string; siz
     <IconButton
       variant="floating"
       size={size}
-      aria-label={saved ? "સેવ કરેલમાંથી દૂર કરો" : "ઓફર સેવ કરો"}
+      aria-label={saved ? "Remove from saved" : "Save offer"}
       aria-pressed={saved}
       onClick={onToggle}
       className={className}
@@ -45,13 +45,13 @@ export function SaveButton({ slug, size = "md", className }: { slug: string; siz
   );
 }
 
-/** Text button "સેવ કરો" used in the desktop info card. */
+/** Text button "Save" used in the desktop info card. */
 export function SaveTextButton({ slug }: { slug: string }) {
   const { saved, onToggle } = useToggleSave(slug);
   return (
     <Button variant="ghost" size="sm" aria-pressed={saved} onClick={onToggle} className="px-2">
       <HeartIcon saved={saved} size={18} />
-      {saved ? "સેવ થયેલ" : "સેવ કરો"}
+      {saved ? "Saved" : "Save"}
     </Button>
   );
 }

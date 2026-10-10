@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import type { Area, CategoryWithCount } from "@/types";
 import { CategoryIcon } from "@/components/icons/category-icon";
 import { AreaChip } from "@/components/ui/chip";
+import { formatOfferCount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export function categoryHref(slug: string) {
@@ -46,7 +47,7 @@ export function CategoryImageGrid({ categories }: { categories: CategoryWithCoun
             </span>
             <span>
               <span className="block text-[15px] leading-snug font-semibold lg:text-[17px]">{c.name}</span>
-              <span className="mt-0.5 block text-[13px] text-muted">{c.offerCount} ઓફર્સ</span>
+              <span className="mt-0.5 block text-[13px] text-muted">{formatOfferCount(c.offerCount)}</span>
             </span>
           </Link>
         </li>

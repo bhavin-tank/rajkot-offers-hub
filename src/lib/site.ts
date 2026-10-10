@@ -1,20 +1,20 @@
 export const site = {
   name: "Rajkot Offers Hub",
-  city: "રાજકોટ",
-  tagline: "રાજકોટની સ્થાનિક ઓફર્સ, એક જ જગ્યાએ.",
+  city: "Rajkot",
+  tagline: "Local offers in Rajkot, all in one place.",
   domain: "rajkotoffers.in",
   url: "https://rajkotoffers.in",
   instagram: "@rajkotoffershub",
   email: "hello@rajkotoffers.in",
   whatsapp: "+91 98XXX XXXXX",
-  location: "રાજકોટ, ગુજરાત",
+  location: "Rajkot, Gujarat",
 } as const;
 
 export const mainNav = [
-  { href: "/", label: "હોમ" },
-  { href: "/offers", label: "ઓફર્સ" },
-  { href: "/categories", label: "કેટેગરી" },
-  { href: "/how-it-works", label: "કેવી રીતે કામ કરે છે" },
+  { href: "/", label: "Home" },
+  { href: "/offers", label: "Offers" },
+  { href: "/categories", label: "Categories" },
+  { href: "/how-it-works", label: "How it works" },
 ] as const;
 
-export const footerNav = [...mainNav, { href: "/contact", label: "સંપર્ક" }] as const;
+export const footerNav = [...mainNav, { href: "/contact", label: "Contact" }] as const;

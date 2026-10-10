@@ -94,11 +94,11 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
     return (
       <SuccessPanel
         icon={CircleCheck}
-        title="તમારી ઓફર મળી ગઈ છે!"
-        text="અમારી ટીમ ચકાસણી પછી તમારો WhatsApp પર સંપર્ક કરશે."
+        title="We have received your offer!"
+        text="Our team will contact you on WhatsApp after verification."
         actions={
           <>
-            <ButtonLink href="/">હોમ પર જાઓ</ButtonLink>
+            <ButtonLink href="/">Go to home</ButtonLink>
             <Button
               variant="outline"
               onClick={() => {
@@ -108,7 +108,7 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
                 setValues({});
               }}
             >
-              બીજી ઓફર ઉમેરો
+              Add another offer
             </Button>
           </>
         }
@@ -141,11 +141,11 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
         {/* Step 1: business */}
         <fieldset hidden={step !== 0} className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
           <legend className="sr-only">{SUBMIT_STEPS[0]}</legend>
-          <Field id="businessName" label="બિઝનેસનું નામ" error={err("businessName")}>
-            <Input {...field("businessName")} autoComplete="organization" placeholder="દા.ત. શ્રી રાધે કલેક્શન" />
+          <Field id="businessName" label="Business name" error={err("businessName")}>
+            <Input {...field("businessName")} autoComplete="organization" placeholder="e.g. Shree Radhe Collection" />
           </Field>
-          <Field id="category" label="કેટેગરી" error={err("category")}>
-            <Select {...field("category")} defaultValue="" placeholder="કેટેગરી પસંદ કરો" onChange={() => clearError("category")}>
+          <Field id="category" label="Category" error={err("category")}>
+            <Select {...field("category")} defaultValue="" placeholder="Select a category" onChange={() => clearError("category")}>
               {categories.map((c) => (
                 <option key={c.slug} value={c.slug}>
                   {c.shortName}
@@ -153,20 +153,20 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
               ))}
             </Select>
           </Field>
-          <Field id="area" label="વિસ્તાર" error={err("area")}>
-            <Select {...field("area")} defaultValue="" placeholder="દા.ત. કાલાવડ રોડ, યુનિવર્સિટી રોડ" onChange={() => clearError("area")}>
+          <Field id="area" label="Area" error={err("area")}>
+            <Select {...field("area")} defaultValue="" placeholder="Select an area" onChange={() => clearError("area")}>
               {areas.map((a) => (
                 <option key={a.slug} value={a.slug}>
-                  {a.nameGu}
+                  {a.name}
                 </option>
               ))}
             </Select>
           </Field>
-          <Field id="address" label="પૂરું સરનામું" error={err("address")} className="lg:col-span-2">
-            <Textarea {...field("address")} autoComplete="street-address" placeholder="દુકાન નંબર, બિલ્ડિંગ, રોડ, લેન્ડમાર્ક" />
+          <Field id="address" label="Full address" error={err("address")} className="lg:col-span-2">
+            <Textarea {...field("address")} autoComplete="street-address" placeholder="Shop number, building, road, landmark" />
           </Field>
-          <Field id="ownerName" label="માલિક / સંપર્ક વ્યક્તિનું નામ" error={err("ownerName")}>
-            <Input {...field("ownerName")} autoComplete="name" placeholder="તમારું નામ" />
+          <Field id="ownerName" label="Owner / contact person name" error={err("ownerName")}>
+            <Input {...field("ownerName")} autoComplete="name" placeholder="Your name" />
           </Field>
           <Field id="instagram" label="Instagram" optional error={err("instagram")}>
             <Input {...field("instagram")} placeholder="@yourshop" />
@@ -174,13 +174,13 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
           <div className="flex flex-col gap-3 lg:col-span-2">
             <Field
               id="mobile"
-              label="મોબાઇલ નંબર"
+              label="Mobile number"
               error={err("mobile")}
-              helper="ચકાસણી માટે અમારી ટીમ આ નંબર પર સંપર્ક કરશે."
+              helper="Our team will use this number to verify your offer."
             >
               <PhoneInput {...field("mobile", "helper")} placeholder="98XXX XXXXX" />
             </Field>
-            <Checkbox name="whatsapp" defaultChecked label="આ નંબર WhatsApp પર છે" />
+            <Checkbox name="whatsapp" defaultChecked label="This number is on WhatsApp" />
           </div>
         </fieldset>
 
@@ -189,15 +189,15 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
           <legend className="sr-only">{SUBMIT_STEPS[1]}</legend>
           <Field
             id="title"
-            label="ઓફરનું શીર્ષક"
+            label="Offer title"
             error={err("title")}
-            helper={'ટૂંકું અને સ્પષ્ટ રાખો. દા.ત. "બધા કુર્તા પર 20% છૂટ"'}
+            helper={'Keep it short and clear, e.g. "20% off on all kurtas"'}
             className="lg:col-span-2"
           >
-            <Input {...field("title", "helper")} maxLength={80} placeholder="બધા કુર્તા પર 20% છૂટ" />
+            <Input {...field("title", "helper")} maxLength={80} placeholder="20% off on all kurtas" />
           </Field>
           <fieldset className="flex flex-col gap-2 lg:col-span-2">
-            <legend className="mb-2 text-sm font-medium">ઓફરનો પ્રકાર</legend>
+            <legend className="mb-2 text-sm font-medium">Offer type</legend>
             <div className="flex flex-wrap gap-2">
               {SUBMIT_OFFER_TYPES.map((type, i) => (
                 <label key={type.value} className="cursor-pointer">
@@ -215,21 +215,21 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
             </div>
             {err("type") && <FieldError>{err("type")}</FieldError>}
           </fieldset>
-          <Field id="description" label="ઓફરની વિગત" error={err("description")} className="lg:col-span-2">
+          <Field id="description" label="Offer description" error={err("description")} className="lg:col-span-2">
             <Textarea
               {...field("description")}
               className="min-h-28"
-              placeholder="ઓફર કઈ વસ્તુઓ પર લાગુ છે? ગ્રાહકે ઓફર મેળવવા શું કરવું?"
+              placeholder="Which items does the offer apply to? What should customers do to get it?"
             />
           </Field>
-          <Field id="terms" label="શરતો અને નિયમો" optional className="lg:col-span-2">
-            <Textarea {...field("terms")} placeholder="દા.ત. ઓછામાં ઓછી ₹999 ની ખરીદી પર, બીજી ઓફર સાથે લાગુ નહીં" />
+          <Field id="terms" label="Terms and conditions" optional className="lg:col-span-2">
+            <Textarea {...field("terms")} placeholder="e.g. On a minimum purchase of ₹999, not valid with other offers" />
           </Field>
           <div className="grid grid-cols-2 gap-3 lg:col-span-2 lg:gap-6">
-            <Field id="startDate" label="શરૂઆતની તારીખ" error={err("startDate")}>
+            <Field id="startDate" label="Start date" error={err("startDate")}>
               <DateInput {...field("startDate")} />
             </Field>
-            <Field id="endDate" label="છેલ્લી તારીખ" error={err("endDate")}>
+            <Field id="endDate" label="End date" error={err("endDate")}>
               <DateInput {...field("endDate")} />
             </Field>
           </div>
@@ -243,7 +243,7 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
           <div className="flex flex-col gap-2">
             <Checkbox
               name="confirm"
-              label="હું પુષ્ટિ કરું છું કે આપેલી ઓફરની વિગતો સાચી છે."
+              label="I confirm that the offer details provided are correct."
               aria-invalid={err("confirm") ? true : undefined}
               onChange={() => clearError("confirm")}
             />
@@ -257,14 +257,14 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
             step === 1 && "grid grid-cols-[1fr_2fr] lg:flex",
           )}
         >
-          <p className="hidden text-[13px] text-muted lg:mr-auto lg:block">લગભગ 2–3 મિનિટ લાગશે</p>
+          <p className="hidden text-[13px] text-muted lg:mr-auto lg:block">Takes about 2–3 minutes</p>
           {step > 0 && (
             <Button variant="outline" onClick={() => goTo(step - 1)} className={cn(step === 2 && "order-2 lg:order-none", "lg:px-7")}>
-              પાછળ
+              Back
             </Button>
           )}
           <Button type="submit" disabled={pending} className="lg:px-7">
-            {step === SUBMIT_STEPS.length - 1 ? (pending ? "મોકલાય છે…" : "ઓફર સબમિટ કરો") : "આગળ"}
+            {step === SUBMIT_STEPS.length - 1 ? (pending ? "Sending…" : "Submit an offer") : "Next"}
             {step < SUBMIT_STEPS.length - 1 && <ArrowRight size={18} strokeWidth={2} aria-hidden />}
           </Button>
         </div>

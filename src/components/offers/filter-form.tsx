@@ -42,7 +42,7 @@ export function FilterForm({ action, filters, areas, keepCategory, variant, idPr
       {filters.subcategory && <input type="hidden" name="sub" value={filters.subcategory} />}
       {filters.sort && <input type="hidden" name="sort" value={filters.sort} />}
 
-      <Group title="વિસ્તાર">
+      <Group title="Area">
         <div className={cn("flex flex-col gap-3", sheet && "grid grid-cols-2")}>
           {areas.map((area) => (
             <FilterCheckbox
@@ -57,9 +57,9 @@ export function FilterForm({ action, filters, areas, keepCategory, variant, idPr
         </div>
       </Group>
 
-      <Group title="ઓફરનો પ્રકાર">
+      <Group title="Offer type">
         <div className="flex flex-wrap gap-2">
-          {[{ value: "", label: "બધા" }, ...OFFER_TYPES].map((type) => (
+          {[{ value: "", label: "All" }, ...OFFER_TYPES].map((type) => (
             <label key={type.value} className="cursor-pointer">
               <input
                 type="radio"
@@ -81,9 +81,9 @@ export function FilterForm({ action, filters, areas, keepCategory, variant, idPr
         </div>
       </Group>
 
-      <Group title="માન્યતા">
+      <Group title="Validity">
         <div className={cn("flex flex-col gap-3", sheet && "flex-row flex-wrap gap-x-6")}>
-          {[{ value: "", label: "કોઈપણ" }, ...VALIDITY_OPTIONS].map((option) => (
+          {[{ value: "", label: "Any" }, ...VALIDITY_OPTIONS].map((option) => (
             <Radio
               key={option.value}
               name="validity"
@@ -98,11 +98,11 @@ export function FilterForm({ action, filters, areas, keepCategory, variant, idPr
       <div className={cn("flex items-center gap-3", sheet && "sticky bottom-0 -mx-5 border-t border-line bg-white px-5 pt-4")}>
         {sheet && (
           <Link href={action} scroll={false} className={buttonClass({ variant: "ghost", className: "px-3" })}>
-            રીસેટ
+            Reset
           </Link>
         )}
         <button type="submit" className={buttonClass({ block: true })}>
-          ઓફર્સ બતાવો
+          Show offers
         </button>
       </div>
     </Form>

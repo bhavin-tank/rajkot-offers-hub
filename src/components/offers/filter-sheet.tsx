@@ -11,7 +11,7 @@ interface FilterSheetProps {
   count: number;
   /** The filter form, rendered on the server. */
   children: ReactNode;
-  /** "square": 46px button next to search. "round": small round button. "pill": desktop "ફિલ્ટર" button. */
+  /** "square": 46px button next to search. "round": small round button. "pill": desktop "Filter" button. */
   trigger?: "square" | "round" | "pill";
   className?: string;
 }
@@ -19,7 +19,7 @@ interface FilterSheetProps {
 /** Button that opens the filter form in a bottom sheet. */
 export function FilterSheet({ count, children, trigger = "square", className }: FilterSheetProps) {
   const [open, setOpen] = useState(false);
-  const label = count ? `ફિલ્ટર (${count})` : "ફિલ્ટર";
+  const label = count ? `Filter (${count})` : "Filter";
 
   return (
     <>
@@ -49,7 +49,7 @@ export function FilterSheet({ count, children, trigger = "square", className }: 
         </IconButton>
       )}
       {/* Submitting or resetting navigates, so close the sheet as well. */}
-      <Sheet open={open} onClose={() => setOpen(false)} title="ફિલ્ટર">
+      <Sheet open={open} onClose={() => setOpen(false)} title="Filter">
         <div
           onSubmit={() => setOpen(false)}
           onClick={(e) => {

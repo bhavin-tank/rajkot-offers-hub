@@ -32,7 +32,7 @@ export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
     if (!files) return;
     const images = [...files].filter((f) => ACCEPT.includes(f.type));
     const room = MAX_PHOTOS - photos.length;
-    setError(images.length > room ? `વધુમાં વધુ ${MAX_PHOTOS} ફોટા ઉમેરી શકાય` : images.length < files.length ? "ફક્ત JPG અથવા PNG ફોટા" : null);
+    setError(images.length > room ? `You can add up to ${MAX_PHOTOS} photos` : images.length < files.length ? "JPG or PNG photos only" : null);
     const next = images.slice(0, Math.max(room, 0)).map((file) => ({
       id: `${file.name}-${file.lastModified}-${Math.random()}`,
       url: URL.createObjectURL(file),
@@ -50,7 +50,7 @@ export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
   return (
     <div className="flex flex-col gap-3">
       <span id={`${id}-label`} className="text-sm font-medium">
-        ફોટા
+        Photos
       </span>
       <label
         onDragOver={(e) => e.preventDefault()}
@@ -61,8 +61,8 @@ export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
         className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-[1.5px] border-dashed border-line-strong bg-surface-2 px-4 py-6 text-center transition-colors hover:border-primary has-[:focus-visible]:border-primary"
       >
         <Upload size={26} className="text-primary" aria-hidden />
-        <span className="text-sm font-medium">ઓફર પોસ્ટર અથવા દુકાનના ફોટા ઉમેરો</span>
-        <span className="text-xs text-muted">વધુમાં વધુ 5 ફોટા · JPG, PNG</span>
+        <span className="text-sm font-medium">Add the offer poster or shop photos</span>
+        <span className="text-xs text-muted">Up to 5 photos · JPG, PNG</span>
         <input
           ref={input}
           type="file"
@@ -80,10 +80,10 @@ export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
             <li key={photo.id} className="relative size-[88px] overflow-hidden rounded-xl bg-surface">
               {/* Local object URL preview; next/image cannot optimise blob: URLs. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.url} alt={`ફોટો ${i + 1}`} className="size-full object-cover" />
+              <img src={photo.url} alt={`Photo ${i + 1}`} className="size-full object-cover" />
               <button
                 type="button"
-                aria-label={`ફોટો ${i + 1} દૂર કરો`}
+                aria-label={`Remove photo ${i + 1}`}
                 onClick={() => remove(photo)}
                 className="absolute top-1.5 right-1.5 flex size-[22px] cursor-pointer items-center justify-center rounded-full bg-ink/80 text-white"
               >

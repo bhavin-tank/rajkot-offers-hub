@@ -24,11 +24,11 @@ export function ContactForm() {
     return (
       <SuccessPanel
         icon={CircleCheck}
-        title="તમારો સંદેશ મળી ગયો છે"
-        text="અમે જલ્દી જવાબ આપીશું."
+        title="We have received your message"
+        text="We will reply soon."
         actions={
           <ButtonLink href="/" variant="outline">
-            હોમ પર જાઓ
+            Go to home
           </ButtonLink>
         }
       />
@@ -64,17 +64,17 @@ export function ContactForm() {
       }}
       className="flex flex-col gap-5"
     >
-      <h2 className="text-xl font-semibold">સંદેશ મોકલો</h2>
+      <h2 className="text-xl font-semibold">Send message</h2>
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <Field id="name" label="નામ" error={errors.name}>
-          <Input {...field("name")} autoComplete="name" placeholder="તમારું નામ" />
+        <Field id="name" label="Name" error={errors.name}>
+          <Input {...field("name")} autoComplete="name" placeholder="Your name" />
         </Field>
-        <Field id="mobile" label="મોબાઇલ નંબર" error={errors.mobile}>
+        <Field id="mobile" label="Mobile number" error={errors.mobile}>
           <PhoneInput {...field("mobile")} placeholder="98XXX XXXXX" />
         </Field>
       </div>
-      <Field id="subject" label="વિષય" error={errors.subject}>
-        <Select {...field("subject")} defaultValue="" placeholder="વિષય પસંદ કરો">
+      <Field id="subject" label="Subject" error={errors.subject}>
+        <Select {...field("subject")} defaultValue="" placeholder="Select a subject">
           {CONTACT_SUBJECTS.map((s) => (
             <option key={s} value={s}>
               {s}
@@ -82,11 +82,11 @@ export function ContactForm() {
           ))}
         </Select>
       </Field>
-      <Field id="message" label="સંદેશ" error={errors.message}>
-        <Textarea {...field("message")} className="min-h-28 lg:min-h-[140px]" placeholder="તમારો સંદેશ લખો" />
+      <Field id="message" label="Message" error={errors.message}>
+        <Textarea {...field("message")} className="min-h-28 lg:min-h-[140px]" placeholder="Write your message" />
       </Field>
       <Button type="submit" disabled={pending} block>
-        {pending ? "મોકલાય છે…" : "સંદેશ મોકલો"}
+        {pending ? "Sending…" : "Send message"}
       </Button>
     </form>
   );

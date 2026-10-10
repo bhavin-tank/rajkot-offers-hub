@@ -80,7 +80,7 @@ export function OfferGallery({ images, alt, expired, badge, overlay }: OfferGall
             <button
               key={src}
               type="button"
-              aria-label={`ફોટો ${i + 1}`}
+              aria-label={`Photo ${i + 1}`}
               aria-current={i === active}
               onClick={() => select(i)}
               className={cn(

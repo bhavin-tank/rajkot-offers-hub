@@ -31,14 +31,14 @@ async function CategoryContent({ params, searchParams }: PageProps<"/categories/
         title={category.name}
         backHref="/categories"
         action={
-          <IconLink href="/offers" variant="plain" size="lg" aria-label="શોધો">
+          <IconLink href="/offers" variant="plain" size="lg" aria-label="Search">
             <Search size={20} aria-hidden />
           </IconLink>
         }
       />
       <Container className="flex flex-col gap-5 pt-4 pb-24 lg:gap-8 lg:pt-8 lg:pb-20">
         <Breadcrumb
-          items={[{ href: "/", label: "હોમ" }, { href: "/categories", label: "કેટેગરી" }, { label: category.name }]}
+          items={[{ href: "/", label: "Home" }, { href: "/categories", label: "Categories" }, { label: category.name }]}
         />
         <CategoryBanner variant="hero" title={category.name} description={category.description} image={category.image} />
         <Suspense fallback={<OffersSkeleton />}>
@@ -65,7 +65,7 @@ async function CategoryOffers({
 
   const chips = subcategories.length
     ? [
-        { label: "બધી", patch: { subcategory: undefined }, selected: !filters.subcategory },
+        { label: "All", patch: { subcategory: undefined }, selected: !filters.subcategory },
         ...subcategories.map((sub) => ({ label: sub, patch: { subcategory: sub }, selected: filters.subcategory === sub })),
       ]
     : [];
@@ -78,9 +78,9 @@ async function CategoryOffers({
       areas={getFilterAreas()}
       chips={chips}
       layout="inline"
-      emptyTitle="આ કેટેગરીમાં હાલ કોઈ ઓફર નથી"
-      emptyHint="નવી ઓફર આવે ત્યારે અહીં દેખાશે."
-      emptyAction={{ href: "/categories", label: "બીજી કેટેગરી જુઓ" }}
+      emptyTitle="No offers in this category right now"
+      emptyHint="New offers will appear here."
+      emptyAction={{ href: "/categories", label: "Browse other categories" }}
     />
   );
 }

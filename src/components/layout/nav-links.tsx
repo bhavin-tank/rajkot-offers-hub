@@ -14,7 +14,7 @@ function isActive(pathname: string, href: string) {
 export function HeaderNav() {
   const pathname = usePathname();
   return (
-    <nav aria-label="મુખ્ય મેનુ">
+    <nav aria-label="Main menu">
       <ul className="flex items-center gap-9 text-[15px] font-medium">
         {mainNav.map((item) => {
           const active = isActive(pathname, item.href);
@@ -36,10 +36,10 @@ export function HeaderNav() {
 }
 
 const bottomNav = [
-  { href: "/", label: "હોમ", icon: House },
-  { href: "/offers", label: "ઓફર્સ", icon: Tag },
-  { href: "/categories", label: "કેટેગરી", icon: LayoutGrid },
-  { href: "/saved", label: "સેવ કરેલ", icon: Bookmark },
+  { href: "/", label: "Home", icon: House },
+  { href: "/offers", label: "Offers", icon: Tag },
+  { href: "/categories", label: "Categories", icon: LayoutGrid },
+  { href: "/saved", label: "Saved", icon: Bookmark },
 ] as const;
 
 /** Mobile tab bar, fixed to the bottom of the screen. */
@@ -47,7 +47,7 @@ export function BottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      aria-label="મુખ્ય મેનુ"
+      aria-label="Main menu"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="grid h-16 grid-cols-4">
