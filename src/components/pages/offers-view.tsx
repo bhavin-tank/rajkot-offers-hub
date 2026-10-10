@@ -9,6 +9,7 @@ import { getArea, getCategories, getCategory, getOffers } from "@/lib/data";
 import { offersPath } from "@/lib/areas";
 import { filtersToQuery, parseFilters } from "@/lib/filters";
 import { getT } from "@/lib/i18n/server";
+import { breadcrumbLd, JsonLd, pageMetadata } from "@/lib/seo";
 import type { Area, Category } from "@/types";
 import { resolveArea } from "./resolve-area";
 
@@ -20,23 +21,43 @@ export async function offersMetadata(areaSlug?: string, categorySlug?: string): 
     areaSlug ? getArea(areaSlug) : undefined,
     categorySlug ? getCategory(categorySlug) : undefined,
   ]);
-  if ((areaSlug && !area) || (categorySlug && !category)) return {};
+  if ((areaSlug && !area) || (categorySlug && !category)) notFound();
+
+  const path = offersPath(area?.slug, category?.slug);
+  // Lists with nothing live are thin pages: keep them out of search until they fill up.
+  const { total } = await getOffers({ areas: area ? [area.slug] : undefined, category: category?.slug });
+  const noindex = total === 0;
 
   if (category) {
-    return {
-      title: area ? `${category.name} · ${area.name}` : category.name,
-      description: category.description,
-    };
+    const name = category.shortName;
+    return pageMetadata({
+      title: area
+        ? t("{category} offers in {area}, Rajkot", { category: name, area: area.name })
+        : t("{category} offers in Rajkot", { category: name }),
+      description: area
+        ? t("Live {category} offers in {area}, Rajkot. {description}", {
+            category: name,
+            area: area.name,
+            description: category.description,
+          })
+        : category.description,
+      path,
+      image: category.image,
+      noindex,
+    });
   }
   return area
-    ? {
-        title: t("Offers in {area}", { area: area.name }),
+    ? pageMetadata({
+        title: t("Offers in {area}, Rajkot", { area: area.name }),
         description: t("All live offers in {area}: search by category and offer type.", { area: area.name }),
-      }
-    : {
-        title: t("All offers"),
+        path,
+        noindex,
+      })
+    : pageMetadata({
+        title: t("Offers and discounts in Rajkot"),
         description: t("All live offers in Rajkot: search by area, category and offer type."),
-      };
+        path,
+      });
 }
 
 /**
@@ -99,10 +120,21 @@ async function OffersContent({
     ? t(liveCount === 1 ? "{count} live offer in {area}" : "{count} live offers in {area}", { count: liveCount, area: area.name })
     : t(liveCount === 1 ? "{count} live offer in Rajkot" : "{count} live offers in Rajkot", { count: liveCount });
 
+  const crumbs = [
+    { name: t("Home"), path: "/" },
+    { name: t("Offers"), path: "/offers" },
+    ...(area ? [{ name: area.name, path: offersPath(area.slug) }] : []),
+    ...(category ? [{ name: category.shortName, path: basePath }] : []),
+  ];
+
   return (
     <>
+      <JsonLd data={await breadcrumbLd(crumbs)} />
       <div className="mb-2 flex flex-col gap-6 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
-        <PageTitle title={category?.name ?? t("All offers")} subtitle={subtitle} />
+        <PageTitle
+          title={category?.name ?? (area ? t("Offers in {area}", { area: area.name }) : t("All offers"))}
+          subtitle={subtitle}
+        />
         <SearchBar variant="pageLarge" defaultValue={filters.q} action={basePath} className="hidden w-[480px] lg:flex" />
       </div>
       <OffersExplorer basePath={basePath} filters={filters} result={result} chips={chips} layout="sidebar" />

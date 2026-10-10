@@ -8,13 +8,15 @@ import { MobileTopBar } from "@/components/layout/header";
 import { getAreas, getCategories } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { img } from "@/lib/mock/images";
+import { pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
-  return {
+  return pageMetadata({
     title: t("Submit an offer"),
     description: t("List your shop's offer for free and reach customers in Rajkot."),
-  };
+    path: "/submit-offer",
+  });
 }
 
 async function Intro({ large }: { large?: boolean }) {

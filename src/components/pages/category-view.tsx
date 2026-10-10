@@ -7,6 +7,7 @@ import { MobileTopBar } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/nav-links";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
 import { OffersSkeleton } from "@/components/offers/offers-skeleton";
+import { offersMetadata } from "@/components/pages/offers-view";
 import { getCategory, getOffers } from "@/lib/data";
 import { parseFilters } from "@/lib/filters";
 import { localizeContent } from "@/lib/i18n/content-server";
@@ -16,9 +17,12 @@ import { resolveArea } from "./resolve-area";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-export async function categoryMetadata(slug: string): Promise<Metadata> {
-  const category = await getCategory(slug);
-  return category ? { title: category.name, description: category.description } : {};
+/**
+ * Same offers as "/offers/<slug>" (or "/<area>/offers/<slug>"), so the same
+ * metadata, with that page as the canonical URL.
+ */
+export function categoryMetadata(slug: string, area?: string): Promise<Metadata> {
+  return offersMetadata(area, slug);
 }
 
 async function CategoryContent({ slug, area, searchParams }: { slug: string; area?: Area; searchParams: SearchParams }) {

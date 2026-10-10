@@ -20,13 +20,15 @@ import { ButtonLink } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/display";
 import { getT } from "@/lib/i18n/server";
 import { img } from "@/lib/mock/images";
+import { faqLd, JsonLd, pageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
-  return {
+  return pageMetadata({
     title: t("How it works"),
     description: t("How Rajkot Offers Hub works for customers and businesses."),
-  };
+    path: "/how-it-works",
+  });
 }
 
 interface StepData {
@@ -90,6 +92,7 @@ export default async function HowItWorksPage() {
 
   return (
     <>
+      <JsonLd data={faqLd(faqs)} />
       <section className="py-8 lg:py-20">
         <Container className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:items-center lg:gap-16">
           <div className="flex flex-col gap-4">

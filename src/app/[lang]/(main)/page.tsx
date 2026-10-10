@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { CategoryIconRow } from "@/components/categories/category-tiles";
 import { Container, Section, SectionHeader } from "@/components/layout/container";
@@ -9,12 +10,24 @@ import { Eyebrow } from "@/components/ui/display";
 import { getCategories, getLatestOffers, getTodayOffers } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { img } from "@/lib/mock/images";
+import { JsonLd, pageMetadata, siteLd } from "@/lib/seo";
+import { site } from "@/lib/site";
 
 const heroImages = [
   img("photo-1441986300917-64674bd600d8", 900),
   img("photo-1495474472287-4d71bcdd2085", 600),
   img("photo-1560066984-138dadb4c035", 600),
 ];
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return pageMetadata({
+    title: `${site.name}: ${t("Offers, discounts and deals in Rajkot")}`,
+    description: t("Fresh offers from Rajkot's shops, cafés and salons, all in one place."),
+    path: "/",
+    absoluteTitle: true,
+  });
+}
 
 export default async function HomePage() {
   const t = await getT();
@@ -26,6 +39,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={siteLd(t("Fresh offers from Rajkot's shops, cafés and salons, all in one place."))} />
       <section className="bg-white pt-6 pb-8 lg:py-20">
         <Container className="lg:grid lg:grid-cols-2 lg:items-center lg:gap-16">
           <div className="lg:max-w-[520px]">

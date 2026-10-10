@@ -17,6 +17,7 @@ import { IconLink } from "@/components/ui/icon-button";
 import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getBusinessOffers, getBusinessSlugs } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
+import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
 import { telHref } from "@/lib/utils";
 import type { Business, OfferSummary } from "@/types";
 
@@ -26,15 +27,14 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/businesses/[slug]">): Promise<Metadata> {
   const [t, business] = await Promise.all([getT(), params.then((p) => getBusiness(p.slug))]);
-  if (!business) return {};
-  return {
-    title: business.name,
-    description: t("{category} • {area}, Rajkot. {about}", {
-      category: business.categoryName,
-      area: business.areaName,
-      about: business.about,
-    }),
-  };
+  if (!business) notFound();
+  const vars = { business: business.name, category: business.categoryName, area: business.areaName };
+  return pageMetadata({
+    title: t("{business}, {area}, Rajkot: offers, hours and address", vars),
+    description: t("{category} • {area}, Rajkot. {about}", { ...vars, about: business.about }),
+    path: `/businesses/${business.slug}`,
+    image: business.cover,
+  });
 }
 
 function Avatar({ className }: { className?: string }) {
@@ -129,7 +129,7 @@ async function InfoTab({ business }: { business: Business }) {
         <ul className="grid grid-cols-3 gap-2 lg:gap-4">
           {business.photos.map((src) => (
             <li key={src} className="relative aspect-square overflow-hidden rounded-xl bg-surface lg:aspect-[4/3]">
-              <Image src={src} alt="" fill sizes="(min-width: 1024px) 270px, 33vw" className="object-cover" />
+              <Image src={src} alt={t("Photo of {business}", { business: business.name })} fill sizes="(min-width: 1024px) 270px, 33vw" className="object-cover" />
             </li>
           ))}
         </ul>
@@ -146,8 +146,16 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
   const path = `/businesses/${business.slug}`;
   const subtitle = t("{category} • {area}, Rajkot", { category: business.categoryName, area: business.areaName });
 
+  const crumbs = await breadcrumbLd([
+    { name: t("Home"), path: "/" },
+    { name: business.categoryName, path: `/offers/${business.categorySlug}` },
+    { name: business.name, path },
+  ]);
+
   return (
     <>
+      <JsonLd data={await localBusinessLd(business, active)} />
+      <JsonLd data={crumbs} />
       <Container className="px-0 lg:px-5 lg:pt-6">
         <div className="relative aspect-video overflow-hidden bg-surface lg:aspect-auto lg:h-80 lg:rounded-2xl">
           <Image src={business.cover} alt="" fill priority sizes="(min-width: 1240px) 1200px, 100vw" className="object-cover" />

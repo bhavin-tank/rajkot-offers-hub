@@ -6,15 +6,17 @@ import { ContactForm } from "@/components/forms/contact-form";
 import { Container } from "@/components/layout/container";
 import { Eyebrow } from "@/components/ui/display";
 import { getT } from "@/lib/i18n/server";
+import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { instagramHref, whatsappHref } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
-  return {
+  return pageMetadata({
     title: t("Contact"),
     description: t("Questions, suggestions or offer details: tell Rajkot Offers Hub."),
-  };
+    path: "/contact",
+  });
 }
 
 async function ReportBox() {

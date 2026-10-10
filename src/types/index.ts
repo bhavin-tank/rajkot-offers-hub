@@ -104,7 +104,11 @@ export interface Business {
   areaName: string;
   cover: string;
   about: string;
+  /** Full one-line address for display. */
   address: string;
+  /** Street part only ("12, Sample Complex, Kalawad Road"), for structured data. */
+  streetAddress: string;
+  postalCode: string;
   phone: string;
   whatsapp: string;
   instagram?: string;

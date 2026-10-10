@@ -57,6 +57,8 @@ export function buildBusinesses(locale: Locale): Business[] {
     cover: b.cover,
     about: localizeContent(locale, b.about),
     address: `${b.addressLine}${localizeContent(locale, ", Rajkot 360005")}`,
+    streetAddress: b.addressLine,
+    postalCode: "360005",
     phone: "+91 98XXX XXXXX",
     whatsapp: "+91 98XXX XXXXX",
     instagram: b.instagram,

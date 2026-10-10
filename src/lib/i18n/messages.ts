@@ -127,7 +127,6 @@ export const gu = {
   "View store": "દુકાન જુઓ",
   "Website": "વેબસાઇટ",
   "{area}, Rajkot": "{area}, રાજકોટ",
-  "{business}, {area} — {offer}": "{business}, {area} — {offer}",
   "{category} • {area}, Rajkot": "{category} • {area}, રાજકોટ",
   "{category} • {area}, Rajkot. {about}": "{category} • {area}, રાજકોટ. {about}",
   "Close": "બંધ કરો",
@@ -254,6 +253,18 @@ export const gu = {
   "{count} live offer in {area}": "{area}માં {count} ચાલુ ઓફર",
   "{count} live offers in {area}": "{area}માં {count} ચાલુ ઓફર્સ",
   "Page sections": "પેજ વિભાગો",
+  "Offers, discounts and deals in Rajkot": "રાજકોટની ઓફર્સ, ડિસ્કાઉન્ટ અને ડીલ્સ",
+  "Offers and discounts in Rajkot": "રાજકોટમાં ઓફર્સ અને ડિસ્કાઉન્ટ",
+  "Offers in {area}, Rajkot": "{area}, રાજકોટની ઓફર્સ",
+  "{category} offers in Rajkot": "રાજકોટમાં {category} ઓફર્સ",
+  "{category} offers in {area}, Rajkot": "{area}, રાજકોટમાં {category} ઓફર્સ",
+  "Live {category} offers in {area}, Rajkot. {description}": "{area}, રાજકોટમાં ચાલુ {category} ઓફર્સ. {description}",
+  "Offer categories in Rajkot": "રાજકોટની ઓફર કેટેગરી",
+  "{offer} at {business}, {area}": "{business}, {area}: {offer}",
+  "{offer} at {business}, {area}, Rajkot. Valid {dates}. See timings, terms and directions.":
+    "{business}, {area}, રાજકોટ: {offer}. માન્યતા {dates}. સમય, શરતો અને રસ્તો જુઓ.",
+  "{business}, {area}, Rajkot: offers, hours and address": "{business}, {area}, રાજકોટ: ઓફર્સ, સમય અને સરનામું",
+  "Photo of {business}": "{business}નો ફોટો",
 } as const;
 
 export type MessageKey = keyof typeof gu;

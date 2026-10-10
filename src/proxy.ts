@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { canonicalAreaUrl } from "@/lib/areas";
 import { defaultLocale, LOCALE_COOKIE, languageSwitchEnabled, localizePath, splitLocale } from "@/lib/i18n/config";
+import { hasUnknownSlug } from "@/lib/known-paths";
 
 /**
  * Locale routing. English pages live at "/en/..." internally but are
@@ -19,6 +20,12 @@ export function proxy(request: NextRequest) {
   const canonical = canonicalAreaUrl(path, request.nextUrl.searchParams);
   if (canonical) {
     return NextResponse.redirect(new URL(localizePath(locale ?? defaultLocale, canonical), request.url), 308);
+  }
+
+  // Unknown slugs go to the catch-all 404 page now, while a 404 status can still be sent.
+  // Four segments are deeper than any real route, so only the catch-all matches.
+  if (hasUnknownSlug(path)) {
+    return NextResponse.rewrite(new URL(`/${locale ?? defaultLocale}/_/not/found/page`, request.url));
   }
 
   if (locale) return NextResponse.next();

@@ -6,7 +6,8 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/[area]/categories/[slug]">) {
-  return categoryMetadata((await params).slug);
+  const { area, slug } = await params;
+  return categoryMetadata(slug, area);
 }
 
 export default async function AreaCategoryPage({ params, searchParams }: PageProps<"/[lang]/[area]/categories/[slug]">) {

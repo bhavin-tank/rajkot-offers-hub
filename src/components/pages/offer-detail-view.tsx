@@ -18,20 +18,25 @@ import { IconLink } from "@/components/ui/icon-button";
 import { getBusiness, getCategory, getOffer, getSimilarOffers } from "@/lib/data";
 import { formatRange } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
+import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
 import { cn, directionsHref, telHref, whatsappHref } from "@/lib/utils";
 
 export async function offerMetadata(slug: string): Promise<Metadata> {
-  const [t, offer] = await Promise.all([getT(), getOffer(slug)]);
-  if (!offer) return {};
-  return {
-    title: offer.title,
-    description: t("{business}, {area} — {offer}", {
-      business: offer.businessName,
-      area: offer.areaName,
+  const [t, locale, offer] = await Promise.all([getT(), getLocale(), getOffer(slug)]);
+  if (!offer) notFound();
+  const vars = { offer: offer.title, business: offer.businessName, area: offer.areaName };
+  return pageMetadata({
+    title: t("{offer} at {business}, {area}", vars),
+    description: t("{offer} at {business}, {area}, Rajkot. Valid {dates}. See timings, terms and directions.", {
+      ...vars,
       offer: offer.offerText,
+      dates: formatRange(offer.validFrom, offer.validTo, locale),
     }),
-    openGraph: { images: offer.images.slice(0, 1) },
-  };
+    path: `/offers/${offer.slug}`,
+    image: offer.images[0],
+    // An ended offer stays reachable for old links but should not show up in search.
+    noindex: offer.isExpired,
+  });
 }
 
 async function OfferContent({ slug }: { slug: string }) {
@@ -69,8 +74,17 @@ async function OfferContent({ slug }: { slug: string }) {
     </>
   );
 
+  const crumbs = await breadcrumbLd([
+    { name: t("Home"), path: "/" },
+    { name: t("Offers"), path: "/offers" },
+    ...(category ? [{ name: category.shortName, path: `/offers/${category.slug}` }] : []),
+    { name: offer.title, path },
+  ]);
+
   return (
     <>
+      <JsonLd data={await offerLd(offer, business)} />
+      <JsonLd data={crumbs} />
       {expired && (
         <div role="status" className="bg-surface px-5 py-3 text-center text-sm font-medium text-muted">
           {t("This offer has ended")}

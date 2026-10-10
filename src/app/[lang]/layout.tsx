@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { hasLocale, locales } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/lib/i18n/client";
 import { getLocale, getT } from "@/lib/i18n/server";
+import { DEFAULT_SHARE_IMAGE } from "@/lib/seo";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import "../globals.css";
@@ -29,7 +30,16 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL(site.url),
     title: { default: `${site.name} — ${t("Offers in Rajkot")}`, template: `%s · ${site.name}` },
     description: t("Fresh offers from Rajkot's shops, cafés and salons, all in one place."),
-    openGraph: { siteName: site.name, locale: locale === "gu" ? "gu_IN" : "en_IN", type: "website" },
+    applicationName: site.name,
+    openGraph: {
+      siteName: site.name,
+      locale: locale === "gu" ? "gu_IN" : "en_IN",
+      type: "website",
+      images: [DEFAULT_SHARE_IMAGE],
+    },
+    twitter: { card: "summary_large_image", images: [DEFAULT_SHARE_IMAGE] },
+    // Search Console ownership check; set the token in the deployment's environment.
+    verification: { google: process.env.GOOGLE_SITE_VERIFICATION },
   };
 }
 

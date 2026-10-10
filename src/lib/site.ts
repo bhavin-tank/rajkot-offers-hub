@@ -10,7 +10,15 @@ export const site = {
   email: "hello@rajkotoffers.in",
   whatsapp: "+91 98XXX XXXXX",
   location: "Rajkot, Gujarat",
+  /** For structured data: the city the site serves. */
+  region: "Gujarat",
+  country: "IN",
 } as const;
+
+/** "/offers" → "https://rajkotoffers.in/offers". */
+export function absoluteUrl(path: string) {
+  return new URL(path, site.url).toString();
+}
 
 export const mainNav = [
   { href: "/", label: "Home" },

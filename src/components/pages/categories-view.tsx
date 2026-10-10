@@ -9,14 +9,17 @@ import { Container, PageTitle } from "@/components/layout/container";
 import { getAreas, getCategories } from "@/lib/data";
 import { formatOfferCount } from "@/lib/format";
 import { getT } from "@/lib/i18n/server";
+import { pageMetadata } from "@/lib/seo";
 import { resolveArea } from "./resolve-area";
 
 export async function categoriesMetadata(): Promise<Metadata> {
   const t = await getT();
-  return {
-    title: t("Category"),
+  // Area versions only change the counts, so they all point to "/categories".
+  return pageMetadata({
+    title: t("Offer categories in Rajkot"),
     description: t("Find Rajkot's offers by category: food, fashion, beauty and more."),
-  };
+    path: "/categories",
+  });
 }
 
 /** The category list for all of Rajkot, or with one area's counts when `area` comes from the URL. */
