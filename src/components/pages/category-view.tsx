@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Search } from "lucide-react";
 import { Suspense } from "react";
 import { CategoryBanner } from "@/components/categories/category-tiles";
 import { Breadcrumb, Container } from "@/components/layout/container";
@@ -8,7 +7,6 @@ import { MobileTopBar } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/nav-links";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
 import { OffersSkeleton } from "@/components/offers/offers-skeleton";
-import { IconLink } from "@/components/ui/icon-button";
 import { getCategory, getOffers } from "@/lib/data";
 import { parseFilters } from "@/lib/filters";
 import { localizeContent } from "@/lib/i18n/content-server";
@@ -30,15 +28,7 @@ async function CategoryContent({ slug, area, searchParams }: { slug: string; are
 
   return (
     <>
-      <MobileTopBar
-        title={category.name}
-        backHref="/categories"
-        action={
-          <IconLink href="/offers" variant="plain" size="lg" aria-label={t("Search")}>
-            <Search size={20} aria-hidden />
-          </IconLink>
-        }
-      />
+      <MobileTopBar title={category.name} backHref="/categories" />
       <Container className="flex flex-col gap-5 pt-4 pb-24 lg:gap-8 lg:pt-8 lg:pb-20">
         <Breadcrumb
           items={[{ href: "/", label: t("Home") }, { href: "/categories", label: t("Categories") }, { label: category.name }]}
