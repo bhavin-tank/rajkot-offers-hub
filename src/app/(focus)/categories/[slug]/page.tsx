@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: PageProps<"/categories/[slug]
   return category ? { title: category.name, description: category.description } : {};
 }
 
-export default async function CategoryPage({ params, searchParams }: PageProps<"/categories/[slug]">) {
+async function CategoryContent({ params, searchParams }: PageProps<"/categories/[slug]">) {
   const category = await getCategory((await params).slug);
   if (!category) notFound();
 
@@ -82,5 +82,19 @@ async function CategoryOffers({
       emptyHint="નવી ઓફર આવે ત્યારે અહીં દેખાશે."
       emptyAction={{ href: "/categories", label: "બીજી કેટેગરી જુઓ" }}
     />
+  );
+}
+
+export default function CategoryPage(props: PageProps<"/categories/[slug]">) {
+  return (
+    <Suspense
+      fallback={
+        <Container className="pt-6 pb-24 lg:pt-12">
+          <OffersSkeleton />
+        </Container>
+      }
+    >
+      <CategoryContent {...props} />
+    </Suspense>
   );
 }

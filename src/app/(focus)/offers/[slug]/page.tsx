@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, Clock, MapPin, Phone, Tag } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/brand";
@@ -31,7 +33,7 @@ export async function generateMetadata({ params }: PageProps<"/offers/[slug]">):
   };
 }
 
-export default async function OfferPage({ params }: PageProps<"/offers/[slug]">) {
+async function OfferContent({ params }: Pick<PageProps<"/offers/[slug]">, "params">) {
   const offer = await getOffer((await params).slug);
   if (!offer) notFound();
   const [business, category, similar] = await Promise.all([
@@ -199,5 +201,13 @@ export default async function OfferPage({ params }: PageProps<"/offers/[slug]">)
       <div aria-hidden className="h-24 lg:hidden" />
       <StickyActionBar contact={business} layout="offer" disabled={expired} />
     </>
+  );
+}
+
+export default function OfferPage({ params }: PageProps<"/offers/[slug]">) {
+  return (
+    <Suspense fallback={<DetailSkeleton />}>
+      <OfferContent params={params} />
+    </Suspense>
   );
 }

@@ -26,3 +26,10 @@ export function directionsHref(lat: number, lng: number) {
 export function instagramHref(handle: string) {
   return `https://instagram.com/${handle.replace(/^@/, "")}`;
 }
+
+/** Copy of `record` without `key`. */
+export function omit<T extends Record<string, unknown>>(record: T, key: string): T {
+  const copy = { ...record };
+  delete copy[key];
+  return copy;
+}

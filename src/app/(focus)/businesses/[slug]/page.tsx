@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -145,7 +147,7 @@ function InfoTab({ business }: { business: Business }) {
   );
 }
 
-export default async function BusinessPage({ params }: PageProps<"/businesses/[slug]">) {
+async function BusinessContent({ params }: Pick<PageProps<"/businesses/[slug]">, "params">) {
   const business = await getBusiness((await params).slug);
   if (!business) notFound();
   const { active, expired } = await getBusinessOffers(business.slug);
@@ -218,5 +220,13 @@ export default async function BusinessPage({ params }: PageProps<"/businesses/[s
 
       <StickyActionBar contact={business} layout="business" />
     </>
+  );
+}
+
+export default function BusinessPage({ params }: PageProps<"/businesses/[slug]">) {
+  return (
+    <Suspense fallback={<DetailSkeleton />}>
+      <BusinessContent params={params} />
+    </Suspense>
   );
 }
