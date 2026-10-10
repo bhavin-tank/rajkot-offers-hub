@@ -11,7 +11,7 @@ export const DEFAULT_DB_NAME = "rajkot_offers";
 function connect() {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error("MONGODB_URI is not set. Copy .env.example to .env.local and fill it in.");
-  return new MongoClient(uri, { appName: "rajkot-offers-hub" }).connect().catch((error: unknown) => {
+  return new MongoClient(uri, { appName: "rajkot-offers-hub", ignoreUndefined: true }).connect().catch((error: unknown) => {
     // Let the next call try again instead of caching a failed connection forever.
     store.mongoClient = undefined;
     throw error;

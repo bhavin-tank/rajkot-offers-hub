@@ -20,13 +20,44 @@ pnpm typecheck
 `pnpm db:indexes` creates any missing indexes without touching data. Sample offer dates are relative to the
 day you seed, so re-seed to get fresh "ending soon" and expired offers.
 
+## Admin panel
+
+`/admin` is the team's panel: moderation queue, submissions inbox (turn a submission into a business + offer),
+offers, businesses, categories, areas, users, offer reports, contact messages and an audit log of every change.
+
+```bash
+pnpm admin:add 9876543210          # first superadmin (or: pnpm admin:add <mobile> admin)
+```
+
+Sign in at `/admin/sign-in` with a 6-digit code sent on WhatsApp. In development without `WHATSAPP_TOKEN`,
+the code is printed in the dev server log (`[whatsapp:dev] Sign-in code …`). Superadmins add more admins
+under Users. Sign-in is admin-only until user accounts (phase 3).
+
+Sessions: a 15-minute JWT access cookie (`ro_at`) and a 30-day rotating refresh cookie (`ro_rt`). The proxy
+renews the access cookie for `/admin` pages; a refresh token reused after rotation revokes the session.
+
+## Production setup
+
+Set everything in `.env.example`. Beyond MongoDB:
+
+- **`AUTH_SECRET`** — 32+ random characters (`openssl rand -base64 48`).
+- **WhatsApp** — a Meta WhatsApp Business app with an approved *authentication* template with a copy-code
+  button (`WHATSAPP_OTP_TEMPLATE`), its phone number ID and a permanent token.
+- **Cloudflare R2** — a bucket with public access (custom domain → `MEDIA_PUBLIC_URL`), an API token with
+  object read/write, and a CORS rule so browsers can upload directly:
+  `[{"AllowedOrigins":["https://rajkotoffers.in"],"AllowedMethods":["PUT"],"AllowedHeaders":["content-type"],"MaxAgeSeconds":3600}]`.
+  Without R2 in development, uploads go to `.data/uploads`.
+- **`CRON_SECRET`** — `vercel.json` runs `/api/v1/cron/expire-offers` daily at 00:05 IST (18:35 UTC) to mark
+  past offers `expired`. Other hosts: call it with `Authorization: Bearer $CRON_SECRET`.
+
 ## Structure
 
 ```
 src/
   proxy.ts         locale routing: English at /, Gujarati at /gu (remembers the choice in a cookie)
   app/
-    api/v1/        JSON API route handlers (public/… today); thin: parse → call → respond
+    api/v1/        JSON API route handlers (public, auth, admin, cron); thin: parse → call → respond
+    [lang]/(admin)/admin/  admin panel (English only, noindex)
     [lang]/        every route lives under the language segment (en | gu)
     [lang]/(main)/ browsing pages: header, footer and mobile tab bar
                    home, offers, categories, saved, contact, how-it-works
@@ -57,14 +88,16 @@ src/
   server/          backend, free of Next.js imports so it can move to its own service later
     db/            MongoDB client, document types, indexes, seed script
     services/      queries that return domain types (offers, catalog, businesses, slugs)
-    validators/    zod schemas for API input
-    lib/           JSON envelope, language helpers
+    validators/    zod schemas for API and admin input
+    lib/           errors, JSON envelope, language, crypto, rate limits, storage (R2), WhatsApp
 ```
 
 ## API
 
-Public endpoints live under `/api/v1/public` and answer `{ data, meta? }` or `{ error: { code, message, fields? } }`.
-Every endpoint takes `?lang=en|gu`. See the API development spec for the full plan (users, business owners, admins).
+Endpoints live under `/api/v1` and answer `{ data, meta? }` or `{ error: { code, message, fields? } }`.
+Read endpoints take `?lang=en|gu`. See the API development spec for the full plan (users, business owners, admins).
+
+**Public reads** (`/api/v1/public`):
 
 | Endpoint | Returns |
 | --- | --- |
@@ -76,6 +109,16 @@ Every endpoint takes `?lang=en|gu`. See the API development spec for the full pl
 | `GET /areas` | Areas; `withCounts=true` adds counts and `meta.totalOffers` |
 | `GET /businesses/:slug`, `/businesses/:slug/offers` | Profile; live and past offers |
 | `GET /slugs` | Every public slug |
+
+**Public writes** (rate-limited per IP): `POST /public/uploads` (signed photo upload), `POST /public/submissions`,
+`POST /public/contact`, `POST /public/offers/:slug/report`.
+
+**Auth**: `POST /auth/otp/send`, `/auth/otp/verify`, `/auth/refresh`, `/auth/logout`, `/auth/logout-all`, `GET /auth/me`.
+
+**Admin** (`/api/v1/admin`, `Authorization: Bearer <accessToken>` or the admin cookie): `dashboard`;
+`offers` (+ `/:id`, `/:id/approve|reject|pause|unpause|archive|submit|feature`); `submissions` (+ `/:id`,
+`/:id/convert|reject|review`); `businesses` (+ `/:id`, `/:id/verify|status`); `categories`, `areas` (+ `/:id`);
+`users` (+ `/:id`); `reports` (+ `/:id/resolve`); `contact` (+ `/:id`); `audit`; `uploads`.
 
 `GET /api/v1/health` pings the database. Reads are cached with `"use cache"` and tagged (`offers`, `catalog`,
 `businesses`, `slugs` in `src/lib/data/cache.ts`); writes in later phases revalidate those tags.

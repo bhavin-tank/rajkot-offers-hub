@@ -9,6 +9,8 @@ import { findSlugs } from "@/server/services/slugs";
  * for a minute instead of reading MongoDB on every request.
  */
 const TTL_MS = 60_000;
+/** A slug missing from a copy older than this triggers one reload, so new offers resolve within seconds. */
+const RELOAD_ON_MISS_MS = 5_000;
 
 interface KnownSlugs {
   areas: Set<string>;
@@ -17,25 +19,30 @@ interface KnownSlugs {
   offers: Set<string>;
 }
 
-let cached: { slugs: Promise<KnownSlugs>; expires: number } | undefined;
+let cached: { slugs: Promise<KnownSlugs>; loadedAt: number } | undefined;
 
-function knownSlugs() {
-  if (!cached || cached.expires < Date.now()) {
+function knownSlugs(maxAge = TTL_MS) {
+  if (!cached || Date.now() - cached.loadedAt > maxAge) {
     const slugs = findSlugs().then((s) => ({
       areas: new Set(s.areas),
       businesses: new Set(s.businesses),
       categories: new Set(s.categories),
       offers: new Set(s.offers),
     }));
-    cached = { slugs, expires: Date.now() + TTL_MS };
+    cached = { slugs, loadedAt: Date.now() };
     // Don't keep a failed lookup for the whole minute.
     slugs.catch(() => (cached = undefined));
   }
   return cached.slugs;
 }
 
+/** Drops the in-memory copy after a write in this process; other processes catch up within a minute. */
+export function forgetKnownSlugs() {
+  cached = undefined;
+}
+
 /** Top-level pages; any other first segment is an area. */
-const PAGES = new Set(["offers", "categories", "contact", "how-it-works", "saved", "submit-offer"]);
+const PAGES = new Set(["offers", "categories", "contact", "how-it-works", "saved", "submit-offer", "admin"]);
 
 /**
  * Whether `path` (without locale prefix) names a business, offer, category or
@@ -45,14 +52,16 @@ const PAGES = new Set(["offers", "categories", "contact", "how-it-works", "saved
 export async function hasUnknownSlug(path: string) {
   const [first, second, third] = path.split("/").slice(1);
   if (!first || (PAGES.has(first) && first !== "offers" && first !== "categories")) return false;
-
-  let known: KnownSlugs;
   try {
-    known = await knownSlugs();
+    // A miss may be a slug created since the copy was loaded: check once more against a fresh copy.
+    return isUnknown(await knownSlugs(), first, second, third) && isUnknown(await knownSlugs(RELOAD_ON_MISS_MS), first, second, third);
   } catch (error) {
     console.error("Slug lookup failed", error);
     return false;
   }
+}
+
+function isUnknown(known: KnownSlugs, first: string, second?: string, third?: string) {
   const { areas, businesses, categories, offers } = known;
 
   if (first === "businesses") return second !== undefined && !businesses.has(second);

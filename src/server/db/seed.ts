@@ -9,25 +9,19 @@
  * seed runs: re-seed to get fresh "ending soon" and expired offers.
  */
 import { addDays, toIsoDay } from "@/lib/format";
-import { contentGu } from "@/lib/i18n/content";
 import { areas } from "@/lib/mock/areas";
 import { businesses, defaultHours } from "@/lib/mock/businesses";
 import { categories } from "@/lib/mock/categories";
 import { img } from "@/lib/mock/images";
 import { defaultSteps, defaultTerms, offers } from "@/lib/mock/offers";
-import { addressI18n } from "../lib/i18n";
+import { addressI18n, withGujarati as i18n } from "../lib/i18n";
 import { closeClient } from "./client";
 import { ensureIndexes } from "./indexes";
-import { collections, type AreaDoc, type BusinessDoc, type CategoryDoc, type I18n, type OfferDoc } from "./models";
+import { collections, type AreaDoc, type BusinessDoc, type CategoryDoc, type OfferDoc } from "./models";
 
 /** Mock businesses have no real numbers yet. */
 const PLACEHOLDER_PHONE = "+91 98XXX XXXXX";
 const POSTAL_CODE = "360005";
-
-function i18n(en: string): I18n {
-  const gu = contentGu[en];
-  return gu ? { en, gu } : { en };
-}
 
 /** Midnight in Rajkot on `isoDay`. */
 function rajkotMidnight(isoDay: string) {

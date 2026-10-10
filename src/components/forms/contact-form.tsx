@@ -88,6 +88,11 @@ export function ContactForm() {
       <Field id="message" label={t("Message")} error={error("message")}>
         <Textarea {...field("message")} className="min-h-28 lg:min-h-[140px]" placeholder={t("Write your message")} />
       </Field>
+      {error("form") && (
+        <p role="alert" className="text-[13px] text-danger">
+          {error("form")}
+        </p>
+      )}
       <Button type="submit" disabled={pending} block>
         {pending ? t("Sending…") : t("Send message")}
       </Button>
