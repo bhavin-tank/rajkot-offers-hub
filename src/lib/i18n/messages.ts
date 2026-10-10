@@ -72,7 +72,6 @@ export const gu = {
   "Hours": "સમય",
   "How to get this offer": "ઓફર કેવી રીતે મેળવવી",
   "Info": "માહિતી",
-  "Is this your business?": "આ તમારો બિઝનેસ છે?",
   "Link copied": "લિંક કૉપી થઈ ગઈ",
   "List your shop's offer for free and reach customers in Rajkot.": "તમારી દુકાનની ઓફર મફતમાં લિસ્ટ કરો અને રાજકોટના ગ્રાહકો સુધી પહોંચો.",
   "Live ({count})": "ચાલુ ({count})",
@@ -254,6 +253,7 @@ export const gu = {
   "All live offers in {area}: search by category and offer type.": "{area}ની બધી ચાલુ ઓફર્સ: કેટેગરી અને ઓફરના પ્રકાર પ્રમાણે શોધો.",
   "{count} live offer in {area}": "{area}માં {count} ચાલુ ઓફર",
   "{count} live offers in {area}": "{area}માં {count} ચાલુ ઓફર્સ",
+  "Page sections": "પેજ વિભાગો",
 } as const;
 
 export type MessageKey = keyof typeof gu;

@@ -15,7 +15,7 @@ interface ShareButtonProps {
   title: string;
   /** Path of the page to share, e.g. "/offers/kurta-20-off". */
   path: string;
-  variant?: "floating" | "text" | "pill";
+  variant?: "floating" | "plain" | "text" | "pill";
 }
 
 /** Uses the system share sheet when there is one, else our own sheet. */
@@ -59,8 +59,8 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
 
   return (
     <>
-      {variant === "floating" ? (
-        <IconButton variant="floating" size="lg" aria-label={t("Share")} onClick={onShare}>
+      {variant === "floating" || variant === "plain" ? (
+        <IconButton variant={variant} size="lg" aria-label={t("Share")} onClick={onShare}>
           <Share2 size={20} aria-hidden />
         </IconButton>
       ) : variant === "pill" ? (

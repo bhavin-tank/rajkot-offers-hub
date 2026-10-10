@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import Image from "next/image";
-import { Link } from "@/components/i18n/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Globe, MapPin, Phone, Store, Tag } from "lucide-react";
+import { ArrowLeft, Globe, MapPin, Phone, Store, Tag } from "lucide-react";
 import { InstagramIcon } from "@/components/icons/brand";
 import { ActionTiles, StickyActionBar } from "@/components/businesses/contact-actions";
 import { HoursTable, OpenStatusPill } from "@/components/businesses/opening-hours";
@@ -15,7 +14,7 @@ import { ShareButton } from "@/components/offers/share-button";
 import { ButtonAnchor, ButtonLink } from "@/components/ui/button";
 import { DetailRow, Divider, EmptyState } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
-import { Tabs } from "@/components/ui/tabs";
+import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getBusinessOffers, getBusinessSlugs } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { telHref } from "@/lib/utils";
@@ -72,19 +71,6 @@ async function InfoRows({ business }: { business: Business }) {
   );
 }
 
-async function SubmitOfferLink() {
-  const t = await getT();
-  return (
-    <p className="text-sm text-muted">
-      {t("Is this your business?")}{" "}
-      <Link href="/submit-offer" className="inline-flex items-center gap-1 font-semibold text-primary hover:underline">
-        {t("Submit an offer")}
-        <ArrowRight size={14} aria-hidden />
-      </Link>
-    </p>
-  );
-}
-
 async function OffersTab({ active, expired }: { active: OfferSummary[]; expired: OfferSummary[] }) {
   const t = await getT();
   return (
@@ -118,7 +104,6 @@ async function OffersTab({ active, expired }: { active: OfferSummary[]; expired:
           </div>
         </section>
       )}
-      <SubmitOfferLink />
     </div>
   );
 }
@@ -149,9 +134,6 @@ async function InfoTab({ business }: { business: Business }) {
           ))}
         </ul>
       </section>
-      <div className="lg:hidden">
-        <SubmitOfferLink />
-      </div>
     </div>
   );
 }
@@ -212,11 +194,22 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
           <InfoRows business={business} />
           <Divider />
           <HoursTable hours={business.hours} compact />
-          <SubmitOfferLink />
         </aside>
 
-        <Tabs
+        <SectionTabs
           className="mt-6 lg:mt-8"
+          label={t("Page sections")}
+          topBar={
+            <div className="grid h-full grid-cols-[40px_1fr_40px] items-center gap-2 border-b border-line px-2">
+              <IconLink href="/offers" variant="plain" size="lg" aria-label={t("Go back")}>
+                <ArrowLeft size={22} aria-hidden />
+              </IconLink>
+              <p className="truncate text-center text-base font-semibold">{business.name}</p>
+              <div className="flex justify-end">
+                <ShareButton title={business.name} path={path} variant="plain" />
+              </div>
+            </div>
+          }
           items={[
             {
               value: "offers",
