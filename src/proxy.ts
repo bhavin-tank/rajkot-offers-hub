@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { canonicalAreaUrl } from "@/lib/areas";
 import { defaultLocale, LOCALE_COOKIE, languageSwitchEnabled, localizePath, splitLocale } from "@/lib/i18n/config";
 
 /**
@@ -13,6 +14,13 @@ export function proxy(request: NextRequest) {
   if (locale === defaultLocale || (locale && !languageSwitchEnabled)) {
     return NextResponse.redirect(new URL(`${path}${search}`, request.url), 308);
   }
+
+  // Old-style "/offers?area=x&category=y" links become "/x/offers/y".
+  const canonical = canonicalAreaUrl(path, request.nextUrl.searchParams);
+  if (canonical) {
+    return NextResponse.redirect(new URL(localizePath(locale ?? defaultLocale, canonical), request.url), 308);
+  }
+
   if (locale) return NextResponse.next();
 
   // No prefix: honour a saved Gujarati choice, otherwise serve English.

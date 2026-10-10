@@ -68,7 +68,10 @@ function Picker({ areas, total, categorySlugs }: LocationPickerProps) {
 
   function hrefFor(slug?: string) {
     const params = new URLSearchParams(scoped ? searchParams.toString() : "");
+    // Drop the page and any leftover old-style area/category params; both now live in the path.
     params.delete("page");
+    params.delete("area");
+    params.delete("category");
     const query = params.toString();
     const base = scoped ? page : "/offers";
     return localizePath(locale, `${slug ? `/${slug}` : ""}${base}${query ? `?${query}` : ""}`);
