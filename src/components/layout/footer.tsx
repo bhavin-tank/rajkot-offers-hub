@@ -3,17 +3,14 @@ import { InstagramIcon } from "@/components/icons/brand";
 import { footerNav, site } from "@/lib/site";
 import { cn, instagramHref } from "@/lib/utils";
 import { Container } from "./container";
-import { LogoMark } from "./logo";
+import { Logo } from "./logo";
 
 export function Footer({ className }: { className?: string }) {
   return (
     <footer className={cn("border-t border-line bg-white", className)}>
       <Container className="flex flex-col gap-5 py-8 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-10 lg:py-12">
         <div className="flex flex-col gap-3">
-          <Link href="/" className="flex items-center gap-2">
-            <LogoMark size="sm" className="lg:size-[26px]" />
-            <span className="text-sm font-semibold lg:text-[15px]">{site.name}</span>
-          </Link>
+          <Logo size="sm" className="self-start" />
           <p className="text-sm text-muted">{site.tagline}</p>
         </div>
 

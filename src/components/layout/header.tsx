@@ -31,7 +31,7 @@ export function DesktopHeader({ className }: { className?: string }) {
   return (
     <header className={cn("hidden border-b border-line bg-white lg:block", className)}>
       <Container className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center">
-        <Logo size="lg" />
+        <Logo size="lg" priority />
         <HeaderNav />
         <div className="flex items-center justify-end gap-3">
           <LocationPill />
@@ -52,7 +52,7 @@ export function MobileHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur lg:hidden">
       <div className="flex h-14 items-center justify-between px-5">
-        <Logo />
+        <Logo priority />
         <div className="flex items-center gap-2">
           <IconLink href="/offers" variant="plain" size="md" aria-label="શોધો">
             <Search size={20} aria-hidden />

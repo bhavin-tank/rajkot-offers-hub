@@ -32,6 +32,7 @@ src/
     forms/         submit-offer and contact forms
     marketing/     search bar, CTA, step and promise blocks
     icons/         brand and category icons
+  assets/          brand logo (imported through next/image)
   hooks/           client hooks (saved offers in localStorage)
   lib/
     data/          async data getters, the only API the pages use
