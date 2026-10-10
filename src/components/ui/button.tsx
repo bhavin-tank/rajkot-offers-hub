@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 const variants = {
-  primary: "bg-primary text-white hover:bg-[#d81b5a] disabled:bg-skeleton disabled:text-faint",
+  primary: "bg-primary text-white hover:bg-primary-hover disabled:bg-skeleton disabled:text-faint",
   outline:
     "border border-ink bg-white text-ink hover:bg-surface disabled:border-input disabled:text-line-strong disabled:hover:bg-white",
   ghost: "text-muted hover:text-ink",
