@@ -1,32 +1,20 @@
 import { LanguageToggle } from "@/components/i18n/language-toggle";
-import { Link } from "@/components/i18n/link";
-import { ArrowLeft, ChevronDown, Heart, MapPin } from "lucide-react";
+import { ArrowLeft, Heart } from "lucide-react";
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { IconLink } from "@/components/ui/icon-button";
+import { getAreasWithCounts } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
-import { site } from "@/lib/site";
 import { Container } from "./container";
 import { Logo } from "./logo";
+import { LocationPicker } from "./location-picker";
 import { HeaderNav } from "./nav-links";
 
-/** "Rajkot" city pill. Only Rajkot is served, so it links to the area list. */
-export async function LocationPill({ className, showChevron }: { className?: string; showChevron?: boolean }) {
-  const t = await getT();
-  return (
-    <Link
-      href="/categories#areas"
-      className={cn(
-        "inline-flex h-9 items-center gap-1.5 rounded-full border border-line bg-white pr-3 pl-2.5 text-[13px] font-medium hover:border-input lg:h-10 lg:px-3.5 lg:text-sm",
-        className,
-      )}
-    >
-      <MapPin size={15} aria-hidden />
-      {t(site.city)}
-      {showChevron && <ChevronDown size={14} className="text-muted" aria-hidden />}
-    </Link>
-  );
+/** City pill that opens the Rajkot area list. */
+export async function LocationPill() {
+  const { total, areas } = await getAreasWithCounts();
+  return <LocationPicker areas={areas} total={total} />;
 }
 
 /** Desktop header (72px). */
@@ -60,7 +48,7 @@ export function MobileHeader() {
         <Logo priority />
         <div className="flex items-center gap-2">
           <LanguageToggle />
-          <LocationPill showChevron />
+          <LocationPill />
         </div>
       </div>
     </header>

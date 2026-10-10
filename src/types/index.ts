@@ -34,6 +34,11 @@ export interface Area {
   name: string;
 }
 
+export interface AreaWithCount extends Area {
+  /** Live offers in this area. */
+  offerCount: number;
+}
+
 export type OfferType = "percent" | "flat" | "bogo" | "combo" | "other";
 
 export interface OfferStep {
