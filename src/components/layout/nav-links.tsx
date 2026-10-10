@@ -1,21 +1,26 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/components/i18n/link";
 import { usePathname } from "next/navigation";
 import { Bookmark, House, LayoutGrid, Tag } from "lucide-react";
+import { splitLocale } from "@/lib/i18n/config";
+import { useT } from "@/lib/i18n/client";
+import type { MessageKey } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 import { mainNav } from "@/lib/site";
 
 function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+  const path = splitLocale(pathname).path;
+  return href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
 }
 
 /** Desktop header navigation. */
 export function HeaderNav() {
   const pathname = usePathname();
+  const t = useT();
   return (
-    <nav aria-label="Main menu">
-      <ul className="flex items-center gap-9 text-[15px] font-medium">
+    <nav aria-label={t("Main menu")}>
+      <ul className="flex items-center gap-5 text-[15px] xl:gap-9 font-medium">
         {mainNav.map((item) => {
           const active = isActive(pathname, item.href);
           return (
@@ -25,7 +30,7 @@ export function HeaderNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn("transition-colors", active ? "text-ink" : "text-muted hover:text-ink")}
               >
-                {item.label}
+                {t(item.label)}
               </Link>
             </li>
           );
@@ -40,14 +45,15 @@ const bottomNav = [
   { href: "/offers", label: "Offers", icon: Tag },
   { href: "/categories", label: "Categories", icon: LayoutGrid },
   { href: "/saved", label: "Saved", icon: Bookmark },
-] as const;
+] as const satisfies readonly { href: string; label: MessageKey; icon: unknown }[];
 
 /** Mobile tab bar, fixed to the bottom of the screen. */
 export function BottomNav() {
   const pathname = usePathname();
+  const t = useT();
   return (
     <nav
-      aria-label="Main menu"
+      aria-label={t("Main menu")}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="grid h-16 grid-cols-4">
@@ -64,7 +70,7 @@ export function BottomNav() {
                 )}
               >
                 <Icon size={22} strokeWidth={1.75} aria-hidden />
-                {label}
+                {t(label)}
               </Link>
             </li>
           );

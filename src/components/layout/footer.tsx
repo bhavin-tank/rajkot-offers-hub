@@ -1,25 +1,28 @@
-import Link from "next/link";
+import { LanguageToggle } from "@/components/i18n/language-toggle";
+import { Link } from "@/components/i18n/link";
 import { InstagramIcon } from "@/components/icons/brand";
+import { getT } from "@/lib/i18n/server";
 import { footerNav, site } from "@/lib/site";
 import { cn, instagramHref } from "@/lib/utils";
 import { Container } from "./container";
 import { Logo } from "./logo";
 
-export function Footer({ className }: { className?: string }) {
+export async function Footer({ className }: { className?: string }) {
+  const t = await getT();
   return (
     <footer className={cn("border-t border-line bg-white", className)}>
       <Container className="flex flex-col gap-5 py-8 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-10 lg:py-12">
         <div className="flex flex-col gap-3">
           <Logo size="sm" className="self-start" />
-          <p className="text-sm text-muted">{site.tagline}</p>
+          <p className="text-sm text-muted">{t(site.tagline)}</p>
         </div>
 
-        <nav aria-label="Footer menu">
+        <nav aria-label={t("Footer menu")}>
           <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm lg:gap-8">
             {footerNav.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="text-ink hover:text-primary">
-                  {item.label}
+                  {t(item.label)}
                 </Link>
               </li>
             ))}
@@ -37,6 +40,7 @@ export function Footer({ className }: { className?: string }) {
             {site.instagram}
           </a>
           <span>{site.domain}</span>
+          <LanguageToggle className="text-muted lg:mt-1" />
         </div>
       </Container>
     </footer>

@@ -1,11 +1,12 @@
 import type { Area, CategoryWithCount } from "@/types";
+import { getLocale } from "@/lib/i18n/server";
 import { FILTER_AREA_COUNT } from "@/lib/mock/areas";
-import { areas, categories } from "./catalog";
+import { categories, localizedAreas, localizedCategories } from "./catalog";
 import { getAllOffers } from "./offers";
 
 export async function getCategories(): Promise<CategoryWithCount[]> {
   const live = (await getAllOffers()).filter((o) => !o.isExpired);
-  return categories.map((c) => ({
+  return localizedCategories(await getLocale()).map((c) => ({
     ...c,
     offerCount: live.filter((o) => o.categorySlug === c.slug).length,
   }));
@@ -19,10 +20,10 @@ export function getCategorySlugs() {
   return categories.map((c) => c.slug);
 }
 
-export function getAreas(): Area[] {
-  return areas;
+export async function getAreas(): Promise<Area[]> {
+  return localizedAreas(await getLocale());
 }
 
-export function getFilterAreas(): Area[] {
-  return areas.slice(0, FILTER_AREA_COUNT);
+export async function getFilterAreas(): Promise<Area[]> {
+  return (await getAreas()).slice(0, FILTER_AREA_COUNT);
 }

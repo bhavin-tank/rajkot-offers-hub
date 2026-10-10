@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/components/i18n/link";
 import { SearchX } from "lucide-react";
 import type { Area, OfferFilters, OfferSummary, Paged, SortKey } from "@/types";
 import { SearchBar } from "@/components/marketing/search-bar";
@@ -13,6 +13,7 @@ import {
   filtersToQuery,
 } from "@/lib/filters";
 import { formatOfferCount } from "@/lib/format";
+import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 import { FilterForm } from "./filter-form";
 import { FilterSheet } from "./filter-sheet";
@@ -41,17 +42,18 @@ interface OffersExplorerProps {
 }
 
 /** Search, chips, filters, sort, results and "load more" for an offer list. */
-export function OffersExplorer({
+export async function OffersExplorer({
   basePath,
   filters,
   result,
   areas,
   chips,
   layout,
-  emptyTitle = "No offers found",
-  emptyHint = "Change the filters and try again",
+  emptyTitle,
+  emptyHint,
   emptyAction,
 }: OffersExplorerProps) {
+  const t = await getT();
   const href = (patch: Partial<OfferFilters> = {}) => `${basePath}${filtersToQuery(filters, patch)}`;
   const keepCategory = layout === "sidebar";
   const panelCount = countPanelFilters(filters);
@@ -77,13 +79,13 @@ export function OffersExplorer({
       href: href({ areas: filters.areas!.filter((a) => a !== slug) }),
     })),
     ...(filters.type
-      ? [{ key: "type", label: OFFER_TYPES.find((t) => t.value === filters.type)!.label, href: href({ type: undefined }) }]
+      ? [{ key: "type", label: t(OFFER_TYPES.find((o) => o.value === filters.type)!.label), href: href({ type: undefined }) }]
       : []),
     ...(filters.validity
       ? [
           {
             key: "validity",
-            label: VALIDITY_OPTIONS.find((v) => v.value === filters.validity)!.label,
+            label: t(VALIDITY_OPTIONS.find((v) => v.value === filters.validity)!.label),
             href: href({ validity: undefined }),
           },
         ]
@@ -106,7 +108,7 @@ export function OffersExplorer({
     </div>
   );
 
-  const countLabel = <p className="text-sm font-medium lg:text-[15px]">{formatOfferCount(result.total)}</p>;
+  const countLabel = <p className="text-sm font-medium lg:text-[15px]">{formatOfferCount(result.total, t)}</p>;
 
   const results = (
     <>
@@ -118,7 +120,7 @@ export function OffersExplorer({
             </RemovableChip>
           ))}
           <ButtonLink href={basePath} scroll={false} variant="ghost" size="sm" className="h-[34px] px-2 text-[13px]">
-            Clear all
+            {t("Clear all")}
           </ButtonLink>
         </div>
       )}
@@ -133,7 +135,7 @@ export function OffersExplorer({
                 variant="outline"
                 className="w-full lg:w-auto lg:px-7"
               >
-                Show more offers
+                {t("Show more offers")}
               </ButtonLink>
             </div>
           )}
@@ -141,15 +143,15 @@ export function OffersExplorer({
       ) : (
         <EmptyState
           icon={SearchX}
-          title={emptyTitle}
-          hint={emptyHint}
+          title={emptyTitle ?? t("No offers found")}
+          hint={emptyHint ?? t("Change the filters and try again")}
           action={
             <ButtonLink
               href={emptyAction?.href ?? basePath}
               variant="outline"
               className="h-11"
             >
-              {emptyAction?.label ?? "Reset filters"}
+              {emptyAction?.label ?? t("Reset filters")}
             </ButtonLink>
           }
         />
@@ -182,9 +184,9 @@ export function OffersExplorer({
     <div className="lg:grid lg:grid-cols-[260px_1fr] lg:items-start lg:gap-12">
       <aside className="sticky top-6 hidden rounded-2xl border border-line p-6 lg:block">
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Filter</h2>
+          <h2 className="text-lg font-semibold">{t("Filter")}</h2>
           <Link href={basePath} scroll={false} className="text-[13px] font-medium text-muted hover:text-ink">
-            Reset all
+            {t("Reset all")}
           </Link>
         </div>
         {filterForm("sidebar")}

@@ -2,6 +2,7 @@
 
 import { Upload, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import { useT } from "@/lib/i18n/client";
 
 const MAX_PHOTOS = 5;
 const ACCEPT = "image/jpeg,image/png";
@@ -16,6 +17,7 @@ interface Photo {
  * (there is no upload backend yet); only the count is submitted.
  */
 export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
+  const t = useT();
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -32,7 +34,7 @@ export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
     if (!files) return;
     const images = [...files].filter((f) => ACCEPT.includes(f.type));
     const room = MAX_PHOTOS - photos.length;
-    setError(images.length > room ? `You can add up to ${MAX_PHOTOS} photos` : images.length < files.length ? "JPG or PNG photos only" : null);
+    setError(images.length > room ? t("You can add up to {max} photos", { max: MAX_PHOTOS }) : images.length < files.length ? t("JPG or PNG photos only") : null);
     const next = images.slice(0, Math.max(room, 0)).map((file) => ({
       id: `${file.name}-${file.lastModified}-${Math.random()}`,
       url: URL.createObjectURL(file),
@@ -50,7 +52,7 @@ export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
   return (
     <div className="flex flex-col gap-3">
       <span id={`${id}-label`} className="text-sm font-medium">
-        Photos
+        {t("Photos")}
       </span>
       <label
         onDragOver={(e) => e.preventDefault()}
@@ -61,8 +63,8 @@ export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
         className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-[1.5px] border-dashed border-line-strong bg-surface-2 px-4 py-6 text-center transition-colors hover:border-primary has-[:focus-visible]:border-primary"
       >
         <Upload size={26} className="text-primary" aria-hidden />
-        <span className="text-sm font-medium">Add the offer poster or shop photos</span>
-        <span className="text-xs text-muted">Up to 5 photos · JPG, PNG</span>
+        <span className="text-sm font-medium">{t("Add the offer poster or shop photos")}</span>
+        <span className="text-xs text-muted">{t("Up to 5 photos · JPG, PNG")}</span>
         <input
           ref={input}
           type="file"
@@ -80,10 +82,10 @@ export function PhotoPicker({ name = "photoCount" }: { name?: string }) {
             <li key={photo.id} className="relative size-[88px] overflow-hidden rounded-xl bg-surface">
               {/* Local object URL preview; next/image cannot optimise blob: URLs. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.url} alt={`Photo ${i + 1}`} className="size-full object-cover" />
+              <img src={photo.url} alt={t("Photo {n}", { n: i + 1 })} className="size-full object-cover" />
               <button
                 type="button"
-                aria-label={`Remove photo ${i + 1}`}
+                aria-label={t("Remove photo {n}", { n: i + 1 })}
                 onClick={() => remove(photo)}
                 className="absolute top-1.5 right-1.5 flex size-[22px] cursor-pointer items-center justify-center rounded-full bg-ink/80 text-white"
               >

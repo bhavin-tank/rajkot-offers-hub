@@ -2,7 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 import type { OpeningHours } from "@/types";
-import { DAYS, formatHours, getOpenStatus, rajkotClock } from "@/lib/format";
+import { dayNames, formatHours, getOpenStatus, rajkotClock } from "@/lib/format";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 function subscribeMinute(onChange: () => void) {
@@ -25,8 +26,9 @@ function useNow() {
 
 /** "Open now • until 9 PM" pill. */
 export function OpenStatusPill({ hours, className }: { hours: OpeningHours[]; className?: string }) {
+  const locale = useLocale();
   const now = useNow();
-  const status = now ? getOpenStatus(hours, now) : null;
+  const status = now ? getOpenStatus(hours, now, locale) : null;
   return (
     <span
       className={cn(
@@ -43,6 +45,9 @@ export function OpenStatusPill({ hours, className }: { hours: OpeningHours[]; cl
 
 /** Weekly hours with today highlighted. */
 export function HoursTable({ hours, compact }: { hours: OpeningHours[]; compact?: boolean }) {
+  const t = useT();
+  const locale = useLocale();
+  const days = dayNames(locale);
   const now = useNow();
   const today = now ? rajkotClock(now).day : -1;
 
@@ -51,8 +56,8 @@ export function HoursTable({ hours, compact }: { hours: OpeningHours[]; compact?
       <ul className="flex flex-col gap-1.5 text-[13px]">
         {hours.map((h) => (
           <li key={h.day} className={cn("flex justify-between gap-3", h.day === today ? "font-semibold" : "text-muted")}>
-            <span>{DAYS[h.day]}</span>
-            <span>{formatHours(h)}</span>
+            <span>{days[h.day]}</span>
+            <span>{formatHours(h, locale)}</span>
           </li>
         ))}
       </ul>
@@ -67,11 +72,11 @@ export function HoursTable({ hours, compact }: { hours: OpeningHours[]; compact?
           return (
             <tr key={h.day} className={cn(isToday && "bg-surface font-semibold")}>
               <th scope="row" className="border-b border-line px-4 py-3 text-left font-[inherit] [tr:last-child_&]:border-0">
-                {DAYS[h.day]}
-                {isToday && <span className="sr-only"> (today)</span>}
+                {days[h.day]}
+                {isToday && <span className="sr-only"> {t("(today)")}</span>}
               </th>
               <td className={cn("border-b border-line px-4 py-3 text-right [tr:last-child_&]:border-0", !isToday && "text-muted")}>
-                {formatHours(h)}
+                {formatHours(h, locale)}
               </td>
             </tr>
           );

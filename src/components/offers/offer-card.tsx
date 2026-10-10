@@ -1,11 +1,14 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/components/i18n/link";
 import { Clock, MapPin } from "lucide-react";
 import type { ReactNode } from "react";
 import type { OfferSummary } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/display";
 import { formatUntil } from "@/lib/format";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { SaveButton } from "./save-button";
 
@@ -27,6 +30,8 @@ export function OfferCard({
   footer,
   className,
 }: OfferCardProps) {
+  const t = useT();
+  const locale = useLocale();
   const expired = offer.isExpired;
   return (
     <article
@@ -45,7 +50,7 @@ export function OfferCard({
           className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
         />
         <Badge variant={expired ? "expired" : "offer"} className="absolute top-3 left-3">
-          {expired ? "Expired" : offer.badge}
+          {expired ? t("Expired") : offer.badge}
         </Badge>
       </div>
       <div className={cn("flex flex-col gap-1.5 px-4 pt-4 pb-[18px]", expired && "opacity-65")}>
@@ -65,7 +70,7 @@ export function OfferCard({
           </span>
           <span className="inline-flex items-center gap-1">
             <Clock size={14} aria-hidden />
-            {formatUntil(offer.validTo)}
+            {formatUntil(offer.validTo, locale)}
           </span>
         </p>
       </div>

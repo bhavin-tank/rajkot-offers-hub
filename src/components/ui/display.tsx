@@ -64,17 +64,19 @@ interface StepperProps {
   title: string;
   step: number;
   total: number;
+  /** Translated "Step x of y" text. */
+  stepLabel: string;
   /** Step names shown under the bar on desktop. */
   labels?: string[];
 }
 
-export function Stepper({ title, step, total, labels }: StepperProps) {
+export function Stepper({ title, step, total, stepLabel, labels }: StepperProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between gap-3">
         <h2 className="text-base font-semibold lg:text-xl">{title}</h2>
         <span className="text-[13px] whitespace-nowrap text-muted lg:text-sm">
-          Step {step} of {total}
+          {stepLabel}
         </span>
       </div>
       <div

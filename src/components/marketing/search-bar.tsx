@@ -1,10 +1,11 @@
-import Form from "next/form";
+"use client";
+
+import { Form } from "@/components/i18n/link";
 import { Search } from "lucide-react";
 import type { ReactNode } from "react";
 import { buttonClass } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
-
-export const SEARCH_PLACEHOLDER = "Search for a shop, offer or category";
 
 const variants = {
   /** Home hero: tall, shadowed, with a "search" button on desktop. */
@@ -25,6 +26,8 @@ interface SearchBarProps {
 
 /** GET form to /offers?q=…, so search works without JavaScript. */
 export function SearchBar({ variant = "page", defaultValue, hidden, className }: SearchBarProps) {
+  const t = useT();
+  const placeholder = t("Search for a shop, offer or category");
   return (
     <Form
       action="/offers"
@@ -41,13 +44,13 @@ export function SearchBar({ variant = "page", defaultValue, hidden, className }:
         type="search"
         name="q"
         defaultValue={defaultValue}
-        placeholder={SEARCH_PLACEHOLDER}
-        aria-label={SEARCH_PLACEHOLDER}
+        placeholder={placeholder}
+        aria-label={placeholder}
         className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[15px] outline-none focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
       />
       {variant === "hero" && (
         <button type="submit" className={buttonClass({ size: "sm", className: "hidden h-11 px-6 lg:inline-flex" })}>
-          Search
+          {t("Search")}
         </button>
       )}
     </Form>

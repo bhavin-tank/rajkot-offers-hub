@@ -11,6 +11,7 @@ import { Stepper } from "@/components/ui/display";
 import { Field, FieldError, describedBy } from "@/components/ui/field";
 import { DateInput, Input, PhoneInput, Select, Textarea } from "@/components/ui/input";
 import { submitOffer } from "@/lib/actions/forms";
+import { useT } from "@/lib/i18n/client";
 import { SUBMIT_OFFER_TYPES } from "@/lib/filters";
 import { cn, omit } from "@/lib/utils";
 import {
@@ -32,6 +33,7 @@ interface SubmitOfferFormProps {
 
 /** Three-step form. All steps stay in one <form> so nothing is lost when moving between them. */
 export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferFormProps) {
+  const t = useT();
   const [state, formAction, pending] = useActionState(submitOffer, initialFormState);
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -94,11 +96,11 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
     return (
       <SuccessPanel
         icon={CircleCheck}
-        title="We have received your offer!"
-        text="Our team will contact you on WhatsApp after verification."
+        title={t("We have received your offer!")}
+        text={t("Our team will contact you on WhatsApp after verification.")}
         actions={
           <>
-            <ButtonLink href="/">Go to home</ButtonLink>
+            <ButtonLink href="/">{t("Go to home")}</ButtonLink>
             <Button
               variant="outline"
               onClick={() => {
@@ -108,7 +110,7 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
                 setValues({});
               }}
             >
-              Add another offer
+              {t("Add another offer")}
             </Button>
           </>
         }
@@ -116,7 +118,7 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
     );
   }
 
-  const err = (name: string) => errors[name];
+  const err = (name: string) => (errors[name] ? t(errors[name]) : undefined);
   const field = (name: string, helper?: string) => ({
     id: name,
     name,
@@ -136,16 +138,22 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
         onInput={(e) => clearError((e.target as HTMLInputElement).name)}
         className="flex flex-col gap-6 lg:gap-8"
       >
-        <Stepper title={SUBMIT_STEPS[step]} step={step + 1} total={SUBMIT_STEPS.length} labels={[...SUBMIT_STEPS]} />
+        <Stepper
+          title={t(SUBMIT_STEPS[step])}
+          step={step + 1}
+          total={SUBMIT_STEPS.length}
+          stepLabel={t("Step {step} of {total}", { step: step + 1, total: SUBMIT_STEPS.length })}
+          labels={SUBMIT_STEPS.map((s) => t(s))}
+        />
 
         {/* Step 1: business */}
         <fieldset hidden={step !== 0} className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
-          <legend className="sr-only">{SUBMIT_STEPS[0]}</legend>
-          <Field id="businessName" label="Business name" error={err("businessName")}>
-            <Input {...field("businessName")} autoComplete="organization" placeholder="e.g. Shree Radhe Collection" />
+          <legend className="sr-only">{t(SUBMIT_STEPS[0])}</legend>
+          <Field id="businessName" label={t("Business name")} error={err("businessName")}>
+            <Input {...field("businessName")} autoComplete="organization" placeholder={t("e.g. Shree Radhe Collection")} />
           </Field>
-          <Field id="category" label="Category" error={err("category")}>
-            <Select {...field("category")} defaultValue="" placeholder="Select a category" onChange={() => clearError("category")}>
+          <Field id="category" label={t("Category")} error={err("category")}>
+            <Select {...field("category")} defaultValue="" placeholder={t("Select a category")} onChange={() => clearError("category")}>
               {categories.map((c) => (
                 <option key={c.slug} value={c.slug}>
                   {c.shortName}
@@ -153,8 +161,8 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
               ))}
             </Select>
           </Field>
-          <Field id="area" label="Area" error={err("area")}>
-            <Select {...field("area")} defaultValue="" placeholder="Select an area" onChange={() => clearError("area")}>
+          <Field id="area" label={t("Area")} error={err("area")}>
+            <Select {...field("area")} defaultValue="" placeholder={t("Select an area")} onChange={() => clearError("area")}>
               {areas.map((a) => (
                 <option key={a.slug} value={a.slug}>
                   {a.name}
@@ -162,11 +170,11 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
               ))}
             </Select>
           </Field>
-          <Field id="address" label="Full address" error={err("address")} className="lg:col-span-2">
-            <Textarea {...field("address")} autoComplete="street-address" placeholder="Shop number, building, road, landmark" />
+          <Field id="address" label={t("Full address")} error={err("address")} className="lg:col-span-2">
+            <Textarea {...field("address")} autoComplete="street-address" placeholder={t("Shop number, building, road, landmark")} />
           </Field>
-          <Field id="ownerName" label="Owner / contact person name" error={err("ownerName")}>
-            <Input {...field("ownerName")} autoComplete="name" placeholder="Your name" />
+          <Field id="ownerName" label={t("Owner / contact person name")} error={err("ownerName")}>
+            <Input {...field("ownerName")} autoComplete="name" placeholder={t("Your name")} />
           </Field>
           <Field id="instagram" label="Instagram" optional error={err("instagram")}>
             <Input {...field("instagram")} placeholder="@yourshop" />
@@ -174,30 +182,30 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
           <div className="flex flex-col gap-3 lg:col-span-2">
             <Field
               id="mobile"
-              label="Mobile number"
+              label={t("Mobile number")}
               error={err("mobile")}
-              helper="Our team will use this number to verify your offer."
+              helper={t("Our team will use this number to verify your offer.")}
             >
               <PhoneInput {...field("mobile", "helper")} placeholder="98XXX XXXXX" />
             </Field>
-            <Checkbox name="whatsapp" defaultChecked label="This number is on WhatsApp" />
+            <Checkbox name="whatsapp" defaultChecked label={t("This number is on WhatsApp")} />
           </div>
         </fieldset>
 
         {/* Step 2: offer */}
         <fieldset hidden={step !== 1} className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
-          <legend className="sr-only">{SUBMIT_STEPS[1]}</legend>
+          <legend className="sr-only">{t(SUBMIT_STEPS[1])}</legend>
           <Field
             id="title"
-            label="Offer title"
+            label={t("Offer title")}
             error={err("title")}
-            helper={'Keep it short and clear, e.g. "20% off on all kurtas"'}
+            helper={t('Keep it short and clear, e.g. "20% off on all kurtas"')}
             className="lg:col-span-2"
           >
-            <Input {...field("title", "helper")} maxLength={80} placeholder="20% off on all kurtas" />
+            <Input {...field("title", "helper")} maxLength={80} placeholder={t("20% off on all kurtas")} />
           </Field>
           <fieldset className="flex flex-col gap-2 lg:col-span-2">
-            <legend className="mb-2 text-sm font-medium">Offer type</legend>
+            <legend className="mb-2 text-sm font-medium">{t("Offer type")}</legend>
             <div className="flex flex-wrap gap-2">
               {SUBMIT_OFFER_TYPES.map((type, i) => (
                 <label key={type.value} className="cursor-pointer">
@@ -208,28 +216,28 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
                       "peer-checked:border-primary peer-checked:bg-primary-soft peer-checked:font-semibold peer-checked:text-primary peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary",
                     )}
                   >
-                    {type.label}
+                    {t(type.label)}
                   </span>
                 </label>
               ))}
             </div>
             {err("type") && <FieldError>{err("type")}</FieldError>}
           </fieldset>
-          <Field id="description" label="Offer description" error={err("description")} className="lg:col-span-2">
+          <Field id="description" label={t("Offer description")} error={err("description")} className="lg:col-span-2">
             <Textarea
               {...field("description")}
               className="min-h-28"
-              placeholder="Which items does the offer apply to? What should customers do to get it?"
+              placeholder={t("Which items does the offer apply to? What should customers do to get it?")}
             />
           </Field>
-          <Field id="terms" label="Terms and conditions" optional className="lg:col-span-2">
-            <Textarea {...field("terms")} placeholder="e.g. On a minimum purchase of ₹999, not valid with other offers" />
+          <Field id="terms" label={t("Terms and conditions")} optional className="lg:col-span-2">
+            <Textarea {...field("terms")} placeholder={t("e.g. On a minimum purchase of ₹999, not valid with other offers")} />
           </Field>
           <div className="grid grid-cols-2 gap-3 lg:col-span-2 lg:gap-6">
-            <Field id="startDate" label="Start date" error={err("startDate")}>
+            <Field id="startDate" label={t("Start date")} error={err("startDate")}>
               <DateInput {...field("startDate")} />
             </Field>
-            <Field id="endDate" label="End date" error={err("endDate")}>
+            <Field id="endDate" label={t("End date")} error={err("endDate")}>
               <DateInput {...field("endDate")} />
             </Field>
           </div>
@@ -237,13 +245,13 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
 
         {/* Step 3: photos and confirmation */}
         <fieldset hidden={step !== 2} className="flex flex-col gap-6">
-          <legend className="sr-only">{SUBMIT_STEPS[2]}</legend>
+          <legend className="sr-only">{t(SUBMIT_STEPS[2])}</legend>
           <PhotoPicker />
           <ReviewCard values={values} categories={categories} areas={areas} onEdit={goTo} />
           <div className="flex flex-col gap-2">
             <Checkbox
               name="confirm"
-              label="I confirm that the offer details provided are correct."
+              label={t("I confirm that the offer details provided are correct.")}
               aria-invalid={err("confirm") ? true : undefined}
               onChange={() => clearError("confirm")}
             />
@@ -257,14 +265,14 @@ export function SubmitOfferForm({ categories, areas, mobileIntro }: SubmitOfferF
             step === 1 && "grid grid-cols-[1fr_2fr] lg:flex",
           )}
         >
-          <p className="hidden text-[13px] text-muted lg:mr-auto lg:block">Takes about 2–3 minutes</p>
+          <p className="hidden text-[13px] text-muted lg:mr-auto lg:block">{t("Takes about 2–3 minutes")}</p>
           {step > 0 && (
             <Button variant="outline" onClick={() => goTo(step - 1)} className={cn(step === 2 && "order-2 lg:order-none", "lg:px-7")}>
-              Back
+              {t("Back")}
             </Button>
           )}
           <Button type="submit" disabled={pending} className="lg:px-7">
-            {step === SUBMIT_STEPS.length - 1 ? (pending ? "Sending…" : "Submit an offer") : "Next"}
+            {step === SUBMIT_STEPS.length - 1 ? (pending ? t("Sending…") : t("Submit an offer")) : t("Next")}
             {step < SUBMIT_STEPS.length - 1 && <ArrowRight size={18} strokeWidth={2} aria-hidden />}
           </Button>
         </div>

@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Sheet } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/toast";
+import { localizePath } from "@/lib/i18n/config";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { site } from "@/lib/site";
 
 interface ShareButtonProps {
@@ -20,7 +22,9 @@ interface ShareButtonProps {
 export function ShareButton({ title, path, variant = "floating" }: ShareButtonProps) {
   const [open, setOpen] = useState(false);
   const toast = useToast();
-  const url = `${site.url}${path}`;
+  const t = useT();
+  const locale = useLocale();
+  const url = `${site.url}${localizePath(locale, path)}`;
 
   async function onShare() {
     if (typeof navigator !== "undefined" && navigator.share) {
@@ -37,9 +41,9 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(url);
-      toast("Link copied");
+      toast(t("Link copied"));
     } catch {
-      toast("Could not copy the link");
+      toast(t("Could not copy the link"));
     }
     setOpen(false);
   }
@@ -56,7 +60,7 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
   return (
     <>
       {variant === "floating" ? (
-        <IconButton variant="floating" size="lg" aria-label="Share" onClick={onShare}>
+        <IconButton variant="floating" size="lg" aria-label={t("Share")} onClick={onShare}>
           <Share2 size={20} aria-hidden />
         </IconButton>
       ) : variant === "pill" ? (
@@ -66,16 +70,16 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
           className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-white px-4 text-sm font-medium shadow-card hover:bg-surface"
         >
           <Share2 size={16} aria-hidden />
-          Share
+          {t("Share")}
         </button>
       ) : (
         <Button variant="ghost" size="sm" onClick={onShare} className="px-2">
           <Share2 size={18} aria-hidden />
-          Share
+          {t("Share")}
         </Button>
       )}
 
-      <Sheet open={open} onClose={() => setOpen(false)} title="Share with friends">
+      <Sheet open={open} onClose={() => setOpen(false)} title={t("Share with friends")}>
         <div className="grid grid-cols-3 gap-3">
           {options.map((option) => (
             <a
@@ -96,7 +100,7 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
             className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl bg-surface py-4 text-xs font-medium hover:bg-canvas"
           >
             <Link2 size={22} aria-hidden />
-            Copy link
+            {t("Copy link")}
           </button>
         </div>
         <p className="mt-4 truncate rounded-xl border border-line px-3.5 py-3 text-[13px] text-muted">

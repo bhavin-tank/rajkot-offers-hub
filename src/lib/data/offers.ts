@@ -1,7 +1,8 @@
 import { cacheLife, cacheTag } from "next/cache";
-import type { Offer, OfferFilters, OfferSummary, Paged, ValidityKey } from "@/types";
+import type { Category, Offer, OfferFilters, OfferSummary, Paged, ValidityKey } from "@/types";
 import { offers as offerRecords } from "@/lib/mock/offers";
-import { buildOffers, categories } from "./catalog";
+import { getLocale } from "@/lib/i18n/server";
+import { buildOffers, localizedCategories } from "./catalog";
 
 export const PAGE_SIZE = 9;
 
@@ -12,7 +13,7 @@ export async function getAllOffers(): Promise<Offer[]> {
   "use cache";
   cacheLife("hours");
   cacheTag("offers");
-  return buildOffers(new Date());
+  return buildOffers(new Date(), await getLocale());
 }
 
 export function toSummary(offer: Offer): OfferSummary {
@@ -29,7 +30,7 @@ export function toSummary(offer: Offer): OfferSummary {
   };
 }
 
-function matchesQuery(offer: Offer, q: string) {
+function matchesQuery(offer: Offer, q: string, categories: Category[]) {
   const needle = q.trim().toLowerCase();
   if (!needle) return true;
   const category = categories.find((c) => c.slug === offer.categorySlug);
@@ -42,7 +43,10 @@ export async function getOffers(filters: OfferFilters = {}): Promise<Paged<Offer
   const page = Math.max(1, filters.page ?? 1);
   let list = (await getAllOffers()).filter((o) => !o.isExpired);
 
-  if (filters.q) list = list.filter((o) => matchesQuery(o, filters.q!));
+  if (filters.q) {
+    const localized = localizedCategories(await getLocale());
+    list = list.filter((o) => matchesQuery(o, filters.q!, localized));
+  }
   if (filters.category) list = list.filter((o) => o.categorySlug === filters.category);
   if (filters.subcategory) list = list.filter((o) => o.subcategory === filters.subcategory);
   if (filters.areas?.length) list = list.filter((o) => filters.areas!.includes(o.areaSlug));

@@ -1,0 +1,53 @@
+import type { Metadata, Viewport } from "next";
+import { Anek_Gujarati, Inter } from "next/font/google";
+import { notFound } from "next/navigation";
+import { ToastProvider } from "@/components/ui/toast";
+import { hasLocale, locales } from "@/lib/i18n/config";
+import { LocaleProvider } from "@/lib/i18n/client";
+import { getLocale, getT } from "@/lib/i18n/server";
+import { site } from "@/lib/site";
+import { cn } from "@/lib/utils";
+import "../globals.css";
+
+const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+
+const anek = Anek_Gujarati({
+  variable: "--font-anek",
+  subsets: ["gujarati", "latin"],
+  weight: ["400", "500", "600", "700"],
+  // Only Gujarati pages use it, so it loads on demand instead of being preloaded everywhere.
+  preload: false,
+});
+
+export function generateStaticParams() {
+  return locales.map((lang) => ({ lang }));
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [t, locale] = await Promise.all([getT(), getLocale()]);
+  return {
+    metadataBase: new URL(site.url),
+    title: { default: `${site.name} — ${t("Offers in Rajkot")}`, template: `%s · ${site.name}` },
+    description: t("Fresh offers from Rajkot's shops, cafés and salons, all in one place."),
+    openGraph: { siteName: site.name, locale: locale === "gu" ? "gu_IN" : "en_IN", type: "website" },
+  };
+}
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+};
+
+export default async function RootLayout({ children, params }: LayoutProps<"/[lang]">) {
+  const { lang } = await params;
+  if (!hasLocale(lang)) notFound();
+
+  return (
+    <html lang={lang} className={cn(inter.variable, lang === "gu" && anek.variable)}>
+      <body className="flex min-h-dvh flex-col">
+        <LocaleProvider locale={lang}>
+          <ToastProvider>{children}</ToastProvider>
+        </LocaleProvider>
+      </body>
+    </html>
+  );
+}

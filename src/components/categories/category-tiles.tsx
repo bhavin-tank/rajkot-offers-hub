@@ -1,10 +1,11 @@
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/components/i18n/link";
 import { ArrowRight } from "lucide-react";
 import type { Area, CategoryWithCount } from "@/types";
 import { CategoryIcon } from "@/components/icons/category-icon";
 import { AreaChip } from "@/components/ui/chip";
 import { formatOfferCount } from "@/lib/format";
+import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 export function categoryHref(slug: string) {
@@ -30,7 +31,8 @@ export function CategoryIconRow({ categories }: { categories: CategoryWithCount[
 }
 
 /** Square image tile with name and offer count. */
-export function CategoryImageGrid({ categories }: { categories: CategoryWithCount[] }) {
+export async function CategoryImageGrid({ categories }: { categories: CategoryWithCount[] }) {
+  const t = await getT();
   return (
     <ul className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-8">
       {categories.map((c) => (
@@ -47,7 +49,7 @@ export function CategoryImageGrid({ categories }: { categories: CategoryWithCoun
             </span>
             <span>
               <span className="block text-[15px] leading-snug font-semibold lg:text-[17px]">{c.name}</span>
-              <span className="mt-0.5 block text-[13px] text-muted">{formatOfferCount(c.offerCount)}</span>
+              <span className="mt-0.5 block text-[13px] text-muted">{formatOfferCount(c.offerCount, t)}</span>
             </span>
           </Link>
         </li>

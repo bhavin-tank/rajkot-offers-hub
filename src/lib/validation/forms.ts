@@ -1,9 +1,12 @@
+import type { MessageKey } from "@/lib/i18n/translate";
+
 /**
  * Form rules shared by the client (instant feedback) and the server
- * actions (the source of truth). Messages are user-facing English.
+ * actions (the source of truth). Messages are English keys: the forms translate them with `t` when
+ * they render, so the server never needs to know the visitor's language.
  */
 
-export type FieldErrors = Record<string, string>;
+export type FieldErrors = Record<string, MessageKey>;
 
 export type FormState =
   | { status: "idle" }
@@ -12,7 +15,7 @@ export type FormState =
 
 export const initialFormState: FormState = { status: "idle" };
 
-const REQUIRED = "This field is required";
+const REQUIRED: MessageKey = "This field is required";
 
 export function text(data: FormData, name: string) {
   const value = data.get(name);
@@ -30,7 +33,7 @@ function required(errors: FieldErrors, data: FormData, names: string[]) {
   }
 }
 
-export const SUBMIT_STEPS = ["Business details", "Offer details", "Photos and confirmation"] as const;
+export const SUBMIT_STEPS = ["Business details", "Offer details", "Photos and confirmation"] as const satisfies readonly MessageKey[];
 
 /** Fields checked on each step of the submit-offer form. */
 export const SUBMIT_STEP_FIELDS = [
@@ -75,7 +78,7 @@ export const CONTACT_SUBJECTS = [
   "Complaint about an offer",
   "Listing an offer",
   "Suggestion",
-] as const;
+] as const satisfies readonly MessageKey[];
 
 export function validateContact(data: FormData): FieldErrors {
   const errors: FieldErrors = {};

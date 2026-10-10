@@ -20,7 +20,7 @@
   --color-open: #16a34a;
   --color-warning: #b45309;
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), var(--font-anek, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
 
   --shadow-card: 0 4px 20px rgb(0 0 0 / 0.06);
   --shadow-float: 0 4px 20px rgb(0 0 0 / 0.12);

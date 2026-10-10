@@ -1,32 +1,5 @@
-import Image from "next/image";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { InstagramIcon } from "@/components/icons/brand";
-import { ButtonAnchor, ButtonLink } from "@/components/ui/button";
-import { cn, instagramHref } from "@/lib/utils";
-import { site } from "@/lib/site";
-
-/** "For businesses" call to action with an image. */
-export function BusinessCta({ image }: { image: string }) {
-  return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-white lg:grid lg:grid-cols-[1.1fr_1fr]">
-      <div className="relative aspect-video lg:order-2 lg:aspect-auto lg:min-h-[400px]">
-        <Image src={image} alt="" fill sizes="(min-width: 1024px) 570px, 100vw" className="object-cover" />
-      </div>
-      <div className="flex flex-col items-start gap-3 p-5 lg:justify-center lg:gap-4 lg:px-14 lg:py-16">
-        <h2 className="text-[22px] leading-[1.3] font-semibold lg:text-4xl lg:leading-tight">
-          Take your offer to Rajkot
-        </h2>
-        <p className="text-[15px] leading-relaxed text-muted lg:text-lg">
-          List your shop’s offer for free and reach local customers.
-        </p>
-        <ButtonLink href="/submit-offer" className="mt-2 w-full lg:w-auto lg:px-7">
-          Submit an offer
-        </ButtonLink>
-      </div>
-    </div>
-  );
-}
 
 interface StepCardProps {
   n: number;
@@ -62,28 +35,6 @@ export function PromiseItem({ icon: Icon, title, text }: { icon: LucideIcon; tit
         <p className="mt-1 text-sm leading-normal text-muted lg:text-[15px]">{text}</p>
       </div>
     </li>
-  );
-}
-
-/** "Follow us on Instagram" band. */
-export function FollowBand({ className }: { className?: string }) {
-  return (
-    <div className={cn("flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between", className)}>
-      <div>
-        <p className="text-lg font-semibold lg:text-2xl">Follow us on Instagram for daily offers</p>
-        <p className="mt-1 text-[15px] text-muted lg:text-base">{site.instagram}</p>
-      </div>
-      <ButtonAnchor
-        href={instagramHref(site.instagram)}
-        target="_blank"
-        rel="noreferrer"
-        variant="outline"
-        className="h-11 self-start lg:h-12 lg:self-auto"
-      >
-        <InstagramIcon size={18} />
-        Follow
-      </ButtonAnchor>
-    </div>
   );
 }
 

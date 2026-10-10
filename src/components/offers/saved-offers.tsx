@@ -9,6 +9,7 @@ import { Tabs } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
 import { useSavedOffers } from "@/hooks/use-saved-offers";
 import { ENDING_SOON_DAYS, formatEndsIn } from "@/lib/format";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { OfferCard, OfferGridSkeleton } from "./offer-card";
 
 const noop = () => () => {};
@@ -24,6 +25,8 @@ function Grid({ children }: { children: React.ReactNode }) {
 
 /** Saved offers, split into active and expired tabs. */
 export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
+  const t = useT();
+  const locale = useLocale();
   const hydrated = useHydrated();
   const { saved, remove, restore } = useSavedOffers();
   const toast = useToast();
@@ -39,9 +42,9 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
     return (
       <EmptyState
         icon={Heart}
-        title="No saved offers yet"
-        hint="Tap ♡ on an offer you like to see it here."
-        action={<ButtonLink href="/offers">Browse offers</ButtonLink>}
+        title={t("No saved offers yet")}
+        hint={t("Tap ♡ on an offer you like to see it here.")}
+        action={<ButtonLink href="/offers">{t("Browse offers")}</ButtonLink>}
       />
     );
   }
@@ -49,7 +52,7 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
   function onRemove(slug: string) {
     const index = saved.indexOf(slug);
     remove(slug);
-    toast("Offer removed", { actionLabel: "Undo", onAction: () => restore(slug, index) });
+    toast(t("Offer removed"), { actionLabel: t("Undo"), onAction: () => restore(slug, index) });
   }
 
   return (
@@ -57,7 +60,7 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
       items={[
         {
           value: "active",
-          label: `Live (${active.length})`,
+          label: t("Live ({count})", { count: active.length }),
           content: (
             <div className="pt-5 lg:pt-8">
               {active.length ? (
@@ -70,7 +73,7 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
                         offer.daysLeft <= ENDING_SOON_DAYS && (
                           <p className="flex items-center gap-1.5 text-[13px] font-medium text-warning">
                             <Clock size={14} aria-hidden />
-                            {formatEndsIn(offer.daysLeft)}
+                            {formatEndsIn(offer.daysLeft, locale)}
                           </p>
                         )
                       }
@@ -78,14 +81,14 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
                   ))}
                 </Grid>
               ) : (
-                <p className="py-10 text-center text-[15px] text-muted">No live offers saved.</p>
+                <p className="py-10 text-center text-[15px] text-muted">{t("No live offers saved.")}</p>
               )}
             </div>
           ),
         },
         {
           value: "expired",
-          label: `Expired (${expired.length})`,
+          label: t("Expired ({count})", { count: expired.length }),
           content: (
             <div className="pt-5 lg:pt-8">
               {expired.length ? (
@@ -96,14 +99,14 @@ export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
                       offer={offer}
                       footer={
                         <Button variant="outline" size="sm" block onClick={() => onRemove(offer.slug)}>
-                          Remove
+                          {t("Remove")}
                         </Button>
                       }
                     />
                   ))}
                 </Grid>
               ) : (
-                <p className="py-10 text-center text-[15px] text-muted">No expired offers saved.</p>
+                <p className="py-10 text-center text-[15px] text-muted">{t("No expired offers saved.")}</p>
               )}
             </div>
           ),

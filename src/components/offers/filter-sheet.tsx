@@ -4,6 +4,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { IconButton } from "@/components/ui/icon-button";
 import { Sheet } from "@/components/ui/sheet";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 interface FilterSheetProps {
@@ -19,7 +20,8 @@ interface FilterSheetProps {
 /** Button that opens the filter form in a bottom sheet. */
 export function FilterSheet({ count, children, trigger = "square", className }: FilterSheetProps) {
   const [open, setOpen] = useState(false);
-  const label = count ? `Filter (${count})` : "Filter";
+  const t = useT();
+  const label = count ? t("Filter ({count})", { count }) : t("Filter");
 
   return (
     <>
@@ -49,7 +51,7 @@ export function FilterSheet({ count, children, trigger = "square", className }: 
         </IconButton>
       )}
       {/* Submitting or resetting navigates, so close the sheet as well. */}
-      <Sheet open={open} onClose={() => setOpen(false)} title="Filter">
+      <Sheet open={open} onClose={() => setOpen(false)} title={t("Filter")}>
         <div
           onSubmit={() => setOpen(false)}
           onClick={(e) => {

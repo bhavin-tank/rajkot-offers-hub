@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useRef, useState, type ReactNode } from "react";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 interface OfferGalleryProps {
@@ -19,6 +20,7 @@ interface OfferGalleryProps {
  * Desktop: large image with a thumbnail strip.
  */
 export function OfferGallery({ images, alt, expired, badge, overlay }: OfferGalleryProps) {
+  const t = useT();
   const [active, setActive] = useState(0);
   const track = useRef<HTMLDivElement>(null);
 
@@ -80,7 +82,7 @@ export function OfferGallery({ images, alt, expired, badge, overlay }: OfferGall
             <button
               key={src}
               type="button"
-              aria-label={`Photo ${i + 1}`}
+              aria-label={t("Photo {number}", { number: i + 1 })}
               aria-current={i === active}
               onClick={() => select(i)}
               className={cn(

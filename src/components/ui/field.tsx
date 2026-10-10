@@ -1,5 +1,8 @@
+"use client";
+
 import { CircleAlert } from "lucide-react";
 import type { ReactNode } from "react";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 interface FieldProps {
@@ -14,13 +17,14 @@ interface FieldProps {
 
 /** Label, control, helper text and error message. */
 export function Field({ id, label, optional, helper, error, className, children }: FieldProps) {
+  const t = useT();
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-baseline justify-between gap-3">
         <label htmlFor={id} className="text-sm font-medium text-ink">
           {label}
         </label>
-        {optional && <span className="text-xs text-faint">Optional</span>}
+        {optional && <span className="text-xs text-faint">{t("Optional")}</span>}
       </div>
       {children}
       {error ? (

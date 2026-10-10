@@ -1,3 +1,5 @@
+import type { MessageKey } from "@/lib/i18n/translate";
+
 export const site = {
   name: "Rajkot Offers Hub",
   city: "Rajkot",
@@ -15,6 +17,9 @@ export const mainNav = [
   { href: "/offers", label: "Offers" },
   { href: "/categories", label: "Categories" },
   { href: "/how-it-works", label: "How it works" },
-] as const;
+] as const satisfies readonly { href: string; label: MessageKey }[];
 
-export const footerNav = [...mainNav, { href: "/contact", label: "Contact" }] as const;
+export const footerNav = [...mainNav, { href: "/contact", label: "Contact" }] as const satisfies readonly {
+  href: string;
+  label: MessageKey;
+}[];

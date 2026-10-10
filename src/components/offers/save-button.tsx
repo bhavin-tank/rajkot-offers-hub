@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
 import { useSavedOffers } from "@/hooks/use-saved-offers";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 function useToggleSave(slug: string) {
   const { isSaved, toggle } = useSavedOffers();
   const toast = useToast();
+  const t = useT();
   const saved = isSaved(slug);
   const onToggle = () => {
     const nowSaved = toggle(slug);
-    toast(nowSaved ? "Offer saved" : "Removed from saved");
+    toast(nowSaved ? t("Offer saved") : t("Removed from saved"));
   };
   return { saved, onToggle };
 }
@@ -30,12 +32,13 @@ function HeartIcon({ saved, size }: { saved: boolean; size: number }) {
 
 /** Round heart button over an image. */
 export function SaveButton({ slug, size = "md", className }: { slug: string; size?: "md" | "lg"; className?: string }) {
+  const t = useT();
   const { saved, onToggle } = useToggleSave(slug);
   return (
     <IconButton
       variant="floating"
       size={size}
-      aria-label={saved ? "Remove from saved" : "Save offer"}
+      aria-label={saved ? t("Remove from saved") : t("Save offer")}
       aria-pressed={saved}
       onClick={onToggle}
       className={className}
@@ -47,11 +50,12 @@ export function SaveButton({ slug, size = "md", className }: { slug: string; siz
 
 /** Text button "Save" used in the desktop info card. */
 export function SaveTextButton({ slug }: { slug: string }) {
+  const t = useT();
   const { saved, onToggle } = useToggleSave(slug);
   return (
     <Button variant="ghost" size="sm" aria-pressed={saved} onClick={onToggle} className="px-2">
       <HeartIcon saved={saved} size={18} />
-      {saved ? "Saved" : "Save"}
+      {saved ? t("Saved") : t("Save")}
     </Button>
   );
 }

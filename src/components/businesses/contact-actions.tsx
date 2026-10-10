@@ -1,6 +1,7 @@
 import { Navigation, Phone } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { Button, ButtonAnchor } from "@/components/ui/button";
+import { getT } from "@/lib/i18n/server";
 import { cn, directionsHref, instagramHref, telHref, whatsappHref } from "@/lib/utils";
 
 interface Contact {
@@ -13,7 +14,7 @@ interface Contact {
 const external = { target: "_blank", rel: "noreferrer" } as const;
 
 /** Mobile bar fixed to the bottom of offer and business pages. */
-export function StickyActionBar({
+export async function StickyActionBar({
   contact,
   layout,
   disabled,
@@ -24,6 +25,7 @@ export function StickyActionBar({
   /** Expired offer: call and WhatsApp are disabled. */
   disabled?: boolean;
 }) {
+  const t = await getT();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2.5 border-t border-line bg-white px-5 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] lg:hidden">
       {layout === "offer" ? (
@@ -39,7 +41,7 @@ export function StickyActionBar({
           )}
           <ButtonAnchor href={directionsHref(contact.geo.lat, contact.geo.lng)} {...external} variant="outline" className="px-4">
             <Navigation size={18} aria-hidden />
-            Directions
+            {t("Directions")}
           </ButtonAnchor>
         </>
       ) : (
@@ -50,12 +52,12 @@ export function StickyActionBar({
       )}
       {disabled ? (
         <Button disabled className="flex-1">
-          Offer expired
+          {t("Offer expired")}
         </Button>
       ) : (
         <ButtonAnchor href={telHref(contact.phone)} className={cn(layout === "offer" ? "flex-1" : "flex-[1.4]")}>
           <Phone size={18} aria-hidden />
-          Call
+          {t("Call")}
         </ButtonAnchor>
       )}
     </div>
@@ -63,11 +65,12 @@ export function StickyActionBar({
 }
 
 /** Grey icon tiles (call, WhatsApp, directions, Instagram). */
-export function ActionTiles({ contact, includeCall, className }: { contact: Contact; includeCall?: boolean; className?: string }) {
+export async function ActionTiles({ contact, includeCall, className }: { contact: Contact; includeCall?: boolean; className?: string }) {
+  const t = await getT();
   const tiles = [
-    ...(includeCall ? [{ label: "Call", icon: <Phone size={22} aria-hidden />, href: telHref(contact.phone), ext: false }] : []),
+    ...(includeCall ? [{ label: t("Call"), icon: <Phone size={22} aria-hidden />, href: telHref(contact.phone), ext: false }] : []),
     { label: "WhatsApp", icon: <WhatsAppIcon size={22} />, href: whatsappHref(contact.whatsapp), ext: true },
-    { label: "Directions", icon: <Navigation size={22} aria-hidden />, href: directionsHref(contact.geo.lat, contact.geo.lng), ext: true },
+    { label: t("Directions"), icon: <Navigation size={22} aria-hidden />, href: directionsHref(contact.geo.lat, contact.geo.lng), ext: true },
     ...(contact.instagram
       ? [{ label: "Instagram", icon: <InstagramIcon size={22} />, href: instagramHref(contact.instagram), ext: true }]
       : []),

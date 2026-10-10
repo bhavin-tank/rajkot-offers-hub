@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { IconButton } from "./icon-button";
 
@@ -19,6 +20,7 @@ interface SheetProps {
  * so focus trapping, Escape and the backdrop come from the browser.
  */
 export function Sheet({ open, onClose, title, children, footer, className }: SheetProps) {
+  const t = useT();
   const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export function Sheet({ open, onClose, title, children, footer, className }: She
         </div>
         <div className="flex items-center justify-between px-5 pt-3 pb-4 lg:px-6 lg:pt-5">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <IconButton variant="soft" size="sm" aria-label="Close" onClick={onClose}>
+          <IconButton variant="soft" size="sm" aria-label={t("Close")} onClick={onClose}>
             <X size={18} />
           </IconButton>
         </div>

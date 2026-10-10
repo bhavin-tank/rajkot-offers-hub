@@ -1,6 +1,7 @@
-import Link from "next/link";
+import { Link } from "@/components/i18n/link";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
+import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
 /** 1200px content column with 20px gutters. */
@@ -38,7 +39,8 @@ interface SectionHeaderProps {
 }
 
 /** Section title with an optional pink "see all" link. */
-export function SectionHeader({ title, href, linkLabel = "See all", className, as: Tag = "h2" }: SectionHeaderProps) {
+export async function SectionHeader({ title, href, linkLabel, className, as: Tag = "h2" }: SectionHeaderProps) {
+  const t = await getT();
   return (
     <div className={cn("mb-4 flex items-baseline justify-between gap-4 lg:mb-7", className)}>
       <Tag className="text-xl leading-[1.3] font-semibold lg:text-[28px]">{title}</Tag>
@@ -47,7 +49,7 @@ export function SectionHeader({ title, href, linkLabel = "See all", className, a
           href={href}
           className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline lg:text-[15px]"
         >
-          {linkLabel}
+          {linkLabel ?? t("See all")}
           <ArrowRight size={16} aria-hidden />
         </Link>
       )}
@@ -64,9 +66,10 @@ export function PageTitle({ title, subtitle, className }: { title: string; subti
   );
 }
 
-export function Breadcrumb({ items }: { items: { href?: string; label: string }[] }) {
+export async function Breadcrumb({ items }: { items: { href?: string; label: string }[] }) {
+  const t = await getT();
   return (
-    <nav aria-label="Breadcrumb" className="hidden text-sm text-muted lg:block">
+    <nav aria-label={t("Breadcrumb")} className="hidden text-sm text-muted lg:block">
       <ol className="flex flex-wrap items-center gap-1.5">
         {items.map((item, i) => (
           <li key={item.label} className="flex items-center gap-1.5">

@@ -1,13 +1,14 @@
+import type { MessageKey } from "@/lib/i18n/translate";
 import type { OfferFilters, OfferType, SortKey, ValidityKey } from "@/types";
 
-export const OFFER_TYPES: { value: OfferType; label: string }[] = [
+export const OFFER_TYPES: { value: OfferType; label: MessageKey }[] = [
   { value: "percent", label: "% discount" },
   { value: "flat", label: "Flat discount" },
   { value: "bogo", label: "Buy 1 get 1 free" },
   { value: "combo", label: "Combo" },
 ];
 
-export const SUBMIT_OFFER_TYPES: { value: OfferType; label: string }[] = [
+export const SUBMIT_OFFER_TYPES: { value: OfferType; label: MessageKey }[] = [
   { value: "percent", label: "% discount" },
   { value: "flat", label: "Flat discount" },
   { value: "bogo", label: "Buy 1 get 1 free" },
@@ -15,13 +16,13 @@ export const SUBMIT_OFFER_TYPES: { value: OfferType; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
-export const VALIDITY_OPTIONS: { value: ValidityKey; label: string }[] = [
+export const VALIDITY_OPTIONS: { value: ValidityKey; label: MessageKey }[] = [
   { value: "today", label: "Today" },
   { value: "week", label: "This week" },
   { value: "month", label: "This month" },
 ];
 
-export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
+export const SORT_OPTIONS: { value: SortKey; label: MessageKey }[] = [
   { value: "newest", label: "Newest offers" },
   { value: "ending", label: "Ending soon" },
   { value: "discount", label: "Highest discount" },

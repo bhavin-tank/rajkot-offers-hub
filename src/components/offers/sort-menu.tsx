@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/components/i18n/link";
 import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { SortKey } from "@/types";
 import { SORT_OPTIONS } from "@/lib/filters";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 interface SortMenuProps {
@@ -16,6 +17,7 @@ interface SortMenuProps {
 
 /** "Sort: …" pill that opens a small menu of sort links. */
 export function SortMenu({ value, hrefs, className }: SortMenuProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const current = SORT_OPTIONS.find((o) => o.value === value) ?? SORT_OPTIONS[0];
@@ -43,8 +45,8 @@ export function SortMenu({ value, hrefs, className }: SortMenuProps) {
         onClick={() => setOpen((v) => !v)}
         className="inline-flex h-[34px] cursor-pointer items-center gap-1 rounded-full border border-line bg-white px-3 text-[13px] hover:border-input lg:h-[38px] lg:px-4 lg:text-sm"
       >
-        <span className="text-muted">Sort:</span>
-        <span className="font-medium">{current.label}</span>
+        <span className="text-muted">{t("Sort:")}</span>
+        <span className="font-medium">{t(current.label)}</span>
         <ChevronDown size={14} className="text-muted" aria-hidden />
       </button>
       {open && (
@@ -52,7 +54,7 @@ export function SortMenu({ value, hrefs, className }: SortMenuProps) {
           role="menu"
           className="absolute top-full right-0 z-20 mt-2 w-[220px] rounded-2xl border border-line bg-white p-2 shadow-card"
         >
-          <p className="px-3 pt-1 pb-2 text-xs font-semibold tracking-[0.04em] text-muted">Sort</p>
+          <p className="px-3 pt-1 pb-2 text-xs font-semibold tracking-[0.04em] text-muted">{t("Sort")}</p>
           {SORT_OPTIONS.map((option) => {
             const selected = option.value === value;
             return (
@@ -68,7 +70,7 @@ export function SortMenu({ value, hrefs, className }: SortMenuProps) {
                   selected ? "bg-surface font-semibold" : "hover:bg-surface",
                 )}
               >
-                {option.label}
+                {t(option.label)}
                 {selected && <Check size={16} strokeWidth={2.5} aria-hidden />}
               </Link>
             );
