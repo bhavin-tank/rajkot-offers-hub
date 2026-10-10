@@ -1,6 +1,6 @@
 import { LanguageToggle } from "@/components/i18n/language-toggle";
 import { Link } from "@/components/i18n/link";
-import { ArrowLeft, ChevronDown, Heart, MapPin, Search } from "lucide-react";
+import { ArrowLeft, ChevronDown, Heart, MapPin } from "lucide-react";
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { IconLink } from "@/components/ui/icon-button";
@@ -52,17 +52,13 @@ export async function DesktopHeader({ className }: { className?: string }) {
   );
 }
 
-/** Mobile header (56px): logo, search and city pill. */
-export async function MobileHeader() {
-  const t = await getT();
+/** Mobile header (56px): logo, language toggle and city pill. */
+export function MobileHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur lg:hidden">
       <div className="flex h-14 items-center justify-between px-5">
         <Logo priority />
         <div className="flex items-center gap-2">
-          <IconLink href="/offers" variant="plain" size="md" aria-label={t("Search")}>
-            <Search size={20} aria-hidden />
-          </IconLink>
           <LanguageToggle />
           <LocationPill showChevron />
         </div>
