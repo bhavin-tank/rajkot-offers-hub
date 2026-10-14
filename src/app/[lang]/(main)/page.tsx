@@ -3,6 +3,7 @@ import Image from "next/image";
 import { CategoryIconRow } from "@/components/categories/category-tiles";
 import { Container, Section, SectionHeader } from "@/components/layout/container";
 import { BusinessCta } from "@/components/marketing/promos";
+import { NearMeLink } from "@/components/marketing/near-me-link";
 import { SearchBar } from "@/components/marketing/search-bar";
 import { OfferCarousel, OfferGrid } from "@/components/offers/offer-card";
 import { ButtonLink } from "@/components/ui/button";
@@ -51,6 +52,7 @@ export default async function HomePage() {
               {t("Fresh offers from Rajkot’s shops, cafés and salons, all in one place.")}
             </p>
             <SearchBar variant="hero" className="mt-6 lg:mt-8" />
+            <NearMeLink className="mt-4" />
           </div>
           <div aria-hidden className="hidden h-[440px] grid-cols-[1.15fr_1fr] grid-rows-2 gap-4 lg:grid">
             {heroImages.map((src, i) => (

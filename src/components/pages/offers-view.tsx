@@ -5,7 +5,7 @@ import { Container, PageTitle } from "@/components/layout/container";
 import { SearchBar } from "@/components/marketing/search-bar";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
 import { OffersSkeleton } from "@/components/offers/offers-skeleton";
-import { getArea, getCategories, getCategory, getOffers } from "@/lib/data";
+import { getArea, getCategories, getCategory, getNear, getOffers } from "@/lib/data";
 import { offersPath } from "@/lib/areas";
 import { filtersToQuery, parseFilters } from "@/lib/filters";
 import { getT } from "@/lib/i18n/server";
@@ -97,7 +97,7 @@ async function OffersContent({
 }) {
   const t = await getT();
   // The area and category live in the path, so they are not part of the query filters.
-  const filters = { ...parseFilters(await searchParams), areas: area ? [area.slug] : undefined };
+  const filters = { ...parseFilters(await searchParams), areas: area ? [area.slug] : undefined, near: await getNear() };
   const [result, categories, liveCount] = await Promise.all([
     getOffers({ ...filters, category: category?.slug }),
     getCategories(area?.slug),

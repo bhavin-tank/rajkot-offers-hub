@@ -43,6 +43,8 @@ export interface PromotionCard {
   is_saved: boolean;
   cover_url: string | null;
   cover_thumb_url: string | null;
+  /** Only when the feed was sent lat/lng; null when the shop has no location. */
+  distance_km?: number | null;
   created_at?: string;
   business: BusinessCaption;
 }
@@ -153,4 +155,15 @@ export interface TokenPair {
   access_token: string;
   refresh_token: string;
   expires_in: number;
+}
+
+/** `GET /locations/pincodes/{pincode}` (India Post data). */
+export interface PincodeLookup {
+  pincode: string;
+  state: { code: string; name: string };
+  district: { slug: string; name: string; city: string };
+  city: string;
+  latitude: number | null;
+  longitude: number | null;
+  areas: { name: string; office_type: string; is_delivery: boolean }[];
 }

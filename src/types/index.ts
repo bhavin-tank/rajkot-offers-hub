@@ -78,6 +78,8 @@ export interface Offer {
   /** Derived from validTo at read time. */
   isExpired: boolean;
   daysLeft: number;
+  /** Km to the shop's nearest outlet; only on lists read with the visitor's location. */
+  distanceKm?: number;
 }
 
 /** The fields an offer card needs. */
@@ -93,6 +95,7 @@ export type OfferSummary = Pick<
   | "validTo"
   | "isExpired"
   | "daysLeft"
+  | "distanceKm"
 >;
 
 export interface OpeningHours {
@@ -128,7 +131,7 @@ export interface Business {
   geo: { lat: number; lng: number };
 }
 
-export type SortKey = "newest" | "ending" | "discount";
+export type SortKey = "newest" | "ending" | "discount" | "nearest";
 export type ValidityKey = "today" | "week" | "month";
 
 export interface OfferFilters {
@@ -140,6 +143,8 @@ export interface OfferFilters {
   validity?: ValidityKey;
   sort?: SortKey;
   page?: number;
+  /** The visitor's location (from the location cookie, never the URL). */
+  near?: { lat: number; lng: number };
 }
 
 export interface Paged<T> {

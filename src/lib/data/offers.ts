@@ -9,7 +9,7 @@ import { areaName } from "./categories";
 export const PAGE_SIZE = 9;
 const MAX_PER_PAGE = 100;
 
-const SORTS: Record<SortKey, string> = { newest: "latest", ending: "ending_soon", discount: "biggest_discount" };
+const SORTS: Record<SortKey, string> = { newest: "latest", ending: "ending_soon", discount: "biggest_discount", nearest: "nearest" };
 const ENDS_WITHIN_DAYS: Record<ValidityKey, number> = { today: 0, week: 7, month: 30 };
 
 type FeedQuery = Record<string, string | number | string[] | undefined>;
@@ -35,7 +35,11 @@ async function feedQuery(filters: OfferFilters): Promise<FeedQuery | null> {
     areas: areas.length ? (areas as string[]) : undefined,
     type: filters.type ? TYPE_TO_API[filters.type] : undefined,
     ends_within_days: filters.validity ? ENDS_WITHIN_DAYS[filters.validity] : undefined,
-    sort: SORTS[filters.sort ?? "newest"],
+    // "Nearest" needs a location; without one it falls back to the newest.
+    sort: SORTS[filters.sort === "nearest" && !filters.near ? "newest" : (filters.sort ?? "newest")],
+    // With a location every list also gets each card's distance.
+    lat: filters.near?.lat,
+    lng: filters.near?.lng,
   };
 }
 

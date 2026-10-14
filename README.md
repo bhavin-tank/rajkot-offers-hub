@@ -69,12 +69,19 @@ src/
 | Login (WhatsApp code once, then a 6-digit MPIN) | `POST /auth/request`, `/auth/verify`, `/auth/mpin`, `/auth/refresh`, `/auth/logout` |
 | Account | `GET/PUT /user/profile`, `POST /auth/mpin` (change) |
 | Shop phone and WhatsApp | masked for guests; `POST /businesses/{slug}/contact-reveal` after login |
+| "Near me" (pincode → location) | `GET /locations/pincodes/{pincode}`; feeds take `lat`/`lng` (`sort=nearest`, cards get `distance_km`) |
 
 - `src/lib/api/` holds the client, the response types and the mappers to the site's types in `src/types`.
 - `src/lib/data` getters cache guest reads for a few minutes (`"use cache"`); the API caches too.
 - Tokens live in httpOnly cookies (`ro_at`, `ro_rt`); server actions renew them, and the proxy renews
   them before `/login` and `/account` render. The browser never calls the API directly.
 - "Submit an offer" points shop owners to the business app (`NEXT_PUBLIC_OWNER_APP_*_URL`).
+- **Near me:** the location sheet takes the browser's GPS, or a pincode looked up in the API's India Post
+  data. Only Rajkot counts: a pincode outside Rajkot district, or GPS more than 50 km from the city, is
+  refused. The point is kept in the `ro_near` cookie (rounded to about 100 m, never in the URL, so shared
+  links carry no location); offer lists then send it to the API for the "Nearest first" sort and the
+  "· 1.2 km" on each card. The area list stays the shops' own areas (`/promotions/areas`): India Post
+  names are post offices and would not match them.
 
 ## Conventions
 

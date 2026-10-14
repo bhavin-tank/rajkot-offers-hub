@@ -56,6 +56,8 @@ export async function OffersExplorer({
   const t = await getT();
   const href = (patch: Partial<OfferFilters> = {}) => `${basePath}${filtersToQuery(filters, patch)}`;
   const panelCount = countPanelFilters(filters);
+  // "Nearest" without a location lists the newest (see `getOffers`), so say that.
+  const sort: SortKey = filters.sort === "nearest" && !filters.near ? "newest" : (filters.sort ?? "newest");
   const sortHrefs = Object.fromEntries(
     SORT_OPTIONS.map((o) => [o.value, href({ sort: o.value })]),
   ) as Record<SortKey, string>;
@@ -157,7 +159,7 @@ export async function OffersExplorer({
           {chipRow}
           <div className="flex items-center gap-2">
             <div className="mr-auto lg:mr-2">{countLabel}</div>
-            <SortMenu key={filters.sort} value={filters.sort ?? "newest"} hrefs={sortHrefs} />
+            <SortMenu key={filters.sort} value={sort} hrefs={sortHrefs} hasNear={Boolean(filters.near)} />
             <FilterSheet count={panelCount} trigger="round" className="lg:hidden">
               {filterForm("sheet")}
             </FilterSheet>
@@ -194,7 +196,7 @@ export async function OffersExplorer({
         </div>
         <div className="flex items-center justify-between">
           {countLabel}
-          <SortMenu key={filters.sort} value={filters.sort ?? "newest"} hrefs={sortHrefs} />
+          <SortMenu key={filters.sort} value={sort} hrefs={sortHrefs} hasNear={Boolean(filters.near)} />
         </div>
         <div>{results}</div>
       </div>

@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import type { OfferSummary } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/display";
-import { formatUntil } from "@/lib/format";
+import { formatDistance, formatUntil } from "@/lib/format";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { SaveButton } from "./save-button";
@@ -59,7 +59,15 @@ export function OfferCard({
             {offer.title}
           </Link>
         </h3>
-        <p className="text-sm text-muted">{offer.businessName}</p>
+        <p className="text-sm text-muted">
+          {offer.businessName}
+          {offer.distanceKm !== undefined && (
+            <>
+              {" · "}
+              <span className="font-medium text-ink">{formatDistance(offer.distanceKm, t)}</span>
+            </>
+          )}
+        </p>
         <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-muted">
           <span className="inline-flex items-center gap-1">
             <MapPin size={14} aria-hidden />
