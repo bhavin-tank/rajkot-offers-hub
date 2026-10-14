@@ -1,0 +1,29 @@
+{
+  // Rajkot Offers Hub on Cloudflare Workers, built by OpenNext (`pnpm run deploy`).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rajkot-offers-hub",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    // Lets the worker call itself (OpenNext uses it for background revalidation).
+    { "binding": "WORKER_SELF_REFERENCE", "service": "rajkot-offers-hub" }
+  ],
+  "r2_buckets": [
+    // Created on the first `opennextjs-cloudflare deploy` if it does not exist.
+    { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "rajkot-offers-hub-cache" }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DOQueueHandler"] }],
+  // next/image resizing through Cloudflare Images.
+  "images": { "binding": "IMAGES" },
+  // Settings live in .env.production (build and runtime). The one secret, API_FRONTEND_KEY:
+  //   npx wrangler secret put API_FRONTEND_KEY
+  "observability": { "enabled": true }
+}

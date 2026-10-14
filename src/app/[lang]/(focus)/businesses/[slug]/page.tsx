@@ -20,9 +20,10 @@ import { getBusiness, getBusinessOffers, getBusinessSlugs } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
 import type { Business, OfferSummary } from "@/types";
+import { atLeastOne, NO_PARAM } from "@/lib/static-params";
 
 export async function generateStaticParams() {
-  return (await getBusinessSlugs()).map((slug) => ({ slug }));
+  return atLeastOne((await getBusinessSlugs()).map((slug) => ({ slug })), { slug: NO_PARAM });
 }
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/businesses/[slug]">): Promise<Metadata> {

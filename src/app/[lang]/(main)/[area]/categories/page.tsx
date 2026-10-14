@@ -1,8 +1,9 @@
 import { CategoriesView, categoriesMetadata } from "@/components/pages/categories-view";
 import { getAreaSlugs } from "@/lib/data";
+import { atLeastOne, NO_PARAM } from "@/lib/static-params";
 
 export async function generateStaticParams() {
-  return (await getAreaSlugs()).map((area) => ({ area }));
+  return atLeastOne((await getAreaSlugs()).map((area) => ({ area })), { area: NO_PARAM });
 }
 
 export function generateMetadata() {

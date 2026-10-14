@@ -14,7 +14,7 @@ export async function renewSession(request: NextRequest) {
   const refresh = request.cookies.get(REFRESH_COOKIE)?.value;
   if (!refresh) return null;
   try {
-    const tokens = await refreshTokens(refresh, pickIp(request.headers.get("x-real-ip"), request.headers.get("x-forwarded-for")));
+    const tokens = await refreshTokens(refresh, pickIp(request.headers.get("cf-connecting-ip"), request.headers.get("x-real-ip"), request.headers.get("x-forwarded-for")));
     request.cookies.set(ACCESS_COOKIE, tokens.access_token);
     request.cookies.set(REFRESH_COOKIE, tokens.refresh_token);
     return tokens;
