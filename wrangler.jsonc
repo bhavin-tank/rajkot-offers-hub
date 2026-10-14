@@ -14,7 +14,7 @@
     { "binding": "WORKER_SELF_REFERENCE", "service": "rajkot-offers-hub" }
   ],
   "r2_buckets": [
-    // Create once: npx wrangler r2 bucket create rajkot-offers-hub-cache
+    // Created on the first `opennextjs-cloudflare deploy` if it does not exist.
     { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "rajkot-offers-hub-cache" }
   ],
   "durable_objects": {
@@ -23,11 +23,7 @@
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DOQueueHandler"] }],
   // next/image resizing through Cloudflare Images.
   "images": { "binding": "IMAGES" },
-  // Runtime settings that are not secret. API_FRONTEND_KEY is a secret:
+  // Settings live in .env.production (build and runtime). The one secret, API_FRONTEND_KEY:
   //   npx wrangler secret put API_FRONTEND_KEY
-  // The same values must also be set as build variables (pages are prerendered from the API at build time).
-  "vars": {
-    "RAJKOT_API_URL": "https://v2-api.rajkotoffershub.com"
-  },
   "observability": { "enabled": true }
 }

@@ -29,12 +29,16 @@ The site runs on Cloudflare Workers through [OpenNext](https://opennext.js.org/c
 the R2 bucket `rajkot-offers-hub-cache`, with a Durable Object queue refreshing them in the background;
 `next/image` resizes through Cloudflare Images.
 
-**Once, from this folder** (`npx wrangler login` first):
+**Settings** that are not secret live in the committed `.env.production` (`RAJKOT_API_URL`, and
+`MEDIA_PUBLIC_URL` once known): Next.js reads it at build time, since pages are prerendered from the API,
+and OpenNext carries it into the worker. The one secret, once (`npx wrangler login` first):
 
 ```bash
-npx wrangler r2 bucket create rajkot-offers-hub-cache
 npx wrangler secret put API_FRONTEND_KEY      # the API's WEB_FRONTEND_KEY
 ```
+
+The R2 bucket `rajkot-offers-hub-cache` is created by the first deploy if it doesn't exist
+(`npx wrangler r2 bucket create rajkot-offers-hub-cache` if the deploy token isn't allowed to).
 
 **Deploy from Git (Workers Builds):** Cloudflare dashboard → Workers & Pages → Create → Import a
 repository → `bsurefy-tech/rajkot-offers-hub`, then in the Worker's **Settings → Build**:
@@ -44,20 +48,23 @@ repository → `bsurefy-tech/rajkot-offers-hub`, then in the Worker's **Settings
 | Production branch | `develop` (switch to `main` once releases go through it) |
 | Build command | `pnpm exec opennextjs-cloudflare build` |
 | Deploy command | `pnpm exec opennextjs-cloudflare deploy` |
-| Build variables | `PNPM_VERSION=12.4.1` (the image defaults to pnpm 10), `RAJKOT_API_URL=https://v2-api.rajkotoffershub.com`, `MEDIA_PUBLIC_URL` (the API's public media URL, Laravel's `AWS_URL`), optional `NEXT_PUBLIC_OWNER_APP_ANDROID_URL` / `_IOS_URL` |
+| Build variable | `PNPM_VERSION=12.4.1`: the build image installs with pnpm 10 otherwise, and that can only be changed there |
 
-Pages are prerendered from the API during the build, so the build variables matter as much as the
-runtime ones (`vars` in `wrangler.jsonc`, plus the `API_FRONTEND_KEY` secret). Then add the custom
-domain `rajkotoffershub.com` under the Worker's **Settings → Domains & Routes**.
+Then add the custom domain `rajkotoffershub.com` under the Worker's **Settings → Domains & Routes**.
 
 **From your machine:** `pnpm run deploy` (build and deploy) or `pnpm run upload` (a new version
-without sending traffic to it). `pnpm preview` runs the built worker locally (copy `.dev.vars.example`
-to `.dev.vars`).
+without sending traffic to it). OpenNext bakes the build's env files into the worker, and `.env.local`
+wins over `.env.production`, so deploy from a checkout without a local `.env.local` (or through Workers
+Builds, which starts clean). `pnpm preview` runs the built worker locally (copy `.dev.vars.example` to
+`.dev.vars`).
 
 - The worker is about 3 MB gzipped, above the free plan's 3 MB limit: the account needs Workers Paid.
 - `patches/@opennextjs__cloudflare@1.20.10.patch` fixes a 500 on every page with Next.js 16.4
   (opennextjs-cloudflare#1448: `preview-props.json` was not bundled). Drop it, and the exact version
   pin, once a release includes the fix.
+- Every `generateStaticParams` returns at least one path (`atLeastOne` in `src/lib/static-params.ts`):
+  Cache Components fails the build on an empty list, which an API with no live offers, areas or shops
+  yet would give. The placeholder path answers 404.
 - `proxy.ts` runs as Node.js middleware, which OpenNext marks experimental on Cloudflare; it works
   here (language routing, 404s and session renewal were tested in workerd).
 
