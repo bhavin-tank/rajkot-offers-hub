@@ -44,3 +44,9 @@ next-env.d.ts
 
 # local uploads in development
 /.data
+
+# cloudflare (OpenNext build, wrangler state, local secrets)
+/.open-next
+/.wrangler
+.dev.vars*
+!.dev.vars.example

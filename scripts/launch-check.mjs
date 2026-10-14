@@ -3,7 +3,7 @@
  * Launch check: is the API ready for the site, and does the deployed site work?
  * Read-only: it never logs in, claims or reveals anything, so it is safe against production.
  *
- *   pnpm check:launch --site https://rajkotoffershub.com --api https://v2-api.rajkotoffershub.com/api
+ *   pnpm check:launch --site https://rajkotoffershub.com --api https://v2-api.rajkotoffershub.com
  *   (or SITE_URL / RAJKOT_API_URL in the environment; --platform rajkot-offers on the shared host)
  *
  * Exits 1 when anything fails; warnings are listed but do not fail the run.

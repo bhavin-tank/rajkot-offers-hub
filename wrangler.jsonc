@@ -1,0 +1,33 @@
+{
+  // Rajkot Offers Hub on Cloudflare Workers, built by OpenNext (`pnpm run deploy`).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rajkot-offers-hub",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    // Lets the worker call itself (OpenNext uses it for background revalidation).
+    { "binding": "WORKER_SELF_REFERENCE", "service": "rajkot-offers-hub" }
+  ],
+  "r2_buckets": [
+    // Create once: npx wrangler r2 bucket create rajkot-offers-hub-cache
+    { "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "rajkot-offers-hub-cache" }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "NEXT_CACHE_DO_QUEUE", "class_name": "DOQueueHandler" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["DOQueueHandler"] }],
+  // next/image resizing through Cloudflare Images.
+  "images": { "binding": "IMAGES" },
+  // Runtime settings that are not secret. API_FRONTEND_KEY is a secret:
+  //   npx wrangler secret put API_FRONTEND_KEY
+  // The same values must also be set as build variables (pages are prerendered from the API at build time).
+  "vars": {
+    "RAJKOT_API_URL": "https://v2-api.rajkotoffershub.com"
+  },
+  "observability": { "enabled": true }
+}

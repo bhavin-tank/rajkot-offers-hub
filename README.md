@@ -22,12 +22,51 @@ platform; `PLATFORM_HOSTS` must map `rajkot-offers=api.rajkotoffers.test` when s
 `APP_ENV=local` the API returns login codes in its response, and this site shows them on the login
 screen in development builds.
 
+## Deploy (Cloudflare Workers)
+
+The site runs on Cloudflare Workers through [OpenNext](https://opennext.js.org/cloudflare)
+(`wrangler.jsonc`, `open-next.config.ts`). Prerendered pages and the "use cache" API reads are kept in
+the R2 bucket `rajkot-offers-hub-cache`, with a Durable Object queue refreshing them in the background;
+`next/image` resizes through Cloudflare Images.
+
+**Once, from this folder** (`npx wrangler login` first):
+
+```bash
+npx wrangler r2 bucket create rajkot-offers-hub-cache
+npx wrangler secret put API_FRONTEND_KEY      # the API's WEB_FRONTEND_KEY
+```
+
+**Deploy from Git (Workers Builds):** Cloudflare dashboard → Workers & Pages → Create → Import a
+repository → `bsurefy-tech/rajkot-offers-hub`, then in the Worker's **Settings → Build**:
+
+| Setting | Value |
+|---|---|
+| Production branch | `develop` (switch to `main` once releases go through it) |
+| Build command | `pnpm exec opennextjs-cloudflare build` |
+| Deploy command | `pnpm exec opennextjs-cloudflare deploy` |
+| Build variables | `PNPM_VERSION=12.4.1` (the image defaults to pnpm 10), `RAJKOT_API_URL=https://v2-api.rajkotoffershub.com`, `MEDIA_PUBLIC_URL` (the API's public media URL, Laravel's `AWS_URL`), optional `NEXT_PUBLIC_OWNER_APP_ANDROID_URL` / `_IOS_URL` |
+
+Pages are prerendered from the API during the build, so the build variables matter as much as the
+runtime ones (`vars` in `wrangler.jsonc`, plus the `API_FRONTEND_KEY` secret). Then add the custom
+domain `rajkotoffershub.com` under the Worker's **Settings → Domains & Routes**.
+
+**From your machine:** `pnpm run deploy` (build and deploy) or `pnpm run upload` (a new version
+without sending traffic to it). `pnpm preview` runs the built worker locally (copy `.dev.vars.example`
+to `.dev.vars`).
+
+- The worker is about 3 MB gzipped, above the free plan's 3 MB limit: the account needs Workers Paid.
+- `patches/@opennextjs__cloudflare@1.20.10.patch` fixes a 500 on every page with Next.js 16.4
+  (opennextjs-cloudflare#1448: `preview-props.json` was not bundled). Drop it, and the exact version
+  pin, once a release includes the fix.
+- `proxy.ts` runs as Node.js middleware, which OpenNext marks experimental on Cloudflare; it works
+  here (language routing, 404s and session renewal were tested in workerd).
+
 ## Launch check
 
 A read-only check of the API and the deployed site (it never logs in, claims or reveals anything):
 
 ```bash
-pnpm check:launch --site https://rajkotoffershub.com --api https://v2-api.rajkotoffershub.com/api
+pnpm check:launch --site https://rajkotoffershub.com --api https://v2-api.rajkotoffershub.com
 ```
 
 It checks that the API serves the Rajkot platform (offers, areas, categories, nearest sort, pincode

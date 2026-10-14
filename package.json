@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "check:launch": "node scripts/launch-check.mjs"
+    "check:launch": "node scripts/launch-check.mjs",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "clsx": "2.1.1",
@@ -20,6 +24,7 @@
     "tailwind-merge": "3.7.0"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "1.20.10",
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
     "@types/qrcode": "1.5.5",
@@ -28,7 +33,8 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "4.150.0"
   },
   "packageManager": "pnpm@12.4.1"
 }
