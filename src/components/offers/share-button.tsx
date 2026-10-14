@@ -10,16 +10,19 @@ import { useToast } from "@/components/ui/toast";
 import { localizePath } from "@/lib/i18n/config";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { site } from "@/lib/site";
+import { trackOffer } from "./track";
 
 interface ShareButtonProps {
   title: string;
   /** Path of the page to share, e.g. "/offers/kurta-20-off". */
   path: string;
   variant?: "floating" | "plain" | "text" | "pill";
+  /** On an offer page: a share counts towards that offer's stats. */
+  offerId?: string;
 }
 
 /** Uses the system share sheet when there is one, else our own sheet. */
-export function ShareButton({ title, path, variant = "floating" }: ShareButtonProps) {
+export function ShareButton({ title, path, variant = "floating", offerId }: ShareButtonProps) {
   const [open, setOpen] = useState(false);
   const toast = useToast();
   const t = useT();
@@ -30,6 +33,7 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({ title, url });
+        trackOffer(offerId, "share");
         return;
       } catch (error) {
         if ((error as DOMException).name === "AbortError") return;
@@ -41,6 +45,7 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
   async function copyLink() {
     try {
       await navigator.clipboard.writeText(url);
+      trackOffer(offerId, "share");
       toast(t("Link copied"));
     } catch {
       toast(t("Could not copy the link"));
@@ -87,7 +92,10 @@ export function ShareButton({ title, path, variant = "floating" }: ShareButtonPr
               href={option.href}
               target="_blank"
               rel="noreferrer"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                trackOffer(offerId, "share");
+                setOpen(false);
+              }}
               className="flex flex-col items-center gap-2 rounded-2xl bg-surface py-4 text-xs font-medium hover:bg-canvas"
             >
               {option.icon}

@@ -4,7 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { changeMpinAction, updateNameAction, type AuthResult } from "@/lib/actions/auth";
+import { changeMpinAction, deleteAccountAction, updateNameAction, type AuthResult } from "@/lib/actions/auth";
 import { useT } from "@/lib/i18n/client";
 import type { MessageKey } from "@/lib/i18n/translate";
 import { PinInput } from "./pin-input";
@@ -82,6 +82,36 @@ export function ChangeMpinForm() {
           </Button>
         </div>
       </form>
+      {shown}
+    </div>
+  );
+}
+
+/** "Delete my account", behind a second confirmation. */
+export function DeleteAccountForm() {
+  const t = useT();
+  const { run, pending, shown } = useSubmit();
+  const [confirming, setConfirming] = useState(false);
+  if (!confirming) {
+    return (
+      <Button type="button" variant="ghost" className="self-start px-0 text-danger hover:text-danger" onClick={() => setConfirming(true)}>
+        {t("Delete my account")}
+      </Button>
+    );
+  }
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-sm text-muted">
+        {t("This deletes your account, your name and your claimed codes. You can sign up again later with the same number.")}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" className="bg-danger hover:bg-danger/90" disabled={pending} onClick={() => run(deleteAccountAction, "Saved")}>
+          {t("Yes, delete my account")}
+        </Button>
+        <Button type="button" variant="outline" disabled={pending} onClick={() => setConfirming(false)}>
+          {t("Cancel")}
+        </Button>
+      </div>
       {shown}
     </div>
   );

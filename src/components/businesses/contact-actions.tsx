@@ -1,6 +1,7 @@
 import { Navigation, Phone } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
-import { Button, ButtonAnchor, buttonClass } from "@/components/ui/button";
+import { TrackedAnchor } from "@/components/offers/track";
+import { Button, buttonClass } from "@/components/ui/button";
 import { getT } from "@/lib/i18n/server";
 import { cn, directionsHref, instagramHref } from "@/lib/utils";
 import { ContactLink } from "./contact-link";
@@ -23,8 +24,11 @@ export async function StickyActionBar({
   contact,
   layout,
   disabled,
+  offerId,
 }: {
   contact: Contact;
+  /** On an offer page: taps count towards that offer's stats. */
+  offerId?: string;
   /** "offer": WhatsApp icon + directions + call. "business": WhatsApp + call. */
   layout: "offer" | "business";
   /** Expired offer: call and WhatsApp are disabled. */
@@ -40,15 +44,21 @@ export async function StickyActionBar({
               <WhatsAppIcon size={20} />
             </Button>
           ) : (
-            <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} className={buttonClass({ variant: "outline", iconOnly: true })}>
+            <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "outline", iconOnly: true })}>
               <WhatsAppIcon size={20} />
               <span className="sr-only">WhatsApp</span>
             </ContactLink>
           )}
-          <ButtonAnchor href={directionsHref(contact.geo.lat, contact.geo.lng)} {...external} variant="outline" className="px-4">
+          <TrackedAnchor
+            href={directionsHref(contact.geo.lat, contact.geo.lng)}
+            {...external}
+            offerId={offerId}
+            event="directions"
+            className={buttonClass({ variant: "outline", className: "px-4" })}
+          >
             <Navigation size={18} aria-hidden />
             {t("Directions")}
-          </ButtonAnchor>
+          </TrackedAnchor>
         </>
       ) : (
         <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} className={buttonClass({ variant: "outline", className: "flex-1" })}>
@@ -61,7 +71,7 @@ export async function StickyActionBar({
           {t("Offer expired")}
         </Button>
       ) : (
-        <ContactLink business={contact.slug} kind="call" number={contact.phone} masked={contact.contactMasked} className={buttonClass({ className: cn(layout === "offer" ? "flex-1" : "flex-[1.4]") })}>
+        <ContactLink business={contact.slug} kind="call" number={contact.phone} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ className: cn(layout === "offer" ? "flex-1" : "flex-[1.4]") })}>
           <Phone size={18} aria-hidden />
           {t("Call")}
         </ContactLink>

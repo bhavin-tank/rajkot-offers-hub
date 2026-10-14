@@ -2,13 +2,15 @@ import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { api, ApiError } from "@/lib/api/client";
 import type { ApiUser } from "@/lib/api/types";
+import { visitorIp } from "@/lib/api/visitor";
 import { ACCESS_COOKIE, clearSessionCookies, REFRESH_COOKIE, secondsLeft, setSessionCookies } from "./cookies";
 
-/** Swaps the refresh token for a new pair (both rotate). */
-export async function refreshTokens(refreshToken: string) {
+/** Swaps the refresh token for a new pair (both rotate). `client` is the visitor's IP. */
+export async function refreshTokens(refreshToken: string, client: string | null) {
   return api<{ access_token: string; refresh_token: string; expires_in: number }>("/auth/refresh", {
     method: "POST",
     body: { refresh_token: refreshToken },
+    client,
   });
 }
 
@@ -23,7 +25,7 @@ export async function accessToken({ renew = false } = {}): Promise<string | unde
   const refresh = jar.get(REFRESH_COOKIE)?.value;
   if (!renew || !refresh) return undefined;
   try {
-    const tokens = await refreshTokens(refresh);
+    const tokens = await refreshTokens(refresh, await visitorIp());
     setSessionCookies(jar, tokens);
     return tokens.access_token;
   } catch {
@@ -44,7 +46,7 @@ export async function withSession<T>(call: (token: string) => Promise<T>): Promi
     const refresh = jar.get(REFRESH_COOKIE)?.value;
     if (!refresh) return "signed-out";
     try {
-      const tokens = await refreshTokens(refresh);
+      const tokens = await refreshTokens(refresh, await visitorIp());
       setSessionCookies(jar, tokens);
       return await call(tokens.access_token);
     } catch {

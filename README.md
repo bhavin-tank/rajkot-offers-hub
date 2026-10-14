@@ -69,6 +69,9 @@ src/
 | Login (WhatsApp code once, then a 6-digit MPIN) | `POST /auth/request`, `/auth/verify`, `/auth/mpin`, `/auth/refresh`, `/auth/logout` |
 | Account | `GET/PUT /user/profile`, `POST /auth/mpin` (change) |
 | Shop phone and WhatsApp | masked for guests; `POST /businesses/{slug}/contact-reveal` after login |
+| Offer codes | `POST /promotions/{id}/reveal-code` (shop-wide code, guests too); `POST /promotions/{id}/claims` + `GET /promotion-claims` (personal codes with QR, login) |
+| Offer stats for shops | `POST /promotions/{id}/events` (`detail_view`, `call`, `whatsapp`, `directions`, `share`) |
+| Delete account | `DELETE /user/account` |
 | "Near me" (pincode → location) | `GET /locations/pincodes/{pincode}`; feeds take `lat`/`lng` (`sort=nearest`, cards get `distance_km`) |
 
 - `src/lib/api/` holds the client, the response types and the mappers to the site's types in `src/types`.
@@ -76,6 +79,11 @@ src/
 - Tokens live in httpOnly cookies (`ro_at`, `ro_rt`); server actions renew them, and the proxy renews
   them before `/login` and `/account` render. The browser never calls the API directly.
 - "Submit an offer" points shop owners to the business app (`NEXT_PUBLIC_OWNER_APP_*_URL`).
+- **Visitor IP:** every API call comes from this server, so request-time calls (login, token refresh,
+  code reveals, offer stats) send the visitor's IP in `X-Client-IP` with `API_FRONTEND_KEY` (the API's
+  `WEB_FRONTEND_KEY`). Without it the API rate-limits and counts all visitors as one. The IP is read from
+  `x-real-ip` / `x-forwarded-for`, so the host in front of this server must set those (Vercel and nginx do).
+- **Legal:** `/privacy` and `/terms` (English only), linked from the footer and the login screen.
 - **Near me:** the location sheet takes the browser's GPS, or a pincode looked up in the API's India Post
   data. Only Rajkot counts: a pincode outside Rajkot district, or GPS more than 50 km from the city, is
   refused. The point is kept in the `ro_near` cookie (rounded to about 100 m, never in the URL, so shared

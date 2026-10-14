@@ -36,3 +36,8 @@ export const footerNav = [...mainNav, { href: "/contact", label: "Contact" }] as
   href: string;
   label: MessageKey;
 }[];
+
+export const legalNav = [
+  { href: "/privacy", label: "Privacy policy" },
+  { href: "/terms", label: "Terms of use" },
+] as const satisfies readonly { href: string; label: MessageKey }[];

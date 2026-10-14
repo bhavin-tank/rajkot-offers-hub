@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { api, ApiError } from "@/lib/api/client";
 import type { ApiUser, BusinessResource, TokenPair } from "@/lib/api/types";
 import { clearSessionCookies, setSessionCookies } from "@/lib/auth/cookies";
+import { visitorIp } from "@/lib/api/visitor";
 import { accessToken, safeNext, withSession } from "@/lib/auth/session";
 import type { MessageKey } from "@/lib/i18n/translate";
 
@@ -60,6 +61,7 @@ export async function startLoginAction(mobile: string, forceCode = false): Promi
     const result = await api<{ method: "otp" | "mpin"; data?: { otp?: string } }>("/auth/request", {
       method: "POST",
       body: { ...who, ...(forceCode && { force_otp: true }) },
+      client: await visitorIp(),
     });
     // A local API hands back the code so it can be tested without WhatsApp; never shown in a production build.
     const devCode = process.env.NODE_ENV !== "production" ? result.data?.otp : undefined;
@@ -79,7 +81,7 @@ export async function verifyLoginAction(mobile: string, code: string, next: stri
   if (!/^\d{6}$/.test(code.trim())) return { ok: false, error: "Enter the 6-digit code" };
   let destination: string;
   try {
-    const result = await api<TokenPair>("/auth/verify", { method: "POST", body: { ...who, code: code.trim() } });
+    const result = await api<TokenPair>("/auth/verify", { method: "POST", body: { ...who, code: code.trim() }, client: await visitorIp() });
     setSessionCookies(await cookies(), result);
     if (result.user.mpin_required) return { ok: true, data: { setMpin: true } };
     destination = safeNext(next);
@@ -133,6 +135,18 @@ export async function logoutAction(everywhere = false) {
   }
   clearSessionCookies(jar);
   redirect("/login");
+}
+
+/** Deletes the account (the API keeps it restorable by support for a while), then signs out. */
+export async function deleteAccountAction(): Promise<AuthResult> {
+  try {
+    const result = await withSession((token) => api("/user/account", { method: "DELETE", token, body: { reason: "Deleted from the website" } }));
+    if (result === "signed-out") return { ok: false, error: "This step has expired. Verify your number again." };
+  } catch (error) {
+    return failure(error);
+  }
+  clearSessionCookies(await cookies());
+  redirect("/");
 }
 
 /**
