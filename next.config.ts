@@ -1,18 +1,29 @@
 import type { NextConfig } from "next";
 
-/** Uploaded photos are served from MEDIA_PUBLIC_URL (the R2 bucket's public domain). */
+/** Offer and shop photos come from the API's media host (MEDIA_PUBLIC_URL). */
+const mediaUrl = process.env.MEDIA_PUBLIC_URL ? new URL(process.env.MEDIA_PUBLIC_URL) : null;
+
 function mediaPattern() {
-  const base = process.env.MEDIA_PUBLIC_URL;
-  if (!base) return [];
-  const url = new URL(base);
-  return [{ protocol: url.protocol.replace(":", "") as "https" | "http", hostname: url.hostname, pathname: `${url.pathname.replace(/\/$/, "")}/**` }];
+  if (!mediaUrl) return [];
+  return [
+    {
+      protocol: mediaUrl.protocol.replace(":", "") as "https" | "http",
+      hostname: mediaUrl.hostname,
+      ...(mediaUrl.port && { port: mediaUrl.port }),
+      pathname: `${mediaUrl.pathname.replace(/\/$/, "")}/**`,
+    },
+  ];
 }
+
+/** A local API in development serves its media from localhost, which next/image refuses unless allowed. */
+const localMedia = process.env.NODE_ENV !== "production" && (mediaUrl?.hostname === "localhost" || mediaUrl?.hostname === "127.0.0.1");
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   images: {
     remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com", pathname: "/photo-**" }, ...mediaPattern()],
+    ...(localMedia && { dangerouslyAllowLocalIP: true }),
   },
   turbopack: {
     rules: {

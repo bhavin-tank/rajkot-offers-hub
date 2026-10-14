@@ -1,7 +1,8 @@
 "use client";
 
 import { Clock, Heart } from "lucide-react";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { savedOfferCards } from "@/lib/actions/offers";
 import type { OfferSummary } from "@/types";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/display";
@@ -23,17 +24,27 @@ function Grid({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">{children}</div>;
 }
 
-/** Saved offers, split into active and expired tabs. */
-export function SavedOffers({ offers }: { offers: OfferSummary[] }) {
+/** Saved offers, split into active and expired tabs. Cards are fetched for the offers saved in this browser. */
+export function SavedOffers() {
   const t = useT();
   const locale = useLocale();
   const hydrated = useHydrated();
   const { saved, remove, restore } = useSavedOffers();
   const toast = useToast();
+  const [offers, setOffers] = useState<OfferSummary[] | null>(null);
+  const key = saved.join("|");
 
-  if (!hydrated) return <OfferGridSkeleton count={3} />;
+  useEffect(() => {
+    let current = true;
+    savedOfferCards(key ? key.split("|") : []).then((cards) => current && setOffers(cards), () => current && setOffers([]));
+    return () => {
+      current = false;
+    };
+  }, [key]);
 
-  const bySlug = new Map(offers.map((o) => [o.slug, o]));
+  if (!hydrated || (saved.length > 0 && offers === null)) return <OfferGridSkeleton count={3} />;
+
+  const bySlug = new Map((offers ?? []).map((o) => [o.slug, o]));
   const list = saved.map((slug) => bySlug.get(slug)).filter((o): o is OfferSummary => Boolean(o));
   const active = list.filter((o) => !o.isExpired);
   const expired = list.filter((o) => o.isExpired);

@@ -108,7 +108,8 @@ async function OffersContent({
   const chipQuery = filtersToQuery({ ...filters, subcategory: undefined });
   const chips = [
     { label: t("All"), href: `${offersPath(area?.slug)}${chipQuery}`, selected: !category },
-    ...categories.map((c) => ({
+    // Categories with live offers here, plus the one being viewed even when it has none.
+    ...categories.filter((c) => c.offerCount > 0 || c.slug === category?.slug).map((c) => ({
       label: c.shortName,
       href: `${offersPath(area?.slug, c.slug)}${chipQuery}`,
       selected: category?.slug === c.slug,

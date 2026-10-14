@@ -18,7 +18,8 @@ export interface Category {
   icon: CategoryIcon;
   image: string;
   description: string;
-  subcategories: string[];
+  /** Child categories; `slug` is the filter value. Empty in lists that don't need them. */
+  subcategories: { slug: string; name: string }[];
   /** Shown in the home icon row. */
   inHomeRow: boolean;
   /** Shown as the seasonal banner instead of a grid tile. */
@@ -45,7 +46,12 @@ export interface OfferStep {
   text: string;
 }
 
+export type RedemptionMode = "walk_in" | "shared_code" | "unique_claim";
+
 export interface Offer {
+  /** The API's id (UUID). */
+  id: string;
+  /** URL handle: "<slug>-<id>". */
   slug: string;
   title: string;
   badge: string;
@@ -68,6 +74,7 @@ export interface Offer {
   address: string;
   steps: OfferStep[];
   terms: string[];
+  redemptionMode: RedemptionMode;
   /** Derived from validTo at read time. */
   isExpired: boolean;
   daysLeft: number;
@@ -76,6 +83,7 @@ export interface Offer {
 /** The fields an offer card needs. */
 export type OfferSummary = Pick<
   Offer,
+  | "id"
   | "slug"
   | "title"
   | "badge"
@@ -109,8 +117,10 @@ export interface Business {
   /** Street part only ("12, Sample Complex, Kalawad Road"), for structured data. */
   streetAddress: string;
   postalCode: string;
+  /** Masked ("+9198••••••02") until a signed-in visitor reveals them. */
   phone: string;
   whatsapp: string;
+  contactMasked: boolean;
   instagram?: string;
   website?: string;
   hours: OpeningHours[];

@@ -6,19 +6,19 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Globe, MapPin, Phone, Store, Tag } from "lucide-react";
 import { InstagramIcon } from "@/components/icons/brand";
 import { ActionTiles, StickyActionBar } from "@/components/businesses/contact-actions";
+import { ContactLink } from "@/components/businesses/contact-link";
 import { HoursTable, OpenStatusPill } from "@/components/businesses/opening-hours";
 import { Container } from "@/components/layout/container";
 import { OfferCard } from "@/components/offers/offer-card";
 import { MapCard } from "@/components/offers/offer-sections";
 import { ShareButton } from "@/components/offers/share-button";
-import { ButtonAnchor, ButtonLink } from "@/components/ui/button";
+import { ButtonLink, buttonClass } from "@/components/ui/button";
 import { DetailRow, Divider, EmptyState } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
 import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getBusinessOffers, getBusinessSlugs } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
-import { telHref } from "@/lib/utils";
 import type { Business, OfferSummary } from "@/types";
 
 export async function generateStaticParams() {
@@ -53,9 +53,9 @@ async function InfoRows({ business }: { business: Business }) {
         {business.address}
       </DetailRow>
       <DetailRow icon={Phone} label={t("Phone")}>
-        <a href={telHref(business.phone)} className="hover:text-primary">
-          {business.phone}
-        </a>
+        <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className="cursor-pointer text-left hover:text-primary">
+          {business.contactMasked ? `${business.phone} · ${t("Log in to see the number")}` : business.phone}
+        </ContactLink>
       </DetailRow>
       {business.instagram && (
         <DetailRow icon={InstagramIcon} label="Instagram">
@@ -193,10 +193,10 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
             <p className="mt-1 text-sm text-muted">{subtitle}</p>
           </div>
           <OpenStatusPill hours={business.hours} className="self-start" />
-          <ButtonAnchor href={telHref(business.phone)} block>
+          <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true })}>
             <Phone size={18} aria-hidden />
-            {t("Call · {phone}", { phone: business.phone })}
-          </ButtonAnchor>
+            {business.contactMasked ? t("Call") : t("Call · {phone}", { phone: business.phone })}
+          </ContactLink>
           <ActionTiles contact={business} />
           <Divider />
           <InfoRows business={business} />

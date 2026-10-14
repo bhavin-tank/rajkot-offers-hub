@@ -1,14 +1,13 @@
 import type { MetadataRoute } from "next";
-import { cacheFor, getSlugs, TAGS, today } from "@/lib/data/cache";
+import { getAreaSlugs, getBusinessSlugs, getCategories, getLiveOffers } from "@/lib/data";
+import { cacheFor, TAGS } from "@/lib/data/cache";
 import { offersPath } from "@/lib/areas";
 import { absoluteUrl } from "@/lib/site";
-import { findBusinesses } from "@/server/services/businesses";
-import { findLiveOffers } from "@/server/services/offers";
-import type { Offer } from "@/types";
+import type { OfferSummary } from "@/types";
 
-/** Newest offer date in `list`, as the last-modified date of the page listing them. */
-function newest(list: Offer[]) {
-  return list.reduce<string | undefined>((max, o) => (!max || o.createdAt > max ? o.createdAt : max), undefined);
+/** Latest end date in `list`, as a last-modified hint for the page listing them. */
+function newest(list: OfferSummary[]) {
+  return list.reduce<string | undefined>((max, o) => (!max || o.validTo > max ? o.validTo : max), undefined);
 }
 
 /**
@@ -22,39 +21,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   "use cache";
   cacheFor(TAGS.offers, TAGS.catalog, TAGS.businesses);
 
-  const [live, businesses, slugs] = await Promise.all([findLiveOffers("en", today()), findBusinesses("en"), getSlugs()]);
-  const entry = (path: string, list?: Offer[], images?: string[]): MetadataRoute.Sitemap[number] => ({
+  const [live, businessSlugs, areaSlugs, categories] = await Promise.all([getLiveOffers(), getBusinessSlugs(), getAreaSlugs(), getCategories()]);
+  const entry = (path: string, list?: OfferSummary[], images?: string[]): MetadataRoute.Sitemap[number] => ({
     url: absoluteUrl(path),
-    ...(list && { lastModified: newest(list) }),
+    ...(list?.length && { lastModified: newest(list) }),
     ...(images?.length && { images }),
   });
 
-  const lists: MetadataRoute.Sitemap = [];
-  for (const area of [undefined, ...slugs.areas]) {
-    const inArea = live.filter((o) => !area || o.areaSlug === area);
-    if (!inArea.length) continue;
-    if (area) lists.push(entry(offersPath(area), inArea));
-    for (const slug of slugs.categories) {
-      const inCategory = inArea.filter((o) => o.categorySlug === slug);
-      if (inCategory.length) lists.push(entry(offersPath(area, slug), inCategory));
+  // Category and area × category lists, only where the API counts live offers.
+  const lists: MetadataRoute.Sitemap = categories.filter((c) => c.offerCount > 0).map((c) => entry(offersPath(undefined, c.slug)));
+  for (const area of areaSlugs) {
+    lists.push(entry(offersPath(area)));
+    for (const category of await getCategories(area)) {
+      if (category.offerCount > 0) lists.push(entry(offersPath(area, category.slug)));
     }
   }
 
   return [
     entry("/", live),
     entry("/offers", live),
-    entry("/categories", live),
+    entry("/categories"),
     entry("/how-it-works"),
     entry("/contact"),
     entry("/submit-offer"),
     ...lists,
     ...live.map((o) => entry(`/offers/${o.slug}`, [o], o.images.slice(0, 1))),
-    ...businesses.map((b) =>
-      entry(
-        `/businesses/${b.slug}`,
-        live.filter((o) => o.businessSlug === b.slug),
-        [b.cover],
-      ),
-    ),
+    ...businessSlugs.map((slug) => entry(`/businesses/${slug}`)),
   ];
 }

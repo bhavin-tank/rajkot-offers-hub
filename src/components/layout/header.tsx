@@ -1,5 +1,5 @@
 import { LanguageToggle } from "@/components/i18n/language-toggle";
-import { ArrowLeft, Heart } from "lucide-react";
+import { ArrowLeft, CircleUserRound, Heart } from "lucide-react";
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { IconLink } from "@/components/ui/icon-button";
@@ -31,6 +31,9 @@ export async function DesktopHeader({ className }: { className?: string }) {
           <IconLink href="/saved" variant="plain" size="lg" aria-label={t("Saved offers")}>
             <Heart size={20} aria-hidden />
           </IconLink>
+          <IconLink href="/account" variant="plain" size="lg" aria-label={t("My account")}>
+            <CircleUserRound size={20} aria-hidden />
+          </IconLink>
           <ButtonLink href="/submit-offer" size="sm">
             {t("Submit an offer")}
           </ButtonLink>
@@ -40,8 +43,9 @@ export async function DesktopHeader({ className }: { className?: string }) {
   );
 }
 
-/** Mobile header (56px): logo, language toggle and city pill. */
-export function MobileHeader() {
+/** Mobile header (56px): logo, language toggle, city pill and account. */
+export async function MobileHeader() {
+  const t = await getT();
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur lg:hidden">
       <div className="flex h-14 items-center justify-between px-5">
@@ -49,6 +53,9 @@ export function MobileHeader() {
         <div className="flex items-center gap-2">
           <LanguageToggle />
           <LocationPill />
+          <IconLink href="/account" variant="plain" size="lg" aria-label={t("My account")}>
+            <CircleUserRound size={20} aria-hidden />
+          </IconLink>
         </div>
       </div>
     </header>

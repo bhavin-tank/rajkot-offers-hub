@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Link } from "@/components/i18n/link";
 import { ArrowRight, ChevronRight, Mail, MapPin } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
-import { ContactForm } from "@/components/forms/contact-form";
 import { Container } from "@/components/layout/container";
+import { ButtonAnchor } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/display";
 import { getT } from "@/lib/i18n/server";
 import { pageMetadata } from "@/lib/seo";
@@ -24,13 +23,15 @@ async function ReportBox() {
   return (
     <div className="rounded-2xl bg-surface p-5">
       <p className="text-sm leading-relaxed">{t("Spotted an incorrect offer? Tell us and we will look into it.")}</p>
-      <Link
-        href="#message"
+      <a
+        href={whatsappHref(site.whatsapp, t("I want to report an offer:"))}
+        target="_blank"
+        rel="noreferrer"
         className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
       >
         {t("Report it")}
         <ArrowRight size={14} aria-hidden />
-      </Link>
+      </a>
     </div>
   );
 }
@@ -81,11 +82,16 @@ export default async function ContactPage() {
           </div>
         </div>
 
-        <div className="-mx-5 bg-surface px-5 py-8 lg:mx-0 lg:bg-transparent lg:p-0">
-          <div className="rounded-2xl bg-white p-5 lg:border lg:border-line lg:p-8 lg:shadow-card">
-            <ContactForm />
+        <div className="flex flex-col gap-4">
+          <div className="rounded-2xl bg-surface p-5 lg:p-8">
+            <h2 className="text-lg font-semibold">{t("The quickest way to reach us")}</h2>
+            <p className="mt-2 text-sm text-muted">{t("Message us on WhatsApp with your question or the offer you want to tell us about. We reply on working days.")}</p>
+            <ButtonAnchor href={whatsappHref(site.whatsapp)} target="_blank" rel="noreferrer" className="mt-4">
+              <WhatsAppIcon size={18} />
+              {t("Message us on WhatsApp")}
+            </ButtonAnchor>
           </div>
-          <div className="mt-6 lg:hidden">
+          <div className="lg:hidden">
             <ReportBox />
           </div>
         </div>
