@@ -5,6 +5,7 @@ import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { SortKey } from "@/types";
 import { SORT_OPTIONS } from "@/lib/filters";
+import { PICK_LOCATION_EVENT } from "@/lib/location";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
@@ -12,11 +13,13 @@ interface SortMenuProps {
   value: SortKey;
   /** Link for each sort option, built on the server. */
   hrefs: Record<SortKey, string>;
+  /** Whether the visitor has set a location; "Nearest first" asks for one when not. */
+  hasNear: boolean;
   className?: string;
 }
 
 /** "Sort: …" pill that opens a small menu of sort links. */
-export function SortMenu({ value, hrefs, className }: SortMenuProps) {
+export function SortMenu({ value, hrefs, hasNear, className }: SortMenuProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -57,6 +60,23 @@ export function SortMenu({ value, hrefs, className }: SortMenuProps) {
           <p className="px-3 pt-1 pb-2 text-xs font-semibold tracking-[0.04em] text-muted">{t("Sort")}</p>
           {SORT_OPTIONS.map((option) => {
             const selected = option.value === value;
+            if (option.value === "nearest" && !hasNear) {
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={false}
+                  onClick={() => {
+                    setOpen(false);
+                    window.dispatchEvent(new CustomEvent(PICK_LOCATION_EVENT));
+                  }}
+                  className="flex h-10 w-full cursor-pointer items-center rounded-[10px] px-3 text-left text-sm hover:bg-surface"
+                >
+                  {t(option.label)}
+                </button>
+              );
+            }
             return (
               <Link
                 key={option.value}

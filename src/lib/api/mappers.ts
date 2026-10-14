@@ -59,6 +59,7 @@ export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSumm
     validTo,
     isExpired: isPast(card),
     daysLeft: daysBetween(toIsoDay(new Date()), validTo),
+    ...(card.distance_km != null ? { distanceKm: card.distance_km } : {}),
   };
 }
 

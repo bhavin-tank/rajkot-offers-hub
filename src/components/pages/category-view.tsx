@@ -8,7 +8,7 @@ import { BottomNav } from "@/components/layout/nav-links";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
 import { OffersSkeleton } from "@/components/offers/offers-skeleton";
 import { offersMetadata } from "@/components/pages/offers-view";
-import { getCategory, getOffers } from "@/lib/data";
+import { getCategory, getNear, getOffers } from "@/lib/data";
 import { parseFilters } from "@/lib/filters";
 import { getT } from "@/lib/i18n/server";
 import type { Area } from "@/types";
@@ -59,7 +59,7 @@ async function CategoryOffers({
 }) {
   const t = await getT();
   // The category comes from the path, never from the query.
-  const filters = { ...parseFilters(await searchParams), category: undefined, areas: area ? [area.slug] : undefined };
+  const filters = { ...parseFilters(await searchParams), category: undefined, areas: area ? [area.slug] : undefined, near: await getNear() };
   const result = await getOffers({ ...filters, category: slug });
 
   const chips = subcategories.length
