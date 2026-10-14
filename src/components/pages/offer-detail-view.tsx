@@ -8,12 +8,14 @@ import { StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { OfferCarousel } from "@/components/offers/offer-card";
+import { OfferCode } from "@/components/offers/offer-code";
 import { OfferGallery } from "@/components/offers/offer-gallery";
 import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
 import { SaveButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
+import { TrackedAnchor, TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
-import { Button, ButtonAnchor, buttonClass } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { DetailRow, Divider } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
 import { getBusiness, getCategory, getOffer, getSimilarOffers } from "@/lib/data";
@@ -85,6 +87,7 @@ async function OfferContent({ slug }: { slug: string }) {
   return (
     <>
       <JsonLd data={await offerLd(offer, business)} />
+      {!expired && <TrackOfferView offerId={offer.id} />}
       <JsonLd data={crumbs} />
       {expired && (
         <div role="status" className="bg-surface px-5 py-3 text-center text-sm font-medium text-muted">
@@ -116,7 +119,7 @@ async function OfferContent({ slug }: { slug: string }) {
                     <ArrowLeft size={20} aria-hidden />
                   </IconLink>
                   <div className="flex gap-2">
-                    <ShareButton title={offer.title} path={path} />
+                    <ShareButton title={offer.title} path={path} offerId={offer.id} />
                     <SaveButton slug={offer.slug} size="lg" />
                   </div>
                 </div>
@@ -144,9 +147,10 @@ async function OfferContent({ slug }: { slug: string }) {
                 </DetailRow>
               </div>
 
+              {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} className="lg:hidden" />}
               <HowToGetSteps steps={offer.steps} />
               <TermsAccordion terms={offer.terms} />
-              <MapCard address={offer.address} geo={business.geo} layout="split" />
+              <MapCard address={offer.address} geo={business.geo} layout="split" offerId={offer.id} />
               <p className="text-xs leading-relaxed text-faint">
                 {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
               </p>
@@ -166,12 +170,13 @@ async function OfferContent({ slug }: { slug: string }) {
                 {offer.timings}
               </p>
             </div>
+            {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
             {expired ? (
               <Button disabled block>
                 {t("Offer expired")}
               </Button>
             ) : (
-              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true })}>
+              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ block: true })}>
                 <Phone size={18} aria-hidden />
                 {business.contactMasked ? t("Call") : t("Call · {phone}", { phone: business.phone })}
               </ContactLink>
@@ -183,23 +188,25 @@ async function OfferContent({ slug }: { slug: string }) {
                   WhatsApp
                 </Button>
               ) : (
-                <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "outline" })}>
+                <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "outline" })}>
                   <WhatsAppIcon size={18} />
                   WhatsApp
                 </ContactLink>
               )}
-              <ButtonAnchor
+              <TrackedAnchor
                 href={directionsHref(business.geo.lat, business.geo.lng)}
                 target="_blank"
                 rel="noreferrer"
-                variant="outline"
+                offerId={offer.id}
+                event="directions"
+                className={buttonClass({ variant: "outline" })}
               >
                 {t("Directions")}
-              </ButtonAnchor>
+              </TrackedAnchor>
             </div>
             <div className="flex justify-center gap-4">
               <SaveTextButton slug={offer.slug} />
-              <ShareButton title={offer.title} path={path} variant="text" />
+              <ShareButton title={offer.title} path={path} variant="text" offerId={offer.id} />
             </div>
           </aside>
         </div>
@@ -216,7 +223,7 @@ async function OfferContent({ slug }: { slug: string }) {
 
       {/* Room for the mobile action bar. */}
       <div aria-hidden className="h-24 lg:hidden" />
-      <StickyActionBar contact={business} layout="offer" disabled={expired} />
+      <StickyActionBar contact={business} layout="offer" disabled={expired} offerId={offer.id} />
     </>
   );
 }

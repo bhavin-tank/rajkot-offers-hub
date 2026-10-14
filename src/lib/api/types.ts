@@ -167,3 +167,15 @@ export interface PincodeLookup {
   longitude: number | null;
   areas: { name: string; office_type: string; is_delivery: boolean }[];
 }
+
+/** A claimed personal code (`POST /promotions/{id}/claims`, `GET /promotion-claims`). */
+export interface PromotionClaim {
+  id: string;
+  code: string;
+  qr_payload: string;
+  status: "claimed" | "redeemed" | "cancelled" | "expired";
+  claimed_at: string;
+  expires_at: string | null;
+  redeemed_at: string | null;
+  promotion?: PromotionCard;
+}

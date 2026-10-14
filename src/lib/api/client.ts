@@ -4,6 +4,8 @@
  *
  *   RAJKOT_API_URL       e.g. https://api.rajkotoffershub.com/api
  *   RAJKOT_API_PLATFORM  only on the management host: rajkot-offers
+ *   API_FRONTEND_KEY     the API's WEB_FRONTEND_KEY, so it believes the visitor address
+ *                        sent with request-time calls (`client`) for rate limits and metrics
  *
  * Server-side only: the browser never calls the API directly, so tokens stay in
  * httpOnly cookies and guest reads go through Next's cache.
@@ -42,6 +44,12 @@ export interface ApiRequest {
   body?: unknown;
   /** Bearer access token for signed-in calls. */
   token?: string;
+  /**
+   * The visitor's IP, for calls made on their behalf at request time (logins, refreshes, code
+   * reveals, tracking). Every call comes from this server, so without it the API would rate-limit
+   * and count all visitors as one. Never set inside a cached read.
+   */
+  client?: string | null;
 }
 
 function search(query: Query = {}) {
@@ -54,11 +62,15 @@ function search(query: Query = {}) {
   return params.size ? `?${params}` : "";
 }
 
-export async function api<T>(path: string, { query, method = "GET", body, token }: ApiRequest = {}): Promise<T> {
+export async function api<T>(path: string, { query, method = "GET", body, token, client }: ApiRequest = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (token) headers.Authorization = `Bearer ${token}`;
   if (process.env.RAJKOT_API_PLATFORM) headers["X-Platform"] = process.env.RAJKOT_API_PLATFORM;
+  if (client && process.env.API_FRONTEND_KEY) {
+    headers["X-Client-IP"] = client;
+    headers["X-Frontend-Key"] = process.env.API_FRONTEND_KEY;
+  }
 
   const response = await fetch(`${apiBaseUrl()}${path}${search(query)}`, {
     method,

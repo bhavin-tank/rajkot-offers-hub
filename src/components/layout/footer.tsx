@@ -2,7 +2,7 @@ import { LanguageToggle } from "@/components/i18n/language-toggle";
 import { Link } from "@/components/i18n/link";
 import { InstagramIcon } from "@/components/icons/brand";
 import { getT } from "@/lib/i18n/server";
-import { footerNav, site } from "@/lib/site";
+import { footerNav, legalNav, site } from "@/lib/site";
 import { cn, instagramHref } from "@/lib/utils";
 import { Container } from "./container";
 import { Logo } from "./logo";
@@ -40,6 +40,13 @@ export async function Footer({ className }: { className?: string }) {
             {site.instagram}
           </a>
           <span>{site.domain}</span>
+          <span className="flex gap-3">
+            {legalNav.map((item) => (
+              <Link key={item.href} href={item.href} className="hover:text-ink">
+                {t(item.label)}
+              </Link>
+            ))}
+          </span>
           <LanguageToggle className="text-muted lg:mt-1" />
         </div>
       </Container>

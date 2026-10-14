@@ -2,9 +2,10 @@ import { Link } from "@/components/i18n/link";
 import { ArrowRight, MapPin, Navigation, Store } from "lucide-react";
 import type { OfferStep } from "@/types";
 import { AccordionItem } from "@/components/ui/accordion";
-import { ButtonAnchor } from "@/components/ui/button";
+import { buttonClass } from "@/components/ui/button";
 import { getT } from "@/lib/i18n/server";
 import { cn, directionsHref } from "@/lib/utils";
+import { TrackedAnchor } from "./track";
 
 /** Store icon, name and area, linking to the business profile. */
 export async function BusinessRow({
@@ -78,11 +79,14 @@ export async function MapCard({
   address,
   geo,
   layout = "stacked",
+  offerId,
   className,
 }: {
   address: string;
   geo: { lat: number; lng: number };
   layout?: "stacked" | "split";
+  /** On an offer page: the tap counts towards that offer's stats. */
+  offerId?: string;
   className?: string;
 }) {
   const t = await getT();
@@ -103,16 +107,17 @@ export async function MapCard({
       <div className="flex flex-col items-start gap-3 p-4 lg:p-5">
         {layout === "split" && <p className="text-xs text-muted">{t("Address")}</p>}
         <p className="text-sm leading-relaxed">{address}</p>
-        <ButtonAnchor
+        <TrackedAnchor
           href={directionsHref(geo.lat, geo.lng)}
           target="_blank"
           rel="noreferrer"
-          variant="outline"
-          className="h-[38px] px-4 text-sm"
+          offerId={offerId}
+          event="directions"
+          className={buttonClass({ variant: "outline", className: "h-[38px] px-4 text-sm" })}
         >
           <Navigation size={16} aria-hidden />
           {t("Get directions")}
-        </ButtonAnchor>
+        </TrackedAnchor>
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useTransition, type ReactNode } from "react";
 import { useToast } from "@/components/ui/toast";
 import { revealContactAction } from "@/lib/actions/auth";
+import { trackOffer } from "@/components/offers/track";
 import { useT } from "@/lib/i18n/client";
 import { telHref, whatsappHref } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ export function ContactLink({
   kind,
   number,
   masked,
+  offerId,
   className,
   children,
 }: {
@@ -27,6 +29,8 @@ export function ContactLink({
   kind: "call" | "whatsapp";
   number: string;
   masked: boolean;
+  /** On an offer page: the tap counts towards that offer's stats. */
+  offerId?: string;
   className?: string;
   children: ReactNode;
 }) {
@@ -37,6 +41,7 @@ export function ContactLink({
   const [pending, start] = useTransition();
   const [numbers, setNumbers] = useState(() => revealed.get(business));
   const open = (contact: { phone: string; whatsapp: string }) => {
+    trackOffer(offerId, kind);
     if (kind === "call") window.location.href = telHref(contact.phone);
     else window.open(whatsappHref(contact.whatsapp), "_blank", "noopener");
   };
@@ -44,7 +49,12 @@ export function ContactLink({
   if (!masked) {
     const href = kind === "call" ? telHref(number) : whatsappHref(number);
     return (
-      <a href={href} className={className} {...(kind === "whatsapp" && { target: "_blank", rel: "noreferrer" })}>
+      <a
+        href={href}
+        className={className}
+        onClick={() => trackOffer(offerId, kind)}
+        {...(kind === "whatsapp" && { target: "_blank", rel: "noreferrer" })}
+      >
         {children}
       </a>
     );

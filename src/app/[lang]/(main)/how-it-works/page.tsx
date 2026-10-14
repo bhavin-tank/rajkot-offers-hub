@@ -56,13 +56,13 @@ export default async function HowItWorksPage() {
   const customerSteps: StepData[] = [
     { icon: Search, title: t("Find an offer"), text: t("Search by category, area or keyword.") },
     { icon: FileText, title: t("Check the details"), text: t("Check the validity, terms and address.") },
-    { icon: Store, title: t("Visit the store"), text: t("Show the offer and enjoy the discount.") },
+    { icon: Store, title: t("Visit the store"), text: t("Show the offer, or its code, and enjoy the discount.") },
   ];
 
   const businessSteps: StepData[] = [
-    { icon: Send, title: t("Send your offer"), text: t("Fill in your offer details in a simple form.") },
+    { icon: Send, title: t("Add your offers"), text: t("Add your shop and offers in the BSurefy business app.") },
     { icon: ShieldCheck, title: t("Verification"), text: t("Our team checks the details.") },
-    { icon: Globe, title: t("Publishing"), text: t("Approved offers appear on the website and Instagram.") },
+    { icon: Globe, title: t("Publishing"), text: t("Approved offers appear on the website.") },
   ];
 
   const promises: StepData[] = [
@@ -74,7 +74,7 @@ export default async function HowItWorksPage() {
   const faqs = [
     {
       q: t("How do I use an offer?"),
-      a: t("Open the offer, read the validity and terms, then visit the store and show the offer. No coupon or app is needed. It is a good idea to confirm with the store before you buy."),
+      a: t("Open the offer, read the validity and terms, then visit the store and show the offer. Some offers have a code: tap “Show code”, or log in and tap “Claim my code” for a personal one. It is a good idea to confirm with the store before you buy."),
     },
     {
       q: t("How do I know an offer is genuine?"),
@@ -82,11 +82,11 @@ export default async function HowItWorksPage() {
     },
     {
       q: t("How do I add my shop's offer?"),
-      a: t('Fill in the offer, validity, address and contact details in the "Submit an offer" form. Listing an offer is free. We will let you know after verification.'),
+      a: t('Get the BSurefy business app from the "Submit an offer" page, add your shop once, then add offers whenever you like. Listing an offer is free.'),
     },
     {
       q: t("How long does it take for an offer to be published?"),
-      a: t("Usually 1–2 working days. If details are missing we will contact you, which may take a little longer."),
+      a: t("Usually 1–2 working days after you add it in the business app. If details are missing it may take a little longer."),
     },
   ];
 

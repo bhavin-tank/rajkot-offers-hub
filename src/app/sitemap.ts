@@ -44,6 +44,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/how-it-works"),
     entry("/contact"),
     entry("/submit-offer"),
+    entry("/privacy"),
+    entry("/terms"),
     ...lists,
     ...live.map((o) => entry(`/offers/${o.slug}`, [o], o.images.slice(0, 1))),
     ...businessSlugs.map((slug) => entry(`/businesses/${slug}`)),
