@@ -5,6 +5,9 @@ import { clearSessionCookies, setSessionCookies } from "@/lib/auth/cookies";
 import { renewSession } from "@/lib/auth/proxy-session";
 import { hasUnknownSlug } from "@/lib/known-paths";
 
+/** Pages that read the signed-in user; the session is renewed before they render. */
+const SESSION_PAGES = new Set(["/login", "/account"]);
+
 /**
  * Locale routing. English pages live at "/en/..." internally but are
  * served without a prefix; Gujarati pages are served at "/gu/...".
@@ -16,18 +19,6 @@ export async function proxy(request: NextRequest) {
   // "/en/offers" is not a public URL: send it to "/offers". With the switcher off, so is "/gu/offers".
   if (locale === defaultLocale || (locale && !languageSwitchEnabled)) {
     return NextResponse.redirect(new URL(`${path}${search}`, request.url), 308);
-  }
-
-  // Admin panel: English only, never indexed, and the session is renewed here because pages can't set cookies.
-  if (path === "/admin" || path.startsWith("/admin/")) {
-    const session = await renewSession(request);
-    const response = NextResponse.rewrite(new URL(`/${defaultLocale}${path}${search}`, request.url), {
-      request: { headers: request.headers },
-    });
-    if (session === "signed-out") clearSessionCookies(response.cookies);
-    else if (session) setSessionCookies(response.cookies, session);
-    response.headers.set("X-Robots-Tag", "noindex, nofollow");
-    return response;
   }
 
   // Old-style "/offers?area=x&category=y" links become "/x/offers/y".
@@ -42,13 +33,21 @@ export async function proxy(request: NextRequest) {
     return NextResponse.rewrite(new URL(`/${locale ?? defaultLocale}/_/not/found/page`, request.url));
   }
 
-  if (locale) return NextResponse.next();
+  const session = SESSION_PAGES.has(path) ? await renewSession(request) : null;
+  const withSession = (response: NextResponse) => {
+    if (session === "signed-out") clearSessionCookies(response.cookies);
+    else if (session) setSessionCookies(response.cookies, session);
+    return response;
+  };
+  const forward = { request: { headers: request.headers } };
+
+  if (locale) return withSession(NextResponse.next(forward));
 
   // No prefix: honour a saved Gujarati choice, otherwise serve English.
   if (languageSwitchEnabled && request.cookies.get(LOCALE_COOKIE)?.value === "gu") {
     return NextResponse.redirect(new URL(`${localizePath("gu", pathname)}${search}`, request.url));
   }
-  return NextResponse.rewrite(new URL(`/${defaultLocale}${pathname === "/" ? "" : pathname}${search}`, request.url));
+  return withSession(NextResponse.rewrite(new URL(`/${defaultLocale}${pathname === "/" ? "" : pathname}${search}`, request.url), forward));
 }
 
 export const config = {

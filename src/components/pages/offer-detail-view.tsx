@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, CalendarDays, Clock, MapPin, Phone, Tag } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/brand";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
+import { ContactLink } from "@/components/businesses/contact-link";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { OfferCarousel } from "@/components/offers/offer-card";
 import { OfferGallery } from "@/components/offers/offer-gallery";
@@ -12,14 +13,14 @@ import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/component
 import { SaveButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
 import { Badge } from "@/components/ui/badge";
-import { Button, ButtonAnchor } from "@/components/ui/button";
+import { Button, ButtonAnchor, buttonClass } from "@/components/ui/button";
 import { DetailRow, Divider } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
 import { getBusiness, getCategory, getOffer, getSimilarOffers } from "@/lib/data";
 import { formatRange } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
-import { cn, directionsHref, telHref, whatsappHref } from "@/lib/utils";
+import { cn, directionsHref } from "@/lib/utils";
 
 export async function offerMetadata(slug: string): Promise<Metadata> {
   const [t, locale, offer] = await Promise.all([getT(), getLocale(), getOffer(slug)]);
@@ -170,10 +171,10 @@ async function OfferContent({ slug }: { slug: string }) {
                 {t("Offer expired")}
               </Button>
             ) : (
-              <ButtonAnchor href={telHref(business.phone)} block>
+              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true })}>
                 <Phone size={18} aria-hidden />
-                {t("Call · {phone}", { phone: business.phone })}
-              </ButtonAnchor>
+                {business.contactMasked ? t("Call") : t("Call · {phone}", { phone: business.phone })}
+              </ContactLink>
             )}
             <div className="grid grid-cols-2 gap-2.5">
               {expired ? (
@@ -182,10 +183,10 @@ async function OfferContent({ slug }: { slug: string }) {
                   WhatsApp
                 </Button>
               ) : (
-                <ButtonAnchor href={whatsappHref(business.whatsapp)} target="_blank" rel="noreferrer" variant="outline">
+                <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "outline" })}>
                   <WhatsAppIcon size={18} />
                   WhatsApp
-                </ButtonAnchor>
+                </ContactLink>
               )}
               <ButtonAnchor
                 href={directionsHref(business.geo.lat, business.geo.lng)}

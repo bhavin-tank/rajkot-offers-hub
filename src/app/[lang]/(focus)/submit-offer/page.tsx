@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { PencilLine, ShieldCheck } from "lucide-react";
-import { InstagramIcon } from "@/components/icons/brand";
-import { SubmitOfferForm } from "@/components/forms/submit-offer-form";
+import { Download, PencilLine, ShieldCheck } from "lucide-react";
+import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
+import { ButtonAnchor } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
 import { MobileTopBar } from "@/components/layout/header";
-import { getAreas, getCategories } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { img } from "@/lib/mock/images";
 import { pageMetadata } from "@/lib/seo";
+import { site } from "@/lib/site";
+import { whatsappHref } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -27,7 +28,7 @@ async function Intro({ large }: { large?: boolean }) {
         {t("Take your offer to Rajkot")}
       </h1>
       <p className={large ? "mt-3 max-w-[440px] text-base text-muted" : "mt-2 text-sm text-muted"}>
-        {t("Send us your shop’s offer. Our team will verify the details and publish it.")}
+        {t("Shop owners list and manage their offers in the Rajkot Offers business app. Our team checks every offer before it goes live.")}
       </p>
     </div>
   );
@@ -36,7 +37,8 @@ async function Intro({ large }: { large?: boolean }) {
 async function HowSteps({ large }: { large?: boolean }) {
   const t = await getT();
   const how = [
-    { icon: PencilLine, text: t("Fill in the offer details") },
+    { icon: Download, text: t("Get the business app and sign in with your mobile number") },
+    { icon: PencilLine, text: t("Add your shop and your offer") },
     { icon: ShieldCheck, text: t("Our team will verify it") },
     { icon: InstagramIcon, text: t("Once approved, the offer appears on the website and Instagram") },
   ];
@@ -63,9 +65,43 @@ async function HowSteps({ large }: { large?: boolean }) {
   );
 }
 
+/** Where shop owners get the business app; until store links are set, WhatsApp us. */
+async function GetTheApp() {
+  const t = await getT();
+  const { android, ios } = site.ownerApp;
+  return (
+    <div className="flex flex-col gap-5">
+      <h2 className="text-xl font-semibold">{t("List your offer with the business app")}</h2>
+      <p className="text-sm text-muted">{t("It is free. Add your shop once, then post new offers whenever you like and see how many people view, call and visit.")}</p>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        {android && (
+          <ButtonAnchor href={android} target="_blank" rel="noreferrer">
+            <Download size={18} aria-hidden />
+            {t("Get it on Google Play")}
+          </ButtonAnchor>
+        )}
+        {ios && (
+          <ButtonAnchor href={ios} target="_blank" rel="noreferrer" variant={android ? "outline" : "primary"}>
+            <Download size={18} aria-hidden />
+            {t("Download on the App Store")}
+          </ButtonAnchor>
+        )}
+        <ButtonAnchor
+          href={whatsappHref(site.whatsapp, t("Hi, I want to list my shop's offer on Rajkot Offers Hub."))}
+          target="_blank"
+          rel="noreferrer"
+          variant={android || ios ? "outline" : "primary"}
+        >
+          <WhatsAppIcon size={18} />
+          {t("Message us on WhatsApp")}
+        </ButtonAnchor>
+      </div>
+    </div>
+  );
+}
+
 export default async function SubmitOfferPage() {
-  const [t, categories, areas] = await Promise.all([getT(), getCategories(), getAreas()]);
-  const options = categories.map(({ slug, shortName }) => ({ slug, shortName }));
+  const t = await getT();
 
   return (
     <>
@@ -83,23 +119,17 @@ export default async function SubmitOfferPage() {
                 className="object-cover"
               />
             </div>
-            <div className="flex flex-col gap-4">
-              <h2 className="text-lg font-semibold">{t("How it works")}</h2>
-              <HowSteps large />
-            </div>
           </div>
 
-          <div className="lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:p-10 lg:shadow-form">
-            <SubmitOfferForm
-              categories={options}
-              areas={areas}
-              mobileIntro={
-                <div className="flex flex-col gap-6">
-                  <Intro />
-                  <HowSteps />
-                </div>
-              }
-            />
+          <div className="flex flex-col gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:p-10 lg:shadow-form">
+            <div className="flex flex-col gap-6 lg:hidden">
+              <Intro />
+            </div>
+            <GetTheApp />
+            <div className="flex flex-col gap-4 border-t border-line pt-6">
+              <h2 className="text-lg font-semibold">{t("How it works")}</h2>
+              <HowSteps />
+            </div>
           </div>
         </Container>
       </div>

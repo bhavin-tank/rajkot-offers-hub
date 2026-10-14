@@ -13,6 +13,11 @@ export const site = {
   /** For structured data: the city the site serves. */
   region: "Gujarat",
   country: "IN",
+  /** Shop owners list and manage offers in the business app. Store links come from the environment. */
+  ownerApp: {
+    android: process.env.NEXT_PUBLIC_OWNER_APP_ANDROID_URL || null,
+    ios: process.env.NEXT_PUBLIC_OWNER_APP_IOS_URL || null,
+  },
 } as const;
 
 /** "/offers" → "https://rajkotoffers.in/offers". */
