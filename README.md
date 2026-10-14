@@ -22,6 +22,19 @@ platform; `PLATFORM_HOSTS` must map `rajkot-offers=api.rajkotoffers.test` when s
 `APP_ENV=local` the API returns login codes in its response, and this site shows them on the login
 screen in development builds.
 
+## Launch check
+
+A read-only check of the API and the deployed site (it never logs in, claims or reveals anything):
+
+```bash
+pnpm check:launch --site https://rajkotoffers.in --api https://api.rajkotoffershub.com/api
+```
+
+It checks that the API serves the Rajkot platform (offers, areas, categories, nearest sort, pincode
+lookup, an offer and a shop), and that the site's pages, an offer page, a shop page, 404s, the sitemap
+and robots.txt work and point at the right domain. It exits 1 on any failure; warnings (no live offers
+yet, PR #282 not deployed, slow reads) don't fail it. Either `--site` or `--api` can be left out.
+
 ## Structure
 
 ```
