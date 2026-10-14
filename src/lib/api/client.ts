@@ -2,7 +2,7 @@
  * The BSurefy (Laravel) API. Rajkot Offers is one platform there, chosen by the
  * host the request goes to (or, on the shared management host, by `X-Platform`).
  *
- *   RAJKOT_API_URL       e.g. https://api.rajkotoffershub.com/api
+ *   RAJKOT_API_URL       e.g. https://v2-api.rajkotoffershub.com/api
  *   RAJKOT_API_PLATFORM  only on the management host: rajkot-offers
  *   API_FRONTEND_KEY     the API's WEB_FRONTEND_KEY, so it believes the visitor address
  *                        sent with request-time calls (`client`) for rate limits and metrics

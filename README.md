@@ -27,7 +27,7 @@ screen in development builds.
 A read-only check of the API and the deployed site (it never logs in, claims or reveals anything):
 
 ```bash
-pnpm check:launch --site https://rajkotoffers.in --api https://api.rajkotoffershub.com/api
+pnpm check:launch --site https://rajkotoffershub.com --api https://v2-api.rajkotoffershub.com/api
 ```
 
 It checks that the API serves the Rajkot platform (offers, areas, categories, nearest sort, pincode
