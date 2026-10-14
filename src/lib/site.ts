@@ -4,8 +4,9 @@ export const site = {
   name: "Rajkot Offers Hub",
   city: "Rajkot",
   tagline: "Local offers in Rajkot, all in one place.",
-  domain: "rajkotoffers.in",
-  url: "https://rajkotoffers.in",
+  domain: "rajkotoffershub.com",
+  /** The canonical address; rajkotoffers.in redirects here at the host. */
+  url: "https://rajkotoffershub.com",
   instagram: "@rajkotoffershub",
   email: "hello@rajkotoffers.in",
   whatsapp: "+91 98XXX XXXXX",
@@ -20,7 +21,7 @@ export const site = {
   },
 } as const;
 
-/** "/offers" → "https://rajkotoffers.in/offers". */
+/** "/offers" → "https://rajkotoffershub.com/offers". */
 export function absoluteUrl(path: string) {
   return new URL(path, site.url).toString();
 }
