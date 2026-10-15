@@ -17,7 +17,7 @@ export function OffersSkeleton() {
         ))}
       </div>
       <Skeleton className="mt-5 mb-4 h-4 w-20" />
-      <OfferGridSkeleton />
+      <OfferGridSkeleton count={8} columns={4} />
     </div>
   );
 }

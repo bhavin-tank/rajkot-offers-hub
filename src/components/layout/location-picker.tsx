@@ -27,7 +27,7 @@ const pillClass =
   "inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border bg-white pr-2.5 pl-2.5 text-[13px] font-medium lg:h-10 lg:px-3.5 lg:text-sm";
 
 /**
- * Header city pill. Opens "near me" (GPS or a pincode, kept in a cookie) and a list
+ * Header city pill. Opens "near me" (GPS, kept in a cookie) and a list
  * of Rajkot's areas; picking an area moves to that area's version of the page
  * ("/kalawad-road/offers"), "All Rajkot" moves back to the plain one ("/offers").
  * The area lives in the URL, so it can be shared and needs no extra storage.
@@ -62,7 +62,7 @@ function Picker({ areas, total, categorySlugs }: LocationPickerProps) {
   const near = parseNear(useSyncExternalStore(subscribeNear, readNearCookie, () => null));
 
   const current = areas.find((area) => area.slug === currentSlug);
-  const label = current ? current.name : near ? (near.pincode ? t("Near {pincode}", { pincode: near.pincode }) : t("Near me")) : t(site.city);
+  const label = current ? current.name : near ? t("Near me") : t(site.city);
   const narrowed = Boolean(current || near);
 
   // "Nearest first" (and other buttons) ask for a location through an event. The header is

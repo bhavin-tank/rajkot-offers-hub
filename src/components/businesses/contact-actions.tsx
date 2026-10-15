@@ -18,60 +18,49 @@ interface Contact {
 const external = { target: "_blank", rel: "noreferrer" } as const;
 
 const tileClass = "flex h-[72px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-surface text-xs font-medium hover:bg-canvas";
+const whatsappTileClass = "flex h-[72px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-whatsapp-soft text-xs font-medium text-whatsapp-ink hover:bg-whatsapp/15";
 
-/** Mobile bar fixed to the bottom of offer and business pages. */
+/** Mobile bar fixed to the bottom of offer and business pages: WhatsApp, directions and call. */
 export async function StickyActionBar({
   contact,
-  layout,
   disabled,
   offerId,
 }: {
   contact: Contact;
   /** On an offer page: taps count towards that offer's stats. */
   offerId?: string;
-  /** "offer": WhatsApp icon + directions + call. "business": WhatsApp + call. */
-  layout: "offer" | "business";
   /** Expired offer: call and WhatsApp are disabled. */
   disabled?: boolean;
 }) {
   const t = await getT();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2.5 border-t border-line bg-white px-5 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] lg:hidden">
-      {layout === "offer" ? (
-        <>
-          {disabled ? (
-            <Button variant="outline" iconOnly disabled aria-label="WhatsApp">
-              <WhatsAppIcon size={20} />
-            </Button>
-          ) : (
-            <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "outline", iconOnly: true })}>
-              <WhatsAppIcon size={20} />
-              <span className="sr-only">WhatsApp</span>
-            </ContactLink>
-          )}
-          <TrackedAnchor
-            href={directionsHref(contact.geo.lat, contact.geo.lng)}
-            {...external}
-            offerId={offerId}
-            event="directions"
-            className={buttonClass({ variant: "outline", className: "px-4" })}
-          >
-            <Navigation size={18} aria-hidden />
-            {t("Directions")}
-          </TrackedAnchor>
-        </>
+      {disabled ? (
+        <Button variant="outline" iconOnly disabled aria-label="WhatsApp">
+          <WhatsAppIcon size={20} />
+        </Button>
       ) : (
-        <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} className={buttonClass({ variant: "outline", className: "flex-1" })}>
-          <WhatsAppIcon size={18} />
-          WhatsApp
+        <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "whatsappSolid", iconOnly: true })}>
+          <WhatsAppIcon size={20} />
+          <span className="sr-only">WhatsApp</span>
         </ContactLink>
       )}
+      <TrackedAnchor
+        href={directionsHref(contact.geo.lat, contact.geo.lng)}
+        {...external}
+        offerId={offerId}
+        event="directions"
+        className={buttonClass({ variant: "outline", className: "px-4" })}
+      >
+        <Navigation size={18} aria-hidden />
+        {t("Directions")}
+      </TrackedAnchor>
       {disabled ? (
         <Button disabled className="flex-1">
           {t("Offer expired")}
         </Button>
       ) : (
-        <ContactLink business={contact.slug} kind="call" number={contact.phone} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ className: cn(layout === "offer" ? "flex-1" : "flex-[1.4]") })}>
+        <ContactLink business={contact.slug} kind="call" number={contact.phone} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ className: "flex-1" })}>
           <Phone size={18} aria-hidden />
           {t("Call")}
         </ContactLink>
@@ -101,7 +90,7 @@ export async function ActionTiles({ contact, includeCall, className }: { contact
               kind={tile.contact}
               number={tile.contact === "call" ? contact.phone : contact.whatsapp}
               masked={contact.contactMasked}
-              className={tileClass}
+              className={tile.contact === "whatsapp" ? whatsappTileClass : tileClass}
             >
               {tile.icon}
               {tile.label}

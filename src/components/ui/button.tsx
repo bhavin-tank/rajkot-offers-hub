@@ -8,6 +8,8 @@ const variants = {
     "border border-ink bg-white text-ink hover:bg-surface disabled:border-input disabled:text-line-strong disabled:hover:bg-white",
   ghost: "text-muted hover:text-ink",
   soft: "bg-surface text-ink hover:bg-canvas",
+  whatsapp: "border border-whatsapp bg-whatsapp-soft text-whatsapp-ink hover:bg-whatsapp/15",
+  whatsappSolid: "bg-whatsapp text-white hover:bg-whatsapp-hover",
 } as const;
 
 const sizes = {

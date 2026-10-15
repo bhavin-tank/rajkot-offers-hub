@@ -3,6 +3,7 @@ import { localizePath, type Locale } from "@/lib/i18n/config";
 import { getLocale } from "@/lib/i18n/server";
 import { absoluteUrl, site } from "@/lib/site";
 import type { Business, Offer } from "@/types";
+import { offerPath, shopPath } from "@/lib/paths";
 
 /**
  * public/opengraph-image.png, named by every page. Not the `app/opengraph-image`
@@ -159,13 +160,13 @@ function addressLd(business: Business) {
 }
 
 function businessRef(business: Business, locale: Locale) {
-  return `${absoluteUrl(localizePath(locale, `/businesses/${business.slug}`))}#business`;
+  return `${absoluteUrl(localizePath(locale, shopPath(business.slug)))}#business`;
 }
 
 /** A shop's profile as a LocalBusiness: address, map pin, hours and contact. */
-export async function localBusinessLd(business: Business, offers: Pick<Offer, "slug" | "title">[] = []) {
+export async function localBusinessLd(business: Business, offers: Pick<Offer, "urlSlug" | "title" | "businessSlug">[] = []) {
   const locale = await getLocale();
-  const url = absoluteUrl(localizePath(locale, `/businesses/${business.slug}`));
+  const url = absoluteUrl(localizePath(locale, shopPath(business.slug)));
   const links = [
     business.instagram && `https://instagram.com/${business.instagram.replace(/^@/, "")}`,
     business.website && (business.website.startsWith("http") ? business.website : `https://${business.website}`),
@@ -188,7 +189,7 @@ export async function localBusinessLd(business: Business, offers: Pick<Offer, "s
       .map((h) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: DAYS[h.day], opens: h.opens, closes: h.closes })),
     sameAs: links.length ? links : undefined,
     makesOffer: offers.length
-      ? offers.map((o) => ({ "@type": "Offer", name: o.title, url: absoluteUrl(localizePath(locale, `/offers/${o.slug}`)) }))
+      ? offers.map((o) => ({ "@type": "Offer", name: o.title, url: absoluteUrl(localizePath(locale, offerPath(o))) }))
       : undefined,
   };
 }
@@ -201,7 +202,7 @@ export async function offerLd(offer: Offer, business: Business) {
     "@type": "Offer",
     name: offer.title,
     description: offer.offerText,
-    url: absoluteUrl(localizePath(locale, `/offers/${offer.slug}`)),
+    url: absoluteUrl(localizePath(locale, offerPath(offer))),
     image: offer.images,
     category: offer.subcategory,
     validFrom: offer.validFrom,

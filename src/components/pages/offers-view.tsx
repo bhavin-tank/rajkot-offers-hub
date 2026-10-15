@@ -106,7 +106,7 @@ async function OffersContent({
 
   // Switching category keeps the search, type, validity and sort, but not the sub-category.
   const chipQuery = filtersToQuery({ ...filters, subcategory: undefined });
-  const chips = [
+  const categoryOptions = [
     { label: t("All"), href: `${offersPath(area?.slug)}${chipQuery}`, selected: !category },
     // Categories with live offers here, plus the one being viewed even when it has none.
     ...categories.filter((c) => c.offerCount > 0 || c.slug === category?.slug).map((c) => ({
@@ -131,14 +131,23 @@ async function OffersContent({
   return (
     <>
       <JsonLd data={await breadcrumbLd(crumbs)} />
-      <div className="mb-2 flex flex-col gap-6 lg:mb-10 lg:flex-row lg:items-end lg:justify-between">
+      <div className="mb-2 flex flex-col gap-6 lg:mb-10 lg:items-center lg:gap-8">
         <PageTitle
-          title={category?.name ?? (area ? t("Offers in {area}", { area: area.name }) : t("All offers"))}
-          subtitle={subtitle}
+          // All of Rajkot has no name of its own to give: the live count is the heading.
+          title={category?.name ?? (area ? t("Offers in {area}", { area: area.name }) : subtitle)}
+          subtitle={category || area ? subtitle : undefined}
+          className="text-center"
         />
-        <SearchBar variant="pageLarge" defaultValue={filters.q} action={basePath} className="hidden w-[480px] lg:flex" />
+        <SearchBar variant="pageLarge" defaultValue={filters.q} action={basePath} className="hidden w-[560px] max-w-full lg:flex" />
       </div>
-      <OffersExplorer basePath={basePath} filters={filters} result={result} chips={chips} layout="sidebar" />
+      <OffersExplorer
+        basePath={basePath}
+        category={category?.slug}
+        filters={filters}
+        result={result}
+        scope={{ label: t("Category"), options: categoryOptions }}
+        withSearch
+      />
     </>
   );
 }
