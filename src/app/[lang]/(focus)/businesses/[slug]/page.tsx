@@ -7,13 +7,12 @@ import { ArrowLeft, Globe, MapPin, Navigation, Phone, Store, Tag } from "lucide-
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
-import { OutletList, OutletSideCards } from "@/components/businesses/outlets";
+import { OutletSideCards } from "@/components/businesses/outlets";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
-import { HoursTable, OpenStatusPill } from "@/components/businesses/opening-hours";
+import { OpenStatusPill } from "@/components/businesses/opening-hours";
 import { Container } from "@/components/layout/container";
 import { OfferCard } from "@/components/offers/offer-card";
-import { MapCard } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
 import { ShareButton } from "@/components/offers/share-button";
 import { ButtonLink, buttonClass } from "@/components/ui/button";
@@ -138,14 +137,13 @@ async function PhotosTab({ business, images }: { business: Business; images: str
   );
 }
 
-function OutletsTab({ business }: { business: Business }) {
+/** Phone version of the outlet cards that sit beside the map on desktop. */
+async function OutletsTab({ business, path }: { business: Business; path: string }) {
+  const t = await getT();
   return (
-    <div className="pt-5 lg:pt-8">
-      {business.outlets.length > 1 ? (
-        <OutletList outlets={business.outlets} />
-      ) : (
-        <MapCard address={business.address} geo={business.geo} layout="split" />
-      )}
+    <div className="flex flex-col gap-4 pt-5">
+      <h2 className="text-lg font-semibold">{t(business.outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: business.outlets.length })}</h2>
+      <OutletSideCards outlets={business.outlets} contact={business} path={path} />
     </div>
   );
 }
@@ -161,10 +159,6 @@ async function AboutTab({ business }: { business: Business }) {
       <div className="lg:hidden">
         <InfoRows business={business} />
       </div>
-      <section className="lg:hidden">
-        <h2 className="mb-3 text-lg font-semibold">{t("Hours")}</h2>
-        <HoursTable hours={business.hours} />
-      </section>
     </div>
   );
 }
@@ -275,21 +269,22 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 label: t("Offers ({count})", { count: active.length }),
                 content: <OffersTab active={active} expired={expired} />,
               },
-              ...(images.length > 1 ? [{ value: "photos", label: t("Photos"), content: <PhotosTab business={business} images={images} />, className: "lg:order-2" }] : []),
+              { value: "about", label: t("About us"), content: <AboutTab business={business} /> },
+              ...(images.length > 1
+                ? [{ value: "photos", label: t("Photos ({count})", { count: images.length }), content: <PhotosTab business={business} images={images} /> }]
+                : []),
               {
                 value: "outlets",
-                label: business.outlets.length > 1 ? t("Outlets") : t("Outlet"),
-                content: <OutletsTab business={business} />,
+                label: t(business.outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: business.outlets.length }),
+                content: <OutletsTab business={business} path={path} />,
                 // On desktop the outlets live in the sidebar beside the map.
                 className: "lg:hidden",
               },
-              { value: "about", label: t("About us"), content: <AboutTab business={business} />, className: "lg:order-1" },
               ...(reviews.total
                 ? [
                     {
                       value: "reviews",
-                      label: t("Reviews"),
-                      className: "lg:order-3",
+                      label: t("Reviews ({count})", { count: reviews.total }),
                       content: (
                         <div className="pt-5 lg:pt-8">
                           <ReviewList reviews={reviews.items} total={reviews.total} />
