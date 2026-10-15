@@ -5,8 +5,10 @@ import { absoluteUrl, site } from "@/lib/site";
 import type { Business, Offer } from "@/types";
 
 /**
- * src/app/opengraph-image.png. The file convention alone does not reach pages
- * under the `[lang]` root layout, so pages name it explicitly.
+ * public/opengraph-image.png, named by every page. Not the `app/opengraph-image`
+ * file convention: that never reaches pages under the `[lang]` root layout, and
+ * `app/` itself has no layout to set `metadataBase`, so Next warned and resolved
+ * it against http://localhost:3000 on every build and worker start.
  */
 export const DEFAULT_SHARE_IMAGE = "/opengraph-image.png";
 
