@@ -11,8 +11,8 @@ export interface LegalSection {
 export async function LegalPage({ title, updated, intro, sections }: { title: string; updated: string; intro: ReactNode; sections: LegalSection[] }) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
   return (
-    <Container className="max-w-3xl py-8 lg:py-14">
-      <div className="lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:p-10">
+    <Container className="max-w-3xl py-6 lg:py-14">
+      <div className="rounded-2xl border border-line bg-white p-5 lg:p-10">
         <h1 className="text-[28px] font-bold lg:text-4xl">{title}</h1>
         <p className="mt-2 text-sm text-muted">{t("Last updated: {date}", { date: updated })}</p>
         {locale !== "en" && <p className="mt-3 rounded-xl bg-surface px-4 py-3 text-sm text-muted">{t("This page is available in English only.")}</p>}

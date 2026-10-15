@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 async function ReportBox() {
   const t = await getT();
   return (
-    <div className="rounded-2xl bg-surface p-5 lg:border lg:border-line lg:bg-white">
+    <div className="rounded-2xl border border-line bg-white p-5">
       <p className="text-sm leading-relaxed">{t("Spotted an incorrect offer? Tell us and we will look into it.")}</p>
       <a
         href={whatsappHref(site.whatsapp, t("I want to report an offer:"))}
@@ -67,7 +67,7 @@ export default async function ContactPage() {
                 {c.href && <ChevronRight size={18} className="text-muted" aria-hidden />}
               </>
             );
-            const classes = "flex items-center gap-3 rounded-2xl border border-line p-4 transition-colors lg:bg-white";
+            const classes = "flex items-center gap-3 rounded-2xl border border-line bg-white p-4 transition-colors";
             return c.href ? (
               <a key={c.title} href={c.href} target="_blank" rel="noreferrer" className={`${classes} hover:border-ink`}>
                 {body}
@@ -84,7 +84,7 @@ export default async function ContactPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl bg-surface p-5 lg:border lg:border-line lg:bg-white lg:p-8">
+          <div className="rounded-2xl border border-line bg-white p-5 lg:p-8">
             <h2 className="text-lg font-semibold">{t("The quickest way to reach us")}</h2>
             <p className="mt-2 text-sm text-muted">{t("Message us on WhatsApp with your question or the offer you want to tell us about. We reply on working days.")}</p>
             <ButtonAnchor href={whatsappHref(site.whatsapp)} target="_blank" rel="noreferrer" variant="whatsappSolid" className="mt-4">

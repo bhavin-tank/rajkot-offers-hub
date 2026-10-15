@@ -14,12 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SavedPage() {
   const t = await getT();
   return (
-    // The grey page background the shell gives desktop, on a phone too.
-    <div className="min-h-[70dvh] bg-surface">
-      <Container className="flex flex-col gap-6 pt-6 pb-10 lg:gap-8 lg:pt-12 lg:pb-20">
-        <PageTitle title={t("Saved")} subtitle={t("Offers and shops you like will be kept here.")} />
-        <SavedItems />
-      </Container>
-    </div>
+    <Container className="flex flex-col gap-6 pt-6 pb-10 lg:gap-8 lg:pt-12 lg:pb-20">
+      <PageTitle title={t("Saved")} subtitle={t("Offers and shops you like will be kept here.")} />
+      <SavedItems />
+    </Container>
   );
 }
