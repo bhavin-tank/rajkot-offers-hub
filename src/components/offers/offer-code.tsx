@@ -1,9 +1,9 @@
 "use client";
 
 import { Check, Copy, Ticket } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { useEffect, useState, useTransition } from "react";
+import { useLogin } from "@/components/auth/login-dialog";
 import { Link } from "@/components/i18n/link";
 import { Button } from "@/components/ui/button";
 import { claimCodeAction, revealCodeAction, type CodeResult } from "@/lib/actions/offers";
@@ -34,8 +34,7 @@ export function OfferCode({
 }) {
   const t = useT();
   const locale = useLocale();
-  const router = useRouter();
-  const pathname = usePathname();
+  const login = useLogin();
   const [shown, setShown] = useState<Shown | null>(null);
   const [error, setError] = useState<MessageKey | null>(null);
   const [pending, start] = useTransition();
@@ -43,14 +42,19 @@ export function OfferCode({
   if (mode === "walk_in") return null;
   const claim = mode === "unique_claim";
 
-  function get() {
+  function fetchCode() {
     setError(null);
     start(async () => {
       const result = await (claim ? claimCodeAction(offerId) : revealCodeAction(offerId));
       if (result.ok) setShown(result);
-      else if (result.error === "login") router.push(`/login?next=${encodeURIComponent(pathname)}`);
+      else if (result.error === "login") login.prompt(fetchCode);
       else setError(result.error);
     });
+  }
+
+  function get() {
+    if (login.signedIn()) fetchCode();
+    else login.prompt(fetchCode);
   }
 
   return (

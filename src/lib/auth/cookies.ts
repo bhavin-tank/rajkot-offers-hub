@@ -4,6 +4,11 @@
  */
 export const ACCESS_COOKIE = "ro_at";
 export const REFRESH_COOKIE = "ro_rt";
+/**
+ * Readable by the page's scripts, unlike the tokens: only says "someone signed in here", so the page knows to ask
+ * for the visitor's saved offers and shops instead of keeping them on the device. It holds nothing secret.
+ */
+export const SIGNED_IN_HINT_COOKIE = "ro_in";
 
 const REFRESH_TTL = 30 * 24 * 60 * 60;
 
@@ -18,12 +23,16 @@ function options(maxAge: number) {
 
 export function setSessionCookies(jar: CookieWriter, tokens: { access_token: string; refresh_token?: string; expires_in?: number }) {
   jar.set(ACCESS_COOKIE, tokens.access_token, options(tokens.expires_in ?? 900));
-  if (tokens.refresh_token) jar.set(REFRESH_COOKIE, tokens.refresh_token, options(REFRESH_TTL));
+  if (tokens.refresh_token) {
+    jar.set(REFRESH_COOKIE, tokens.refresh_token, options(REFRESH_TTL));
+    jar.set(SIGNED_IN_HINT_COOKIE, "1", { ...options(REFRESH_TTL), httpOnly: false });
+  }
 }
 
 export function clearSessionCookies(jar: CookieWriter) {
   jar.delete(ACCESS_COOKIE);
   jar.delete(REFRESH_COOKIE);
+  jar.delete(SIGNED_IN_HINT_COOKIE);
 }
 
 /** Seconds until a JWT expires (0 when expired or unreadable). The API checks the signature; this only avoids a wasted call. */

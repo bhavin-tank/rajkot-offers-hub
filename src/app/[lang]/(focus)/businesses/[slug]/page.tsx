@@ -14,6 +14,7 @@ import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { Container } from "@/components/layout/container";
 import { OfferCard } from "@/components/offers/offer-card";
 import { ReviewList } from "@/components/offers/reviews";
+import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
 import { ButtonLink, buttonClass } from "@/components/ui/button";
 import { DetailRow, EmptyState } from "@/components/ui/display";
@@ -169,11 +170,10 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
   const images = [...new Set([business.cover, ...business.photos])];
   const rating = overallRating(business, reviews);
   const mobileButtons = (
-    <div className="absolute inset-x-4 top-4 flex justify-between lg:hidden">
+    <div className="absolute inset-x-4 top-4 lg:hidden">
       <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
         <ArrowLeft size={20} aria-hidden />
       </IconLink>
-      <ShareButton title={business.name} path={path} />
     </div>
   );
 
@@ -219,12 +219,13 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 {t("Directions")}
               </a>
               <ShareButton title={business.name} path={path} variant="pill" />
+              <SaveTextButton slug={business.slug} kind="shop" variant="outline" />
             </div>
           </div>
         </div>
       </Container>
 
-      <Container className="pb-28 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6 lg:pb-0">
+      <Container className="pb-44 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6 lg:pb-0">
         <div className="mt-6 min-w-0 lg:mt-6 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
           <SectionTabs
             label={t("Page sections")}
@@ -239,7 +240,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                   </span>
                 )}
                 <p className="min-w-0 flex-1 truncate text-base font-semibold">{business.name}</p>
-                <ShareButton title={business.name} path={path} variant="plain" />
+                <span className="size-10 shrink-0" aria-hidden />
               </div>
             }
             items={[
@@ -288,7 +289,15 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </aside>
       </Container>
 
-      <StickyActionBar contact={business} />
+      <StickyActionBar
+        contact={business}
+        lead={
+          <>
+            <SaveBarButton slug={business.slug} kind="shop" />
+            <ShareButton title={business.name} path={path} variant="bar" />
+          </>
+        }
+      />
     </div>
   );
 }

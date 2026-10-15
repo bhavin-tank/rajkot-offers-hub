@@ -14,7 +14,7 @@ type Step = "mobile" | "mpin" | "code" | "set";
  * One login for everyone: mobile number → MPIN. A new number (or "Forgot MPIN")
  * verifies a WhatsApp code first and then sets a 6-digit MPIN.
  */
-export function LoginForm({ next }: { next: string | null }) {
+export function LoginForm({ next, onDone }: { next: string | null; /** In a popup: called once logged in, instead of going to another page. */ onDone?: () => void }) {
   const t = useT();
   const [step, setStep] = useState<Step>("mobile");
   const [mobile, setMobile] = useState("");
@@ -50,9 +50,9 @@ export function LoginForm({ next }: { next: string | null }) {
         setStep(r.method === "mpin" ? "mpin" : "code");
       });
     } else if (step === "mpin" || step === "code") {
-      run(() => verifyLoginAction(mobile, value(step), next), (r) => r.setMpin && setStep("set"));
+      run(() => verifyLoginAction(mobile, value(step), next, Boolean(onDone)), (r) => (r.setMpin ? setStep("set") : onDone?.()));
     } else {
-      run(() => setMpinAction(value("mpin"), value("confirm"), next), () => undefined);
+      run(() => setMpinAction(value("mpin"), value("confirm"), next, Boolean(onDone)), () => onDone?.());
     }
   }
 

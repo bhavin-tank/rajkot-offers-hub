@@ -1,35 +1,27 @@
 "use client";
 
 import { Clock, Heart } from "lucide-react";
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { savedOfferCards } from "@/lib/actions/offers";
+import { useEffect, useState } from "react";
+import { savedOfferCards } from "@/lib/actions/saves";
 import type { OfferSummary } from "@/types";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/display";
 import { Tabs } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
-import { useSavedOffers } from "@/hooks/use-saved-offers";
+import { useSavedOffers } from "@/hooks/use-saved";
 import { ENDING_SOON_DAYS, formatEndsIn } from "@/lib/format";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { OfferCard, OfferGridSkeleton } from "./offer-card";
-
-const noop = () => () => {};
-
-/** True once hydrated, so saved offers never flash the empty state. */
-function useHydrated() {
-  return useSyncExternalStore(noop, () => true, () => false);
-}
 
 function Grid({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">{children}</div>;
 }
 
-/** Saved offers, split into active and expired tabs. Cards are fetched for the offers saved in this browser. */
+/** Saved offers, split into active and expired tabs. Cards are fetched for the offers saved on the account. */
 export function SavedOffers() {
   const t = useT();
   const locale = useLocale();
-  const hydrated = useHydrated();
-  const { saved, remove, restore } = useSavedOffers();
+  const { saved, ready, remove, restore } = useSavedOffers();
   const toast = useToast();
   const [offers, setOffers] = useState<OfferSummary[] | null>(null);
   const key = saved.join("|");
@@ -42,7 +34,7 @@ export function SavedOffers() {
     };
   }, [key]);
 
-  if (!hydrated || (saved.length > 0 && offers === null)) return <OfferGridSkeleton count={3} />;
+  if (!ready || (saved.length > 0 && offers === null)) return <OfferGridSkeleton count={3} />;
 
   const bySlug = new Map((offers ?? []).map((o) => [o.slug, o]));
   const list = saved.map((slug) => bySlug.get(slug)).filter((o): o is OfferSummary => Boolean(o));
@@ -62,8 +54,9 @@ export function SavedOffers() {
 
   function onRemove(slug: string) {
     const index = saved.indexOf(slug);
-    remove(slug);
-    toast(t("Offer removed"), { actionLabel: t("Undo"), onAction: () => restore(slug, index) });
+    const change = remove(slug);
+    void change?.done.then((ok) => ok || toast(t("Could not save. Please try again.")));
+    toast(t("Offer removed"), { actionLabel: t("Undo"), onAction: () => void restore(slug, index) });
   }
 
   return (
