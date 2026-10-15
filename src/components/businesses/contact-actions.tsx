@@ -25,11 +25,14 @@ export async function StickyActionBar({
   contact,
   disabled,
   offerId,
+  lead,
   children,
 }: {
   contact: Contact;
   /** Shown above the buttons, inside the same bar (an offer's code). */
   children?: React.ReactNode;
+  /** A row of main actions above the contact buttons (save and share). */
+  lead?: React.ReactNode;
   /** On an offer page: taps count towards that offer's stats. */
   offerId?: string;
   /** Expired offer: call and WhatsApp are disabled. */
@@ -39,6 +42,7 @@ export async function StickyActionBar({
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col gap-3 border-t border-line bg-white px-5 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] lg:hidden">
       {children}
+      {lead && <div className="flex gap-2.5">{lead}</div>}
       <div className="flex gap-2.5">
         {disabled ? (
           <Button variant="outline" iconOnly disabled aria-label="WhatsApp">

@@ -69,3 +69,15 @@ export function SaveTextButton({ slug, variant = "ghost" }: { slug: string; vari
     </Button>
   );
 }
+
+/** Full-width heart button with a label, for the mobile bottom bar. */
+export function SaveBarButton({ slug }: { slug: string }) {
+  const t = useT();
+  const { saved, onToggle } = useToggleSave(slug);
+  return (
+    <Button aria-pressed={saved} onClick={onToggle} className="flex-1">
+      <Heart size={18} aria-hidden className={cn(saved && "fill-white")} />
+      {saved ? t("Saved") : t("Save")}
+    </Button>
+  );
+}

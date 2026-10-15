@@ -15,7 +15,7 @@ import { OfferCarousel } from "@/components/offers/offer-card";
 import { OfferCode } from "@/components/offers/offer-code";
 import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
-import { SaveButton, SaveTextButton } from "@/components/offers/save-button";
+import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
 import { TrackedAnchor, TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
@@ -91,14 +91,10 @@ async function OfferContent({ slug }: { slug: string }) {
   ]);
 
   const mobileButtons = (
-    <div className="absolute inset-x-4 top-4 flex justify-between lg:hidden">
+    <div className="absolute inset-x-4 top-4 lg:hidden">
       <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
         <ArrowLeft size={20} aria-hidden />
       </IconLink>
-      <div className="flex gap-2">
-        <ShareButton title={offer.title} path={path} offerId={offer.id} />
-        <SaveButton slug={offer.slug} size="lg" />
-      </div>
     </div>
   );
 
@@ -220,10 +216,7 @@ async function OfferContent({ slug }: { slug: string }) {
                   <ArrowLeft size={22} aria-hidden />
                 </IconLink>
                 <p className="min-w-0 flex-1 truncate text-base font-semibold">{offer.title}</p>
-                <div className="flex shrink-0">
-                  <ShareButton title={offer.title} path={path} variant="plain" offerId={offer.id} />
-                  <SaveButton slug={offer.slug} size="lg" variant="plain" />
-                </div>
+                <span className="size-10 shrink-0" aria-hidden />
               </div>
             }
             items={[
@@ -301,8 +294,18 @@ async function OfferContent({ slug }: { slug: string }) {
       )}
 
       {/* Room for the mobile action bar. */}
-      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-48" : "h-24")} />
-      <StickyActionBar contact={{ ...business, geo }} disabled={expired} offerId={offer.id}>
+      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-64" : "h-40")} />
+      <StickyActionBar
+        contact={{ ...business, geo }}
+        disabled={expired}
+        offerId={offer.id}
+        lead={
+          <>
+            <SaveBarButton slug={offer.slug} />
+            <ShareButton title={offer.title} path={path} variant="bar" offerId={offer.id} />
+          </>
+        }
+      >
         {/* A code sits above the buttons so it stays in reach while the page scrolls. */}
         {hasCode && <OfferCode offerId={offer.id} mode={offer.redemptionMode} compact />}
       </StickyActionBar>
