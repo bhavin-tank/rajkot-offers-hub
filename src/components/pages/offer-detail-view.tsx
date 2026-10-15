@@ -180,32 +180,6 @@ async function OfferContent({ slug }: { slug: string }) {
                 </p>
               </div>
             </div>
-            <div className="hidden shrink-0 items-center gap-3 lg:flex">
-              {expired ? (
-                <>
-                  <Button size="sm" disabled>
-                    {t("Offer expired")}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ size: "sm" })}>
-                    <Phone size={18} aria-hidden />
-                    {t("Call")}
-                  </ContactLink>
-                  <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
-                    <WhatsAppIcon size={18} />
-                    WhatsApp
-                  </ContactLink>
-                </>
-              )}
-              <TrackedAnchor href={directionsHref(geo.lat, geo.lng)} target="_blank" rel="noreferrer" offerId={offer.id} event="directions" className={buttonClass({ variant: "outline", size: "sm" })}>
-                <Navigation size={18} aria-hidden />
-                {t("Directions")}
-              </TrackedAnchor>
-              <ShareButton title={offer.title} path={path} variant="pill" offerId={offer.id} />
-              <SaveTextButton slug={offer.slug} variant="outline" />
-            </div>
           </div>
         </div>
       </Container>
@@ -287,6 +261,34 @@ async function OfferContent({ slug }: { slug: string }) {
           </Container>
         </section>
       )}
+
+      {/* Desktop: the offer's actions float at the bottom centre while the page scrolls. */}
+      <div className="fixed bottom-6 left-1/2 z-40 hidden -translate-x-1/2 items-center gap-3 rounded-2xl border border-line bg-white p-3 shadow-float lg:flex">
+        {expired ? (
+          <>
+            <Button size="sm" disabled>
+              {t("Offer expired")}
+            </Button>
+          </>
+        ) : (
+          <>
+            <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ size: "sm" })}>
+              <Phone size={18} aria-hidden />
+              {t("Call")}
+            </ContactLink>
+            <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
+              <WhatsAppIcon size={18} />
+              WhatsApp
+            </ContactLink>
+          </>
+        )}
+        <TrackedAnchor href={directionsHref(geo.lat, geo.lng)} target="_blank" rel="noreferrer" offerId={offer.id} event="directions" className={buttonClass({ variant: "outline", size: "sm" })}>
+          <Navigation size={18} aria-hidden />
+          {t("Directions")}
+        </TrackedAnchor>
+        <ShareButton title={offer.title} path={path} variant="pill" offerId={offer.id} />
+        <SaveTextButton slug={offer.slug} variant="outline" />
+      </div>
 
       {/* Room for the mobile action bar. */}
       <div aria-hidden className={cn("lg:hidden", hasCode ? "h-48" : "h-28")} />
