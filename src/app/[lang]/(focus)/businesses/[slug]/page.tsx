@@ -196,6 +196,14 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
     </div>
   );
 
+  const meta = (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
+      {rating && <RatingInline rating={rating} className="text-sm" />}
+      <OpenStatusPill hours={business.hours} />
+      {business.outlets.length > 1 && <span>{t("{count} outlets", { count: business.outlets.length })}</span>}
+    </div>
+  );
+
   return (
     <div className="lg:bg-surface lg:pt-6 lg:pb-16">
       <JsonLd data={await localBusinessLd(business, active)} />
@@ -205,23 +213,17 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
           <PhotoMosaic images={images} alt={business.name}>
             {mobileButtons}
           </PhotoMosaic>
-          <div className="flex flex-col gap-4 px-5 pt-5 lg:gap-5 lg:px-8 lg:py-7">
-            <div className="flex items-start gap-4">
-              <Avatar logo={business.logo} className="size-16 shrink-0 lg:size-[72px]" />
-              <div className="min-w-0 flex-1">
-                <h1 className="text-[26px] leading-tight font-semibold lg:text-[32px]">{business.name}</h1>
+          <div className="flex flex-col gap-3 px-5 pt-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-8 lg:py-6">
+            <div className="flex min-w-0 items-start gap-4 lg:items-center">
+              <Avatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
+              <div className="min-w-0">
+                <h1 className="text-[26px] leading-tight font-semibold lg:text-[30px]">{business.name}</h1>
                 <p className="mt-1 text-sm text-muted lg:text-[15px]">{subtitle}</p>
-              </div>
-              <div className="hidden lg:block">
-                <ShareButton title={business.name} path={path} variant="pill" />
+                <div className="mt-2 hidden lg:block">{meta}</div>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
-              {rating && <RatingInline rating={rating} className="text-sm" />}
-              <OpenStatusPill hours={business.hours} />
-              {business.outlets.length > 1 && <span>{t("{count} outlets", { count: business.outlets.length })}</span>}
-            </div>
-            <div className="hidden gap-3 lg:flex">
+            <div className="lg:hidden">{meta}</div>
+            <div className="hidden shrink-0 items-center gap-3 lg:flex">
               <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ size: "sm" })}>
                 <Phone size={18} aria-hidden />
                 {t("Call")}
@@ -234,6 +236,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 <Navigation size={18} aria-hidden />
                 {t("Directions")}
               </a>
+              <ShareButton title={business.name} path={path} variant="pill" />
             </div>
           </div>
         </div>
