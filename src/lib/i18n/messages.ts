@@ -402,6 +402,8 @@ export const gu = {
   "Used this offer": "આ ઓફર વાપરી છે",
   "Outlets": "આઉટલેટ્સ",
   "Outlet": "આઉટલેટ",
+  "{count} outlets": "{count} આઉટલેટ્સ",
+  "See all photos": "બધા ફોટા જુઓ",
   "Main outlet": "મુખ્ય આઉટલેટ",
   "Opening hours": "ખુલવાનો સમય",
   "Featured offers": "ખાસ ઓફર્સ",
