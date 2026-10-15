@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/businesses
 /** The shop's logo, or a store icon until it has one. */
 function Avatar({ logo, className }: { logo?: string; className?: string }) {
   return (
-    <span className={`relative flex items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface shadow-card ${className}`}>
+    <span className={`relative flex items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface ${className}`}>
       {logo ? <Image src={logo} alt="" fill sizes="96px" className="object-cover" /> : <Store size={32} strokeWidth={1.6} aria-hidden />}
     </span>
   );
@@ -201,7 +201,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
       <JsonLd data={await localBusinessLd(business, active)} />
       <JsonLd data={crumbs} />
       <Container className="px-0 lg:px-5">
-        <div className="overflow-hidden lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:shadow-card">
+        <div className="overflow-hidden lg:rounded-2xl lg:border lg:border-line lg:bg-white">
           <PhotoMosaic images={images} alt={business.name}>
             {mobileButtons}
           </PhotoMosaic>
@@ -240,7 +240,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
       </Container>
 
       <Container className="pb-28 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6 lg:pb-0">
-        <div className="mt-6 min-w-0 lg:mt-6 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:px-8 lg:pb-4 lg:shadow-card">
+        <div className="mt-6 min-w-0 lg:mt-6 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:px-8 lg:pb-4">
           <SectionTabs
             label={t("Page sections")}
             topBar={
@@ -289,7 +289,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
 
         {/* Desktop side cards; on a phone this information sits under About us. */}
         <aside className="sticky top-6 hidden max-h-[calc(100dvh-3rem)] flex-col gap-6 overflow-y-auto lg:flex [scrollbar-width:none]">
-          <section className="flex flex-col gap-5 rounded-2xl border border-line bg-white p-6 shadow-card">
+          <section className="flex flex-col gap-5 rounded-2xl border border-line bg-white p-6">
             <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t("Contact")}</h2>
             <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true })}>
               <Phone size={18} aria-hidden />
@@ -299,7 +299,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
             <Divider />
             <InfoRows business={business} />
           </section>
-          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 shadow-card">
+          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
             <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t("Hours")}</h2>
             <HoursTable hours={business.hours} compact />
           </section>
