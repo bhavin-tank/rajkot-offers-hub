@@ -96,6 +96,11 @@ export function formatDistance(km: number, t: T) {
   return t("{km} km", { km: km < 10 ? Math.round(km * 10) / 10 : Math.round(km) });
 }
 
+/** 25000 → "₹25,000" */
+export function formatRupees(amount: number) {
+  return `₹${amount.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+}
+
 /** "1 offer", "5 offers" */
 export function formatOfferCount(count: number, t: T) {
   return t(count === 1 ? "{count} offer" : "{count} offers", { count });
