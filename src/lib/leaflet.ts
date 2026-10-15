@@ -27,6 +27,25 @@ export function pinIcon(L: Leaflet, main: boolean, label: string | number | null
 }
 
 /**
+ * A price-tag pin: a rounded label with the offer's value ("₹500 OFF"), pointing at the shop.
+ * `extra` is how many more offers the shop has. The chosen one turns crimson and sits on top.
+ */
+export function pillIcon(L: Leaflet, text: string, selected: boolean, extra = 0) {
+  const fill = selected ? PIN_CRIMSON : PIN_NAVY;
+  const label = text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  const more = extra > 0 ? `<span style="opacity:.75;margin-left:4px">+${extra}</span>` : "";
+  return L.divIcon({
+    html: `<div style="position:absolute;left:0;top:0;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 2px 3px rgb(0 0 0 / .3))">
+      <span style="white-space:nowrap;background:${fill};color:#fff;border:2px solid #fff;border-radius:999px;padding:3px 9px;font:700 12px/1.2 Inter,system-ui,sans-serif">${label}${more}</span>
+      <span style="width:0;height:0;margin-top:-1px;border:6px solid transparent;border-top-color:${fill};border-bottom:0"></span>
+    </div>`,
+    className: "",
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+  });
+}
+
+/**
  * An OpenStreetMap map in `target`. The tiles' licence requires the credit, so it stays, folded
  * behind a small "i" that opens it.
  */
