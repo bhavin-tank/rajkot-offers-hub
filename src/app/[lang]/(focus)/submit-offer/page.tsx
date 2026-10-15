@@ -90,7 +90,7 @@ async function GetTheApp() {
           href={whatsappHref(site.whatsapp, t("Hi, I want to list my shop's offer on Rajkot Offers Hub."))}
           target="_blank"
           rel="noreferrer"
-          variant={android || ios ? "outline" : "primary"}
+          variant="whatsappSolid"
         >
           <WhatsAppIcon size={18} />
           {t("Message us on WhatsApp")}
