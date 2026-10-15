@@ -1,3 +1,31 @@
+diff --git a/dist/esm/lib/batcher.js b/dist/esm/lib/batcher.js
+index b7324509f69790d1743c29fa4b045b3c743022a4..47856a58a4efe426291dde4079ff0e95c763ffc4 100644
+--- a/dist/esm/lib/batcher.js
++++ b/dist/esm/lib/batcher.js
+@@ -32,6 +32,23 @@ import { createPromiseWithResolvers } from '../shared/lib/promise-with-resolvers
+                 key
+             });
+         }
++        // Cloudflare Workers: a promise one request creates never settles inside another, so a caller
++        // that joins another request's pending batch is cancelled as hung. Each call gets its own
++        // promise there, keeping the early resolve (a stale page served while it revalidates).
++        if (globalThis.navigator?.userAgent === 'Cloudflare-Workers') {
++            const own = createPromiseWithResolvers();
++            this.schedulerFn(async ()=>{
++                try {
++                    own.resolve(await fn({
++                        resolve: own.resolve,
++                        key
++                    }));
++                } catch (err) {
++                    own.reject(err);
++                }
++            });
++            return own.promise;
++        }
+         const pending = this.pending.get(cacheKey);
+         if (pending) return pending;
+         const { promise, resolve, reject } = createPromiseWithResolvers();
 diff --git a/dist/esm/server/use-cache/use-cache-wrapper.js b/dist/esm/server/use-cache/use-cache-wrapper.js
 index 7837534f252dcb92ca6d1b131018cbe329c5cdff..eda13f31002f5af9c533926b14d77b25a65dfdb7 100644
 --- a/dist/esm/server/use-cache/use-cache-wrapper.js
@@ -13,6 +41,34 @@ index 7837534f252dcb92ca6d1b131018cbe329c5cdff..eda13f31002f5af9c533926b14d77b25
          try {
              // The loop handles cross-request root param mismatches: when a
              // cross-request joiner discovers that the leader's root params differ
+diff --git a/dist/lib/batcher.js b/dist/lib/batcher.js
+index 601f24fc74ecd3c14988cc55a5a573184188b226..3ec6641ef928e33074c8d6d683ea83870ad80aee 100644
+--- a/dist/lib/batcher.js
++++ b/dist/lib/batcher.js
+@@ -39,6 +39,23 @@ class Batcher {
+                 key
+             });
+         }
++        // Cloudflare Workers: a promise one request creates never settles inside another, so a caller
++        // that joins another request's pending batch is cancelled as hung. Each call gets its own
++        // promise there, keeping the early resolve (a stale page served while it revalidates).
++        if (globalThis.navigator?.userAgent === 'Cloudflare-Workers') {
++            const own = (0, _promisewithresolvers.createPromiseWithResolvers)();
++            this.schedulerFn(async ()=>{
++                try {
++                    own.resolve(await fn({
++                        resolve: own.resolve,
++                        key
++                    }));
++                } catch (err) {
++                    own.reject(err);
++                }
++            });
++            return own.promise;
++        }
+         const pending = this.pending.get(cacheKey);
+         if (pending) return pending;
+         const { promise, resolve, reject } = (0, _promisewithresolvers.createPromiseWithResolvers)();
 diff --git a/dist/server/use-cache/use-cache-wrapper.js b/dist/server/use-cache/use-cache-wrapper.js
 index 801d1f687fecbd774e9601f1dab1526c9d127652..a90db8ea1f2398449108a42bfa70ffceada68d51 100644
 --- a/dist/server/use-cache/use-cache-wrapper.js
