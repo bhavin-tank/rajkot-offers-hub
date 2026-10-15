@@ -6,12 +6,24 @@ import { cn } from "@/lib/utils";
 /**
  * The shop's photos as one tile grid: a big photo with up to two (phone) or four (desktop) smaller ones,
  * the last tile saying how many more there are. Tiles jump to the Photos tab when the shop has more
- * than one photo. A single photo fills the whole width.
+ * than one photo (unless `linked` is off). A single photo fills the whole width.
  */
-export async function PhotoMosaic({ images, alt, children }: { images: string[]; alt: string; children?: ReactNode }) {
+export async function PhotoMosaic({
+  images,
+  alt,
+  linked = true,
+  children,
+}: {
+  images: string[];
+  alt: string;
+  /** Tiles jump to a #photos section; off where the page has none (an offer page). */
+  linked?: boolean;
+  children?: ReactNode;
+}) {
   const t = await getT();
   const n = images.length;
   const many = n > 1;
+  const links = many && linked;
   const wide = n >= 5;
   const phoneShown = Math.min(n, 3);
   const deskShown = wide ? 5 : phoneShown;
@@ -56,7 +68,7 @@ export async function PhotoMosaic({ images, alt, children }: { images: string[];
             )}
           </>
         );
-        return many ? (
+        return links ? (
           <a key={src} href="#photos" className={className} aria-label={t("See all photos")}>
             {tile}
           </a>

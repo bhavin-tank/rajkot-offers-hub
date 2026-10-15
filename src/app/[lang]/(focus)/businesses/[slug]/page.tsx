@@ -3,8 +3,9 @@ import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Globe, Navigation, Phone, Store, Tag } from "lucide-react";
+import { ArrowLeft, Globe, Navigation, Phone, Tag } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
+import { ShopAvatar } from "@/components/businesses/avatar";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
 import { OutletSideCards } from "@/components/businesses/outlets";
@@ -36,15 +37,6 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/businesses
     path: shopPath(business.slug),
     image: business.cover,
   });
-}
-
-/** The shop's logo, or a store icon until it has one. */
-function Avatar({ logo, className }: { logo?: string; className?: string }) {
-  return (
-    <span className={`relative flex items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface ${className}`}>
-      {logo ? <Image src={logo} alt="" fill sizes="96px" className="object-cover" /> : <Store size={32} strokeWidth={1.6} aria-hidden />}
-    </span>
-  );
 }
 
 /** The shop's Instagram and website, when it has them; address and phone live with the outlets. */
@@ -204,7 +196,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
           </PhotoMosaic>
           <div className="flex flex-col gap-3 px-5 pt-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-8 lg:py-6">
             <div className="flex min-w-0 items-start gap-4 lg:items-center">
-              <Avatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
+              <ShopAvatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <h1 className="text-[26px] leading-tight font-semibold lg:text-[30px]">{business.name}</h1>
