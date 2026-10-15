@@ -75,8 +75,7 @@ export default async function HomePage() {
       )}
 
       <Section className="pt-0 lg:pt-0">
-        {/* "See all" only when the row leaves some categories out (ones with no live offers). */}
-        <SectionHeader title={t("Category")} href={homeCategories.length < categories.length ? "/categories" : undefined} />
+        <SectionHeader title={t("Category")} />
         <CategoryIconRow categories={homeCategories} />
       </Section>
 
