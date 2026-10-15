@@ -43,9 +43,8 @@ export async function DesktopHeader({ className }: { className?: string }) {
   );
 }
 
-/** Mobile header (56px): logo, language toggle, city pill and account. */
-export async function MobileHeader() {
-  const t = await getT();
+/** Mobile header (56px): logo, language toggle and city pill; the account is in the bottom menu. */
+export function MobileHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white/95 transition-shadow [html[data-scrolled]_&]:shadow-header backdrop-blur lg:hidden">
       <div className="flex h-14 items-center justify-between px-5">
@@ -53,9 +52,6 @@ export async function MobileHeader() {
         <div className="flex items-center gap-2">
           <LanguageToggle />
           <LocationPill />
-          <IconLink href="/account" variant="plain" size="lg" aria-label={t("My account")}>
-            <CircleUserRound size={20} aria-hidden />
-          </IconLink>
         </div>
       </div>
     </header>
