@@ -29,9 +29,9 @@ The site runs on Cloudflare Workers through [OpenNext](https://opennext.js.org/c
 the R2 bucket `rajkot-offers-hub-cache`, with a Durable Object queue refreshing them in the background;
 `next/image` resizes through Cloudflare Images.
 
-**Settings** that are not secret live in the committed `.env.production` (`RAJKOT_API_URL`, and
-`MEDIA_PUBLIC_URL` once known): Next.js reads it at build time, since pages are prerendered from the API,
-and OpenNext carries it into the worker. The one secret, once (`npx wrangler login` first):
+**Settings** that are not secret live in the committed `.env.production` (`RAJKOT_API_URL`,
+`MEDIA_PUBLIC_URL`): Next.js reads it at build time, since pages are prerendered from the API, and
+OpenNext carries it into the worker. The one secret, once (`npx wrangler login` first):
 
 ```bash
 npx wrangler secret put API_FRONTEND_KEY      # the API's WEB_FRONTEND_KEY
@@ -46,9 +46,18 @@ repository → `bsurefy-tech/rajkot-offers-hub`, then in the Worker's **Settings
 | Setting | Value |
 |---|---|
 | Production branch | `develop` (switch to `main` once releases go through it) |
+| Root directory | `/` |
 | Build command | `pnpm exec opennextjs-cloudflare build` |
 | Deploy command | `pnpm exec opennextjs-cloudflare deploy` |
-| Build variable | `PNPM_VERSION=12.4.1`: the build image installs with pnpm 10 otherwise, and that can only be changed there |
+| Non-production branch deploy command | `pnpm exec opennextjs-cloudflare upload` (only if builds for other branches are on) |
+| Build variables (**Settings → Build → Variables and secrets**) | `PNPM_VERSION=12.4.1`: the build image installs with pnpm 10 otherwise, and that can only be changed there |
+
+The dashboard fills in `npx wrangler deploy` (and `npx wrangler versions upload`) by default: replace
+them. OpenNext's `deploy` and `upload` first copy the build's prerendered pages into the R2 incremental
+cache, then run Wrangler; plain Wrangler ships the worker alone, and the new build finds none of its
+prerendered pages in R2. No other build variables are needed (the API and media URLs come from
+`.env.production`), and `API_FRONTEND_KEY` is a runtime secret on the Worker (above), not a build
+variable.
 
 Then add the custom domain `rajkotoffershub.com` under the Worker's **Settings → Domains & Routes**.
 
