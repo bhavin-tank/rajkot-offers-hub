@@ -19,7 +19,7 @@ const SHOWN_OFFERS = 2;
  * The list's shops on an OpenStreetMap map, one pin per shop. Tapping a pin highlights it and
  * shows the shop's offers in a card over the map's bottom edge. Leaflet loads only when this mounts.
  */
-export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; total: number; /** Take the height the parent gives, instead of a fixed one. */ fill?: boolean; className?: string }) {
+export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; total: number; /** Take the height and the full width the parent gives (edge to edge), instead of a fixed height in a rounded box. */ fill?: boolean; className?: string }) {
   const t = useT();
   const box = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<number | null>(null);
@@ -99,7 +99,7 @@ export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; 
   const pin = selected === null ? undefined : pins[selected];
   return (
     <div className={cn("flex flex-col gap-3", fill && "min-h-0 flex-1", className)}>
-      <div className={cn("relative isolate overflow-hidden rounded-2xl border border-line", fill && "min-h-0 flex-1")}>
+      <div className={cn("relative isolate overflow-hidden", fill ? "min-h-0 flex-1 border-y border-line" : "rounded-2xl border border-line")}>
         <div
           ref={box}
           role="region"
@@ -151,7 +151,7 @@ export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; 
         )}
       </div>
       {total > offerCount && (
-        <p className="text-center text-[13px] text-muted">{t("{shown} of {total} offers are on the map; the rest have no location yet.", { shown: offerCount, total })}</p>
+        <p className={cn("text-center text-[13px] text-muted", fill && "px-5")}>{t("{shown} of {total} offers are on the map; the rest have no location yet.", { shown: offerCount, total })}</p>
       )}
     </div>
   );

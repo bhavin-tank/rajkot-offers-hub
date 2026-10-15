@@ -98,7 +98,7 @@ export function OfferResults({ query, initialItems, initialPage, initialHasMore,
       <div
         role="status"
         aria-label={t("Loading the map")}
-        className={fill ? "min-h-0 flex-1 animate-pulse rounded-2xl bg-surface" : "h-[62dvh] min-h-[420px] animate-pulse rounded-2xl bg-surface lg:h-[640px]"}
+        className={fill ? "min-h-0 flex-1 animate-pulse bg-surface" : "h-[62dvh] min-h-[420px] animate-pulse rounded-2xl bg-surface lg:h-[640px]"}
       />
     );
 
