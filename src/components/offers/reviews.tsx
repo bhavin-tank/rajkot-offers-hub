@@ -13,9 +13,9 @@ export async function ReviewList({ reviews, total, title }: { reviews: Review[];
       <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">
         {title ?? t("Reviews")} <span className="font-normal text-muted">({total})</span>
       </h2>
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col divide-y divide-line">
         {reviews.map((review) => (
-          <li key={review.id} className="rounded-2xl border border-line p-4">
+          <li key={review.id} className="py-5 first:pt-1 last:pb-1">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
               <Stars value={review.rating} label={t("{rating} out of 5", { rating: review.rating })} />
               {review.verified && (
