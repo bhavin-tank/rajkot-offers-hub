@@ -29,12 +29,12 @@ export async function getCategories(areaSlug?: string): Promise<CategoryWithCoun
   return (await categoryChips(name)).map((chip) => toCategory(chip));
 }
 
-/** The category's ancestor at the top of the offer categories, for a deeper slug (a business's own category). */
-async function topCategorySlug(slug: string): Promise<string | undefined> {
+/** A category's ancestors (root first), to find the offer category above a deeper slug (a business's own category). */
+async function ancestorSlugs(slug: string): Promise<string[]> {
   "use cache";
   cacheFor(TAGS.catalog);
-  const detail = await orUndefined(api<{ data: { breadcrumbs?: { slug: string; depth: number }[] } }>(`/categories/${encodeURIComponent(slug)}`));
-  return detail?.data.breadcrumbs?.find((crumb) => crumb.depth === 1)?.slug;
+  const detail = await orUndefined(api<{ data: { breadcrumbs?: { slug: string }[] } }>(`/categories/${encodeURIComponent(slug)}`));
+  return detail?.data.breadcrumbs?.map((crumb) => crumb.slug) ?? [];
 }
 
 /** A main category with its subcategories; a deeper slug resolves to its main category. */
@@ -43,8 +43,9 @@ export async function getCategory(slug: string): Promise<CategoryWithCount | und
   const chips = await categoryChips();
   let chip = chips.find((c) => c.slug === slug);
   if (!chip) {
-    const parent = await topCategorySlug(slug);
-    chip = chips.find((c) => c.slug === parent);
+    // The breadcrumbs carry no depth: the offer category is whichever ancestor is one of the chips.
+    const ancestors = await ancestorSlugs(slug);
+    chip = chips.find((c) => ancestors.includes(c.slug));
   }
   if (!chip) return undefined;
   const children = await categoryChips(undefined, chip.slug);

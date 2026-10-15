@@ -32,7 +32,10 @@ export interface PromotionCard {
   headline: string | null;
   value_label: string;
   type: PromotionType;
-  discount_percent: number | null;
+  /** Laravel's decimal cast sends it as a string ("30.00"). */
+  discount_percent: number | string | null;
+  /** Smallest bill the offer applies to, as a decimal string ("25000.00"). */
+  min_spend: string | null;
   redemption_mode: RedemptionMode;
   starts_at: string;
   ends_at: string;
@@ -104,7 +107,11 @@ export interface Link {
   url: string;
 }
 
-export type BusinessHours = Partial<Record<"mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun", { open: string; close: string }[]>>;
+/**
+ * Free-form JSON on the API (it only checks for an array), so stored hours come in several shapes:
+ * `{ monday: { open, close } }`, `{ mon: [{ open, close }] }` or `{ mon: ["10:00-19:00"] }`; a missing or null day is closed.
+ */
+export type BusinessHours = Record<string, unknown>;
 
 export interface BusinessResource {
   id: string;

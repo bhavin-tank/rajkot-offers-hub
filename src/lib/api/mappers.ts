@@ -1,7 +1,7 @@
 import { daysBetween, toIsoDay } from "@/lib/format";
 import { img } from "@/lib/mock/images";
 import type { Area, Business, Category, CategoryIcon, Offer, OfferSummary, OfferType, OpeningHours } from "@/types";
-import type { AreaCount, BusinessHours, BusinessResource, CategoryChip, PromotionCard, PromotionDetail, PromotionType } from "./types";
+import type { AreaCount, Branch, BusinessHours, BusinessResource, CategoryChip, PromotionCard, PromotionDetail, PromotionType } from "./types";
 
 /**
  * API resources → the site's domain types (`@/types`), so pages and components
@@ -44,10 +44,19 @@ function isPast(card: Pick<PromotionCard, "lifecycle">) {
   return card.lifecycle === "expired" || card.lifecycle === "ended" || card.lifecycle === "taken_down";
 }
 
+/** A positive amount from the API's number or decimal string ("25000.00"); undefined otherwise. */
+function amount(value: number | string | null | undefined) {
+  const number = Number(value);
+  return value != null && Number.isFinite(number) && number > 0 ? number : undefined;
+}
+
 export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSummary {
   const validTo = day(card.ends_at);
   // Cards carry `cover_url`; the detail resource carries a `cover` object instead.
   const cover = card.cover_url || ("cover" in card ? card.cover?.url : undefined) || card.cover_thumb_url;
+  // Without a photo of its own, the offer shows its shop's logo rather than a stock picture.
+  const logo = cover ? undefined : card.business.logo_url;
+  const minSpend = amount(card.min_spend);
   return {
     id: card.id,
     slug: offerHandle(card),
@@ -55,11 +64,13 @@ export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSumm
     badge: card.headline || card.value_label,
     businessName: card.business.name,
     areaName: card.business.area || card.business.city || "Rajkot",
-    images: [cover || FALLBACK_IMAGE],
+    images: [cover || logo || FALLBACK_IMAGE],
+    ...(logo ? { imageIsLogo: true } : {}),
     validTo,
     isExpired: isPast(card),
     daysLeft: daysBetween(toIsoDay(new Date()), validTo),
     ...(card.distance_km != null ? { distanceKm: card.distance_km } : {}),
+    ...(minSpend ? { minSpend } : {}),
   };
 }
 
@@ -84,22 +95,45 @@ function timings(detail: PromotionDetail) {
   return days ? `${days}, ${hours}` : hours;
 }
 
+/** "Main branch, Yagnik Road"; just "Mavdi" when the branch is named after its area. */
+function branchLabel(branch: Branch) {
+  return branch.area && branch.area !== branch.name ? `${branch.name}, ${branch.area}` : branch.name;
+}
+
+function branchGeo(branch: Branch | undefined) {
+  const lat = Number(branch?.latitude);
+  const lng = Number(branch?.longitude);
+  return lat && lng ? { lat, lng } : undefined;
+}
+
 export function toOffer(detail: PromotionDetail, business?: Business): Offer {
   const summary = toOfferSummary(detail);
-  const images = [detail.cover?.url, ...detail.gallery.map((m) => m.url)].filter((url): url is string => Boolean(url));
+  const own = [detail.cover?.url, ...detail.gallery.map((m) => m.url)].filter((url): url is string => Boolean(url));
+  const shop = business?.photos.filter((url) => url !== FALLBACK_IMAGE) ?? [];
+  // The shop's area and address are its main branch's; an offer only at other branches shows theirs.
+  const branches = detail.valid_at;
+  const elsewhere = branches.length > 0 && !branches.some((b) => b.is_main);
+  const areaName = elsewhere ? (branches[0].area || branches[0].city || "Rajkot") : summary.areaName;
+  const city = branches[0]?.city || "Rajkot";
   return {
     ...summary,
-    images: images.length ? images : summary.images,
+    images: own.length ? own : shop.length ? shop : summary.images,
+    imageIsLogo: !own.length && !shop.length && summary.imageIsLogo,
     type: TYPE_FROM_API[detail.type],
-    discount: detail.discount_percent ?? 0,
+    discount: amount(detail.discount_percent) ?? 0,
     categorySlug: detail.categories[0]?.slug ?? business?.categorySlug ?? "",
     businessSlug: detail.business.slug,
-    areaSlug: business?.areaSlug ?? "",
+    areaName,
+    areaSlug: elsewhere ? slugify(areaName) : (business?.areaSlug ?? ""),
     offerText: detail.description || detail.headline || detail.title,
     validFrom: day(detail.starts_at),
     createdAt: day(detail.created_at),
     timings: timings(detail),
-    address: business?.address ?? [detail.business.area, detail.business.city].filter(Boolean).join(", "),
+    address: elsewhere
+      ? [...new Set(branches.map((b) => b.area || b.name)), city].join(", ")
+      : (business?.address ?? [detail.business.area, detail.business.city].filter(Boolean).join(", ")),
+    validAt: branches.length > 1 || elsewhere ? branches.map(branchLabel) : [],
+    ...(elsewhere && branchGeo(branches[0]) ? { geo: branchGeo(branches[0]) } : {}),
     steps: STEPS[detail.redemption_mode].map((text) => ({ text })),
     terms: (detail.terms ?? "").split("\n").map((t) => t.trim()).filter(Boolean),
     redemptionMode: detail.redemption_mode,
@@ -108,11 +142,30 @@ export function toOffer(detail: PromotionDetail, business?: Business): Offer {
 
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
+/** "9:30", "09:30" or "09:30:00" → "09:30"; anything else → null. */
+function hhmm(value: unknown) {
+  const match = typeof value === "string" ? value.trim().match(/^(\d{1,2}):(\d{2})/) : null;
+  return match ? `${match[1].padStart(2, "0")}:${match[2]}` : null;
+}
+
+/** A day's first opening in any of the stored shapes (see `BusinessHours`); null when closed. */
+function firstOpening(value: unknown) {
+  const first = Array.isArray(value) ? value[0] : value;
+  const [open, close] =
+    typeof first === "string"
+      ? first.split(/\s*[-–]\s*/)
+      : first && typeof first === "object"
+        ? [(first as Record<string, unknown>).open, (first as Record<string, unknown>).close]
+        : [];
+  const opens = hhmm(open);
+  const closes = hhmm(close);
+  return opens && closes ? { opens, closes } : null;
+}
+
 function toHours(hours: BusinessHours | null): OpeningHours[] {
-  return DAY_KEYS.map((key, day) => {
-    const first = hours?.[key]?.[0];
-    return { day, opens: first?.open ?? null, closes: first?.close ?? null };
-  });
+  // "monday" and "mon" both name Monday.
+  const byDay = new Map(Object.entries(hours ?? {}).map(([key, value]) => [key.slice(0, 3).toLowerCase(), value]));
+  return DAY_KEYS.map((key, day) => ({ day, opens: null, closes: null, ...firstOpening(byDay.get(key)) }));
 }
 
 /** "https://instagram.com/samplecafe" → "samplecafe"; masked links give nothing. */

@@ -80,6 +80,14 @@ export interface Offer {
   daysLeft: number;
   /** Km to the shop's nearest outlet; only on lists read with the visitor's location. */
   distanceKm?: number;
+  /** Smallest bill (₹) the offer applies to. */
+  minSpend?: number;
+  /** `images[0]` is the shop's logo standing in for a missing offer photo, so show it whole. */
+  imageIsLogo?: boolean;
+  /** Branches the offer is valid at ("Main branch, Yagnik Road"), when the shop lists more than its main one. */
+  validAt: string[];
+  /** Where to send directions: the offer's branch when it is not valid at the main one. */
+  geo?: { lat: number; lng: number };
 }
 
 /** The fields an offer card needs. */
@@ -96,6 +104,8 @@ export type OfferSummary = Pick<
   | "isExpired"
   | "daysLeft"
   | "distanceKm"
+  | "minSpend"
+  | "imageIsLogo"
 >;
 
 export interface OpeningHours {

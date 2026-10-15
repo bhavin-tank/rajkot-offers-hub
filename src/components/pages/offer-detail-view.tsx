@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, MapPin, Phone, Tag } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, MapPin, Phone, Store, Tag } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/brand";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
@@ -19,7 +19,7 @@ import { Button, buttonClass } from "@/components/ui/button";
 import { DetailRow, Divider } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
 import { getBusiness, getCategory, getOffer, getSimilarOffers } from "@/lib/data";
-import { formatRange } from "@/lib/format";
+import { formatRange, formatRupees } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
 import { cn, directionsHref } from "@/lib/utils";
@@ -56,6 +56,8 @@ async function OfferContent({ slug }: { slug: string }) {
   const expired = offer.isExpired;
   const validity = `${formatRange(offer.validFrom, offer.validTo, locale)}${expired ? ` · ${t("Expired")}` : ""}`;
   const path = `/offers/${offer.slug}`;
+  const geo = offer.geo ?? business.geo;
+  const minSpend = offer.minSpend ? t("On bills of {amount} or more", { amount: formatRupees(offer.minSpend) }) : null;
 
   const badge = (
     <Badge variant={expired ? "expired" : "offer"} size="md">
@@ -73,7 +75,7 @@ async function OfferContent({ slug }: { slug: string }) {
       <h1 className={cn("text-[26px] leading-[1.3] font-semibold lg:text-[32px] lg:leading-tight", expired && "text-muted")}>
         {offer.title}
       </h1>
-      <BusinessRow slug={business.slug} name={business.name} area={business.areaName} />
+      <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} />
     </>
   );
 
@@ -135,6 +137,7 @@ async function OfferContent({ slug }: { slug: string }) {
               <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5">
                 <DetailRow icon={Tag} label={t("Offer")}>
                   {offer.offerText}
+                  {minSpend && <span className="mt-1 block font-semibold">{minSpend}</span>}
                 </DetailRow>
                 <DetailRow icon={CalendarDays} label={t("Validity")}>
                   {validity}
@@ -145,12 +148,21 @@ async function OfferContent({ slug }: { slug: string }) {
                 <DetailRow icon={MapPin} label={t("Address")}>
                   {offer.address}
                 </DetailRow>
+                {offer.validAt.length > 0 && (
+                  <DetailRow icon={Store} label={t("Valid at")}>
+                    <ul>
+                      {offer.validAt.map((branch) => (
+                        <li key={branch}>{branch}</li>
+                      ))}
+                    </ul>
+                  </DetailRow>
+                )}
               </div>
 
               {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} className="lg:hidden" />}
               <HowToGetSteps steps={offer.steps} />
               <TermsAccordion terms={offer.terms} />
-              <MapCard address={offer.address} geo={business.geo} layout="split" offerId={offer.id} />
+              <MapCard address={offer.address} geo={geo} layout="split" offerId={offer.id} />
               <p className="text-xs leading-relaxed text-faint">
                 {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
               </p>
@@ -169,6 +181,12 @@ async function OfferContent({ slug }: { slug: string }) {
                 <Clock size={16} className="text-muted" aria-hidden />
                 {offer.timings}
               </p>
+              {minSpend && (
+                <p className="flex items-center gap-2 font-medium">
+                  <Tag size={16} className="text-muted" aria-hidden />
+                  {minSpend}
+                </p>
+              )}
             </div>
             {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
             {expired ? (
@@ -194,7 +212,7 @@ async function OfferContent({ slug }: { slug: string }) {
                 </ContactLink>
               )}
               <TrackedAnchor
-                href={directionsHref(business.geo.lat, business.geo.lng)}
+                href={directionsHref(geo.lat, geo.lng)}
                 target="_blank"
                 rel="noreferrer"
                 offerId={offer.id}
@@ -223,7 +241,7 @@ async function OfferContent({ slug }: { slug: string }) {
 
       {/* Room for the mobile action bar. */}
       <div aria-hidden className="h-24 lg:hidden" />
-      <StickyActionBar contact={business} layout="offer" disabled={expired} offerId={offer.id} />
+      <StickyActionBar contact={{ ...business, geo }}layout="offer" disabled={expired} offerId={offer.id} />
     </>
   );
 }

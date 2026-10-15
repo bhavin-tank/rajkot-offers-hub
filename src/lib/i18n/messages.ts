@@ -122,6 +122,8 @@ export const gu = {
   "Terms and conditions": "શરતો અને નિયમો",
   "This offer has ended": "આ ઓફર પૂરી થઈ ગઈ છે",
   "Timings": "સમય",
+  "Valid at": "અહીં માન્ય",
+  "On bills of {amount} or more": "{amount} કે વધુના બિલ પર",
   "Undo": "પાછું લાવો",
   "Validity": "માન્યતા",
   "View store": "દુકાન જુઓ",
