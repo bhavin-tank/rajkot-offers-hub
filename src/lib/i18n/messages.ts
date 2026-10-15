@@ -349,6 +349,7 @@ export const gu = {
   "This step has expired. Verify your number again.": "આ પગલાની મુદત પૂરી થઈ. નંબર ફરી ચકાસો.",
   "My account": "મારું એકાઉન્ટ",
   "Account": "એકાઉન્ટ",
+  "Back to top": "ઉપર જાઓ",
   "Roles": "ભૂમિકાઓ",
   "Shopper": "ગ્રાહક",
   "Business owner": "દુકાન માલિક",
