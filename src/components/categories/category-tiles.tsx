@@ -12,12 +12,12 @@ export function categoryHref(slug: string) {
   return `/categories/${slug}`;
 }
 
-/** Round icon + label; horizontal scroll on mobile, 8 columns on desktop. */
+/** Round icon + label; 4 columns on a phone and 8 on desktop, so every category shows without scrolling. */
 export function CategoryIconRow({ categories }: { categories: CategoryWithCount[] }) {
   return (
-    <ul className="no-scrollbar -mx-5 flex gap-3 overflow-x-auto px-5 lg:mx-0 lg:grid lg:grid-cols-8 lg:gap-6 lg:px-0">
+    <ul className="grid grid-cols-4 gap-x-3 gap-y-5 lg:grid-cols-8 lg:gap-6">
       {categories.map((c) => (
-        <li key={c.slug} className="w-[68px] shrink-0 lg:w-auto">
+        <li key={c.slug}>
           <Link href={categoryHref(c.slug)} className="group flex flex-col items-center gap-2 text-center">
             <span className="flex size-[60px] items-center justify-center rounded-full bg-surface transition-colors group-hover:bg-canvas lg:size-[76px]">
               <CategoryIcon name={c.icon} className="size-6 lg:size-[30px]" />

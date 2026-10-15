@@ -9,7 +9,7 @@ export function MainShell({ children }: { children: ReactNode }) {
     <>
       <DesktopHeader />
       <MobileHeader />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 bg-surface">{children}</main>
       <Footer className="pb-16 lg:pb-0" />
       <BottomNav />
     </>
@@ -24,7 +24,7 @@ export function FocusShell({ children }: { children: ReactNode }) {
   return (
     <>
       <DesktopHeader />
-      <main className="flex-1">{children}</main>
+      <main className="flex-1 lg:bg-surface">{children}</main>
       <Footer className="hidden lg:block" />
     </>
   );

@@ -1,9 +1,9 @@
 "use client";
 
 import { Check, Copy, Ticket } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { useEffect, useState, useTransition } from "react";
+import { useLogin } from "@/components/auth/login-dialog";
 import { Link } from "@/components/i18n/link";
 import { Button } from "@/components/ui/button";
 import { claimCodeAction, revealCodeAction, type CodeResult } from "@/lib/actions/offers";
@@ -20,11 +20,21 @@ type Shown = Extract<CodeResult, { ok: true }>;
  * personal one-time code a logged-in shopper claims ("Claim my code") with a QR the shop scans.
  * Walk-in offers have neither.
  */
-export function OfferCode({ offerId, mode, className }: { offerId: string; mode: RedemptionMode; className?: string }) {
+export function OfferCode({
+  offerId,
+  mode,
+  compact,
+  className,
+}: {
+  offerId: string;
+  mode: RedemptionMode;
+  /** For the phone's bottom bar: one slim row until the code is shown, and a scrollable card after. */
+  compact?: boolean;
+  className?: string;
+}) {
   const t = useT();
   const locale = useLocale();
-  const router = useRouter();
-  const pathname = usePathname();
+  const login = useLogin();
   const [shown, setShown] = useState<Shown | null>(null);
   const [error, setError] = useState<MessageKey | null>(null);
   const [pending, start] = useTransition();
@@ -32,18 +42,29 @@ export function OfferCode({ offerId, mode, className }: { offerId: string; mode:
   if (mode === "walk_in") return null;
   const claim = mode === "unique_claim";
 
-  function get() {
+  function fetchCode() {
     setError(null);
     start(async () => {
       const result = await (claim ? claimCodeAction(offerId) : revealCodeAction(offerId));
       if (result.ok) setShown(result);
-      else if (result.error === "login") router.push(`/login?next=${encodeURIComponent(pathname)}`);
+      else if (result.error === "login") login.prompt(fetchCode);
       else setError(result.error);
     });
   }
 
+  function get() {
+    if (login.signedIn()) fetchCode();
+    else login.prompt(fetchCode);
+  }
+
   return (
-    <div className={cn("flex flex-col gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary-soft/40 p-4", className)}>
+    <div
+      className={cn(
+        "flex flex-col gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary-soft/40 p-4",
+        compact && "max-h-[55dvh] overflow-y-auto p-3",
+        className,
+      )}
+    >
       {shown ? (
         <>
           <p className="text-sm text-muted">{claim ? t("Your personal code. Show it at the store.") : t("Show this code at the store.")}</p>
@@ -59,15 +80,15 @@ export function OfferCode({ offerId, mode, className }: { offerId: string; mode:
           )}
         </>
       ) : (
-        <>
-          <p className="flex items-center gap-2 text-sm font-medium">
-            <Ticket size={18} className="text-primary" aria-hidden />
+        <div className={cn("flex flex-col gap-3", compact && "flex-row items-center")}>
+          <p className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
+            <Ticket size={18} className="shrink-0 text-primary" aria-hidden />
             {claim ? t("This offer needs a personal code. Log in to claim yours.") : t("This offer has a code to show at the store.")}
           </p>
-          <Button type="button" onClick={get} disabled={pending} block>
+          <Button type="button" onClick={get} disabled={pending} block={!compact} className={compact ? "shrink-0" : undefined}>
             {claim ? t("Claim my code") : t("Show code")}
           </Button>
-        </>
+        </div>
       )}
       {error && (
         <p role="alert" className="text-sm text-danger">

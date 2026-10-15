@@ -6,16 +6,16 @@ import { ArrowLeft, CalendarDays, Clock, MapPin, Navigation, Phone, Store, Tag }
 import { Link } from "@/components/i18n/link";
 import { WhatsAppIcon } from "@/components/icons/brand";
 import { ShopAvatar } from "@/components/businesses/avatar";
-import { StickyActionBar } from "@/components/businesses/contact-actions";
+import { ContactRow, StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { OfferCarousel } from "@/components/offers/offer-card";
 import { OfferCode } from "@/components/offers/offer-code";
-import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
+import { BranchCards, BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
-import { SaveButton, SaveTextButton } from "@/components/offers/save-button";
+import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
 import { TrackedAnchor, TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
@@ -67,6 +67,7 @@ async function OfferContent({ slug }: { slug: string }) {
   const geo = offer.geo ?? business.geo;
   const minSpend = offer.minSpend ? t("On bills of {amount} or more", { amount: formatRupees(offer.minSpend) }) : null;
   const images = [...new Set(offer.images)];
+  const hasCode = !expired && offer.redemptionMode !== "walk_in";
 
   const badge = (
     <Badge variant={expired ? "expired" : "offer"} size="md">
@@ -82,6 +83,9 @@ async function OfferContent({ slug }: { slug: string }) {
     : [{ id: business.id, name: business.name, address: offer.address, lat: geo.lat, lng: geo.lng, main: true }];
   if (!pins.some((pin) => pin.main)) pins[0] = { ...pins[0], main: true };
 
+  // On a phone several outlets get a card each (the desktop has the map and its list); one outlet keeps the address card.
+  const cardsOnPhone = offer.branches.length > 1;
+
   const crumbs = await breadcrumbLd([
     { name: t("Home"), path: "/" },
     { name: t("Offers"), path: "/offers" },
@@ -90,20 +94,15 @@ async function OfferContent({ slug }: { slug: string }) {
   ]);
 
   const mobileButtons = (
-    <div className="absolute inset-x-4 top-4 flex justify-between lg:hidden">
+    <div className="absolute inset-x-4 top-4 lg:hidden">
       <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
         <ArrowLeft size={20} aria-hidden />
       </IconLink>
-      <div className="flex gap-2">
-        <ShareButton title={offer.title} path={path} offerId={offer.id} />
-        <SaveButton slug={offer.slug} size="lg" />
-      </div>
     </div>
   );
 
   const details = (
-    <div className="flex flex-col gap-6 pt-5 lg:pt-8">
-      {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} className="lg:hidden" />}
+    <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5">
         <DetailRow icon={Tag} label={t("Offer")}>
           {offer.offerText}
@@ -119,7 +118,7 @@ async function OfferContent({ slug }: { slug: string }) {
           {offer.address}
         </DetailRow>
         {offer.validAt.length > 0 && (
-          <DetailRow icon={Store} label={t("Valid at")}>
+          <DetailRow icon={Store} label={t("Valid at")} className={cardsOnPhone ? "max-lg:hidden" : undefined}>
             <ul>
               {offer.validAt.map((branch) => (
                 <li key={branch}>{branch}</li>
@@ -128,7 +127,11 @@ async function OfferContent({ slug }: { slug: string }) {
           </DetailRow>
         )}
       </div>
-      <MapCard address={offer.address} geo={geo} offerId={offer.id} className="lg:hidden" />
+      {cardsOnPhone ? (
+        <BranchCards branches={offer.branches} offerId={offer.id} className="lg:hidden" />
+      ) : (
+        <MapCard address={offer.address} geo={geo} offerId={offer.id} className="lg:hidden" />
+      )}
     </div>
   );
 
@@ -160,52 +163,34 @@ async function OfferContent({ slug }: { slug: string }) {
           </PhotoMosaic>
           <div className="flex flex-col gap-3 px-5 pt-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-8 lg:py-6">
             <div className="flex min-w-0 items-start gap-4 lg:items-center">
-              <ShopAvatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
+              {/* On a phone the shop card below shows the logo. */}
+              <ShopAvatar logo={business.logo} className="hidden size-20 shrink-0 lg:flex" />
               <div className="min-w-0">
                 <h1 className={cn("text-[22px] leading-snug font-semibold lg:text-[28px] lg:leading-tight", expired && "text-muted")}>{offer.title}</h1>
-                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted lg:text-[15px]">
-                  <Link href={shopPath(business.slug)} className="font-medium text-ink hover:underline">
+                {/* On a phone the shop card below says whose offer it is, so only the rating stays here. */}
+                <p className={cn("mt-1 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted lg:flex lg:text-[15px]", offer.rating ? "flex" : "hidden")}>
+                  <Link href={shopPath(business.slug)} className="hidden font-medium text-ink hover:underline lg:inline">
                     {business.name}
                   </Link>
-                  <span aria-hidden className="hidden sm:inline">
+                  <span aria-hidden className="hidden lg:inline">
                     •
                   </span>
-                  {t("{area}, Rajkot", { area: offer.areaName })}
+                  <span className="hidden lg:inline">{t("{area}, Rajkot", { area: offer.areaName })}</span>
                   {offer.rating && <RatingInline rating={offer.rating} className="text-sm text-muted" />}
                 </p>
               </div>
-            </div>
-            <div className="hidden shrink-0 items-center gap-3 lg:flex">
-              {expired ? (
-                <>
-                  <Button size="sm" disabled>
-                    {t("Offer expired")}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ size: "sm" })}>
-                    <Phone size={18} aria-hidden />
-                    {t("Call")}
-                  </ContactLink>
-                  <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
-                    <WhatsAppIcon size={18} />
-                    WhatsApp
-                  </ContactLink>
-                </>
-              )}
-              <TrackedAnchor href={directionsHref(geo.lat, geo.lng)} target="_blank" rel="noreferrer" offerId={offer.id} event="directions" className={buttonClass({ variant: "outline", size: "sm" })}>
-                <Navigation size={18} aria-hidden />
-                {t("Directions")}
-              </TrackedAnchor>
-              <ShareButton title={offer.title} path={path} variant="pill" offerId={offer.id} />
             </div>
           </div>
         </div>
       </Container>
 
       <Container className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
-        <div className="mt-6 min-w-0 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
+        <div className="mt-6 flex min-w-0 flex-col gap-6 lg:gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
+          {/* On a phone the shop comes before the tabs; on desktop it is a card in the side column. */}
+          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-4 lg:hidden">
+            <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} logo={business.logo} />
+            <ContactRow contact={{ ...business, geo }} disabled={expired} offerId={offer.id} />
+          </section>
           <SectionTabs
             label={t("Page sections")}
             topBar={
@@ -214,14 +199,14 @@ async function OfferContent({ slug }: { slug: string }) {
                   <ArrowLeft size={22} aria-hidden />
                 </IconLink>
                 <p className="min-w-0 flex-1 truncate text-base font-semibold">{offer.title}</p>
-                <ShareButton title={offer.title} path={path} variant="plain" offerId={offer.id} />
+                <span className="size-10 shrink-0" aria-hidden />
               </div>
             }
             items={[
               { value: "details", label: t("Details"), content: details },
-              { value: "how", label: t("How to get it"), content: <div className="pt-5 lg:pt-8"><HowToGetSteps steps={offer.steps} /></div> },
+              { value: "how", label: t("How to get it"), content: <HowToGetSteps steps={offer.steps} /> },
               ...(offer.terms.length
-                ? [{ value: "terms", label: t("Terms"), content: <div className="pt-5 lg:pt-8"><TermsAccordion terms={offer.terms} /></div> }]
+                ? [{ value: "terms", label: t("Terms"), content: <TermsAccordion terms={offer.terms} /> }]
                 : []),
               ...(reviews.total
                 ? [
@@ -229,45 +214,22 @@ async function OfferContent({ slug }: { slug: string }) {
                       value: "reviews",
                       label: t("Reviews ({count})", { count: reviews.total }),
                       content: (
-                        <div className="pt-5 lg:pt-8">
-                          <ReviewList reviews={reviews.items} total={reviews.total} />
-                        </div>
+                        <ReviewList reviews={reviews.items} total={reviews.total} />
                       ),
                     },
                   ]
                 : []),
             ]}
           />
-          <p className="mt-10 text-xs leading-relaxed text-faint lg:px-8">
+          <p className="text-xs leading-relaxed text-faint lg:px-8">
             {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
           </p>
         </div>
 
         {/* Desktop side cards; on a phone the same information sits in the tabs. */}
         <aside className="mt-6 hidden flex-col gap-6 lg:flex">
-          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
-            <h2 className="text-lg font-semibold">{t("Get this offer")}</h2>
-            <div className="flex flex-col gap-2 text-sm">
-              <p className="flex items-center gap-2">
-                <CalendarDays size={16} className="text-muted" aria-hidden />
-                {validity}
-              </p>
-              <p className="flex items-center gap-2">
-                <Clock size={16} className="text-muted" aria-hidden />
-                {offer.timings}
-              </p>
-              {minSpend && (
-                <p className="flex items-center gap-2 font-medium">
-                  <Tag size={16} className="text-muted" aria-hidden />
-                  {minSpend}
-                </p>
-              )}
-            </div>
-            {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
-            <div className="flex justify-center">
-              <SaveTextButton slug={offer.slug} />
-            </div>
-          </section>
+          {/* Validity, timings and minimum spend are in the Details tab; only the code needs its own card. */}
+          {hasCode && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
           <section className="overflow-hidden rounded-2xl border border-line bg-white">
             <OutletMap outlets={pins} className="h-[220px]" />
             <div className="flex flex-col gap-1 p-6">
@@ -296,9 +258,47 @@ async function OfferContent({ slug }: { slug: string }) {
         </section>
       )}
 
+      {/* Desktop: the offer's actions float at the bottom centre while the page scrolls. */}
+      <div className="fixed bottom-6 left-1/2 z-40 hidden -translate-x-1/2 items-center gap-3 rounded-2xl border border-line bg-white p-3 shadow-float lg:flex">
+        {expired ? (
+          <>
+            <Button size="sm" disabled>
+              {t("Offer expired")}
+            </Button>
+          </>
+        ) : (
+          <>
+            <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ size: "sm" })}>
+              <Phone size={18} aria-hidden />
+              {t("Call")}
+            </ContactLink>
+            <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
+              <WhatsAppIcon size={18} />
+              WhatsApp
+            </ContactLink>
+          </>
+        )}
+        <TrackedAnchor href={directionsHref(geo.lat, geo.lng)} target="_blank" rel="noreferrer" offerId={offer.id} event="directions" className={buttonClass({ variant: "outline", size: "sm" })}>
+          <Navigation size={18} aria-hidden />
+          {t("Directions")}
+        </TrackedAnchor>
+        <ShareButton title={offer.title} path={path} variant="pill" offerId={offer.id} />
+        <SaveTextButton slug={offer.slug} variant="outline" />
+      </div>
+
       {/* Room for the mobile action bar. */}
-      <div aria-hidden className="h-24 lg:hidden" />
-      <StickyActionBar contact={{ ...business, geo }} disabled={expired} offerId={offer.id} />
+      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-48" : "h-28")} />
+      <StickyActionBar
+        lead={
+          <>
+            <SaveBarButton slug={offer.slug} />
+            <ShareButton title={offer.title} path={path} variant="bar" offerId={offer.id} />
+          </>
+        }
+      >
+        {/* A code sits above the buttons so it stays in reach while the page scrolls. */}
+        {hasCode && <OfferCode offerId={offer.id} mode={offer.redemptionMode} compact />}
+      </StickyActionBar>
     </div>
   );
 }

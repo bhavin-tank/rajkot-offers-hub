@@ -17,11 +17,11 @@ export async function LocationPill() {
   return <LocationPicker areas={areas} total={total} categorySlugs={categorySlugs} />;
 }
 
-/** Desktop header (72px). */
+/** Desktop header (72px); stays at the top of the screen while the page scrolls. */
 export async function DesktopHeader({ className }: { className?: string }) {
   const t = await getT();
   return (
-    <header className={cn("hidden border-b border-line bg-white lg:block", className)}>
+    <header className={cn("sticky top-0 z-40 hidden border-b border-line bg-white/95 backdrop-blur lg:block", className)}>
       <Container className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center">
         <Logo size="lg" priority />
         <HeaderNav />
@@ -62,7 +62,7 @@ export async function MobileHeader() {
   );
 }
 
-/** Mobile top bar with back arrow and centred title. */
+/** Mobile top bar with back arrow and a left-aligned title. */
 export async function MobileTopBar({
   title,
   backHref,
@@ -79,7 +79,7 @@ export async function MobileTopBar({
         <IconLink href={backHref} variant="plain" size="lg" aria-label={t("Go back")}>
           <ArrowLeft size={22} aria-hidden />
         </IconLink>
-        <h1 className="truncate text-center text-base font-semibold">{title}</h1>
+        <h1 className="truncate pl-1 text-base font-semibold">{title}</h1>
         <div className="flex justify-end">{action}</div>
       </div>
     </header>

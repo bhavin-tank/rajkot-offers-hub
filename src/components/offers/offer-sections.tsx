@@ -48,7 +48,7 @@ export async function HowToGetSteps({ steps }: { steps: OfferStep[] }) {
   return (
     <section className="rounded-2xl bg-surface p-5 lg:p-6">
       <h2 className="mb-4 text-base font-semibold lg:text-lg">{t("How to get this offer")}</h2>
-      <ol className="flex flex-col gap-3 lg:grid lg:grid-cols-3 lg:gap-4">
+      <ol className="flex flex-col gap-3 lg:gap-4">
         {steps.map((step, i) => (
           <li key={step.text} className="flex items-center gap-3 text-[15px]">
             <span className="flex size-[26px] shrink-0 items-center justify-center rounded-full bg-white text-[13px] font-semibold">
@@ -123,6 +123,53 @@ export async function MapCard({
           {t("Get directions")}
         </TrackedAnchor>
       </div>
+    </section>
+  );
+}
+
+/** Phone list of the outlets an offer is valid at: numbered like the desktop map's pins, each with its directions. */
+export async function BranchCards({
+  branches,
+  offerId,
+  className,
+}: {
+  branches: { id: string; name: string; areaName: string; isMain: boolean; geo?: { lat: number; lng: number } }[];
+  offerId?: string;
+  className?: string;
+}) {
+  const t = await getT();
+  return (
+    <section aria-label={t("Valid at")} className={cn("flex flex-col gap-3", className)}>
+      <h3 className="text-sm font-semibold">{t("Valid at")}</h3>
+      <ul className="flex flex-col gap-3">
+        {branches.map((branch, i) => (
+          <li key={branch.id} className="flex items-center gap-3 rounded-2xl border border-line p-4">
+            <span aria-hidden className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">
+              {i + 1}
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-semibold">
+                {branch.name}
+                {branch.isMain && !/main/i.test(branch.name) && <span className="ml-2 text-xs font-medium text-muted">{t("Main outlet")}</span>}
+              </p>
+              <p className="text-sm text-muted">{branch.areaName}</p>
+            </div>
+            {branch.geo && (
+              <TrackedAnchor
+                href={directionsHref(branch.geo.lat, branch.geo.lng)}
+                target="_blank"
+                rel="noreferrer"
+                offerId={offerId}
+                event="directions"
+                className={buttonClass({ variant: "outline", className: "h-[38px] px-3 text-sm" })}
+              >
+                <Navigation size={16} aria-hidden />
+                {t("Directions")}
+              </TrackedAnchor>
+            )}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

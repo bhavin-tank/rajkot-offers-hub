@@ -40,6 +40,7 @@ export default async function HomePage() {
     getFeaturedOffers(),
     getHeroSlides(),
   ]);
+  const homeCategories = categories.filter((c) => c.inHomeRow);
 
   return (
     <>
@@ -74,8 +75,8 @@ export default async function HomePage() {
       )}
 
       <Section className="pt-0 lg:pt-0">
-        <SectionHeader title={t("Category")} href="/categories" />
-        <CategoryIconRow categories={categories.filter((c) => c.inHomeRow)} />
+        <SectionHeader title={t("Category")} />
+        <CategoryIconRow categories={homeCategories} />
       </Section>
 
       <Section tone="surface">

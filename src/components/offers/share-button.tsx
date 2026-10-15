@@ -16,7 +16,7 @@ interface ShareButtonProps {
   title: string;
   /** Path of the page to share, e.g. "/offers/kurta-20-off". */
   path: string;
-  variant?: "floating" | "plain" | "text" | "pill" | "tile";
+  variant?: "floating" | "plain" | "text" | "pill" | "tile" | "bar";
   /** On an offer page: a share counts towards that offer's stats. */
   offerId?: string;
 }
@@ -72,6 +72,11 @@ export function ShareButton({ title, path, variant = "floating", offerId }: Shar
         <Button variant="outline" size="sm" block className="px-0" onClick={onShare}>
           <Share2 size={18} aria-hidden />
           <span className="sr-only">{t("Share")}</span>
+        </Button>
+      ) : variant === "bar" ? (
+        <Button variant="outline" onClick={onShare} className="flex-1 border-primary text-primary hover:bg-primary-soft">
+          <Share2 size={18} aria-hidden />
+          {t("Share")}
         </Button>
       ) : variant === "pill" ? (
         <Button variant="outline" size="sm" onClick={onShare}>

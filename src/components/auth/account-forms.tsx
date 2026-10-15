@@ -77,7 +77,7 @@ export function ChangeMpinForm() {
           <PinInput id="confirm" name="confirm" secret required autoComplete="new-password" className="h-12 text-lg" />
         </Field>
         <div className="sm:col-span-3">
-          <Button type="submit" disabled={pending}>
+          <Button type="submit" block className="sm:w-auto" disabled={pending}>
             {t("Change MPIN")}
           </Button>
         </div>

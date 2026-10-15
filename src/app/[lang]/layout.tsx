@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Anek_Gujarati, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
+import { LoginProvider } from "@/components/auth/login-dialog";
 import { ToastProvider } from "@/components/ui/toast";
 import { hasLocale } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/lib/i18n/client";
@@ -57,7 +58,9 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     <html lang={lang} className={cn(inter.variable, lang === "gu" && anek.variable)}>
       <body className="flex min-h-dvh flex-col">
         <LocaleProvider locale={lang}>
-          <ToastProvider>{children}</ToastProvider>
+          <ToastProvider>
+            <LoginProvider>{children}</LoginProvider>
+          </ToastProvider>
         </LocaleProvider>
       </body>
     </html>

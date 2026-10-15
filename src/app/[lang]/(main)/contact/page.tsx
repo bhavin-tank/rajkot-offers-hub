@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowRight, ChevronRight, Mail, MapPin } from "lucide-react";
+import { ArrowRight, ChevronRight, Mail, MapPin, Phone } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { Container } from "@/components/layout/container";
 import { ButtonAnchor } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Eyebrow } from "@/components/ui/display";
 import { getT } from "@/lib/i18n/server";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
-import { instagramHref, whatsappHref } from "@/lib/utils";
+import { instagramHref, telHref, whatsappHref } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 async function ReportBox() {
   const t = await getT();
   return (
-    <div className="rounded-2xl bg-surface p-5">
+    <div className="rounded-2xl border border-line bg-white p-5">
       <p className="text-sm leading-relaxed">{t("Spotted an incorrect offer? Tell us and we will look into it.")}</p>
       <a
         href={whatsappHref(site.whatsapp, t("I want to report an offer:"))}
@@ -40,6 +40,7 @@ export default async function ContactPage() {
   const t = await getT();
   const channels = [
     { title: "WhatsApp", value: site.whatsapp, icon: <WhatsAppIcon size={20} />, href: whatsappHref(site.whatsapp) },
+    { title: t("Phone"), value: site.phone, icon: <Phone size={20} aria-hidden />, href: telHref(site.phone) },
     { title: t("Email"), value: site.email, icon: <Mail size={20} aria-hidden />, href: `mailto:${site.email}` },
     { title: "Instagram", value: site.instagram, icon: <InstagramIcon size={20} />, href: instagramHref(site.instagram) },
     { title: t("Location"), value: t(site.location), icon: <MapPin size={20} aria-hidden /> },
@@ -66,7 +67,7 @@ export default async function ContactPage() {
                 {c.href && <ChevronRight size={18} className="text-muted" aria-hidden />}
               </>
             );
-            const classes = "flex items-center gap-3 rounded-2xl border border-line p-4 transition-colors";
+            const classes = "flex items-center gap-3 rounded-2xl border border-line bg-white p-4 transition-colors";
             return c.href ? (
               <a key={c.title} href={c.href} target="_blank" rel="noreferrer" className={`${classes} hover:border-ink`}>
                 {body}
@@ -83,10 +84,10 @@ export default async function ContactPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl bg-surface p-5 lg:p-8">
+          <div className="rounded-2xl border border-line bg-white p-5 lg:p-8">
             <h2 className="text-lg font-semibold">{t("The quickest way to reach us")}</h2>
             <p className="mt-2 text-sm text-muted">{t("Message us on WhatsApp with your question or the offer you want to tell us about. We reply on working days.")}</p>
-            <ButtonAnchor href={whatsappHref(site.whatsapp)} target="_blank" rel="noreferrer" className="mt-4">
+            <ButtonAnchor href={whatsappHref(site.whatsapp)} target="_blank" rel="noreferrer" variant="whatsappSolid" className="mt-4">
               <WhatsAppIcon size={18} />
               {t("Message us on WhatsApp")}
             </ButtonAnchor>

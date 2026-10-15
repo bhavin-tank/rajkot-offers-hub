@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Globe, Navigation, Phone, Tag } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { ShopAvatar } from "@/components/businesses/avatar";
-import { StickyActionBar } from "@/components/businesses/contact-actions";
+import { ContactRow, StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
 import { OutletSideCards } from "@/components/businesses/outlets";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
@@ -14,6 +14,7 @@ import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { Container } from "@/components/layout/container";
 import { OfferCard } from "@/components/offers/offer-card";
 import { ReviewList } from "@/components/offers/reviews";
+import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
 import { ButtonLink, buttonClass } from "@/components/ui/button";
 import { DetailRow, EmptyState } from "@/components/ui/display";
@@ -73,7 +74,7 @@ function overallRating(business: Business, reviews: { items: Review[]; total: nu
 async function OffersTab({ active, expired }: { active: OfferSummary[]; expired: OfferSummary[] }) {
   const t = await getT();
   return (
-    <div className="flex flex-col gap-6 pt-5 lg:pt-8">
+    <div className="flex flex-col gap-6">
       {active.length ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
           {active.map((offer) => (
@@ -110,7 +111,7 @@ async function OffersTab({ active, expired }: { active: OfferSummary[]; expired:
 async function PhotosTab({ business, images }: { business: Business; images: string[] }) {
   const t = await getT();
   return (
-    <div className="pt-5 lg:pt-8">
+    <div>
       <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">{t("Photos")}</h2>
       <ul className="grid grid-cols-3 gap-2 lg:gap-4">
         {images.map((src) => (
@@ -127,7 +128,7 @@ async function PhotosTab({ business, images }: { business: Business; images: str
 async function OutletsTab({ business, path }: { business: Business; path: string }) {
   const t = await getT();
   return (
-    <div className="flex flex-col gap-4 pt-5">
+    <div className="flex flex-col gap-4">
       <h2 className="text-lg font-semibold">{t(business.outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: business.outlets.length })}</h2>
       <OutletSideCards outlets={business.outlets} contact={business} path={path} />
     </div>
@@ -137,7 +138,7 @@ async function OutletsTab({ business, path }: { business: Business; path: string
 async function AboutTab({ business }: { business: Business }) {
   const t = await getT();
   return (
-    <div className="flex flex-col gap-7 pt-5 lg:pt-8">
+    <div className="flex flex-col gap-7">
       <section>
         <h2 className="mb-2 text-lg font-semibold lg:text-[22px]">{t("About us")}</h2>
         <p className="max-w-[640px] text-[15px] leading-relaxed text-muted lg:text-base">{business.about}</p>
@@ -169,11 +170,10 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
   const images = [...new Set([business.cover, ...business.photos])];
   const rating = overallRating(business, reviews);
   const mobileButtons = (
-    <div className="absolute inset-x-4 top-4 flex justify-between lg:hidden">
+    <div className="absolute inset-x-4 top-4 lg:hidden">
       <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
         <ArrowLeft size={20} aria-hidden />
       </IconLink>
-      <ShareButton title={business.name} path={path} />
     </div>
   );
 
@@ -205,21 +205,8 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 <p className="mt-1 text-sm text-muted lg:text-[15px]">{subtitle}</p>
               </div>
             </div>
-            <div className="hidden shrink-0 items-center gap-3 lg:flex">
-              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ size: "sm" })}>
-                <Phone size={18} aria-hidden />
-                {t("Call")}
-              </ContactLink>
-              <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
-                <WhatsAppIcon size={18} />
-                WhatsApp
-              </ContactLink>
-              <a href={directionsHref(business.geo.lat, business.geo.lng)} target="_blank" rel="noreferrer" className={buttonClass({ variant: "outline", size: "sm" })}>
-                <Navigation size={18} aria-hidden />
-                {t("Directions")}
-              </a>
-              <ShareButton title={business.name} path={path} variant="pill" />
-            </div>
+            {/* On a phone the contact buttons sit under the name; on desktop they float at the bottom. */}
+            <ContactRow contact={business} className="lg:hidden" />
           </div>
         </div>
       </Container>
@@ -239,7 +226,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                   </span>
                 )}
                 <p className="min-w-0 flex-1 truncate text-base font-semibold">{business.name}</p>
-                <ShareButton title={business.name} path={path} variant="plain" />
+                <span className="size-10 shrink-0" aria-hidden />
               </div>
             }
             items={[
@@ -265,9 +252,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                       value: "reviews",
                       label: t("Reviews ({count})", { count: reviews.total }),
                       content: (
-                        <div className="pt-5 lg:pt-8">
-                          <ReviewList reviews={reviews.items} total={reviews.total} />
-                        </div>
+                        <ReviewList reviews={reviews.items} total={reviews.total} />
                       ),
                     },
                   ]
@@ -290,7 +275,32 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </aside>
       </Container>
 
-      <StickyActionBar contact={business} />
+      {/* Desktop: the shop's actions float at the bottom centre while the page scrolls. */}
+      <div className="fixed bottom-6 left-1/2 z-40 hidden -translate-x-1/2 items-center gap-3 rounded-2xl border border-line bg-white p-3 shadow-float lg:flex">
+        <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ size: "sm" })}>
+          <Phone size={18} aria-hidden />
+          {t("Call")}
+        </ContactLink>
+        <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
+          <WhatsAppIcon size={18} />
+          WhatsApp
+        </ContactLink>
+        <a href={directionsHref(business.geo.lat, business.geo.lng)} target="_blank" rel="noreferrer" className={buttonClass({ variant: "outline", size: "sm" })}>
+          <Navigation size={18} aria-hidden />
+          {t("Directions")}
+        </a>
+        <ShareButton title={business.name} path={path} variant="pill" />
+        <SaveTextButton slug={business.slug} kind="shop" variant="outline" />
+      </div>
+
+      <StickyActionBar
+        lead={
+          <>
+            <SaveBarButton slug={business.slug} kind="shop" />
+            <ShareButton title={business.name} path={path} variant="bar" />
+          </>
+        }
+      />
     </div>
   );
 }
