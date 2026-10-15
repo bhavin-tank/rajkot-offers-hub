@@ -99,6 +99,7 @@ export type OfferSummary = Pick<
   | "slug"
   | "title"
   | "badge"
+  | "businessSlug"
   | "businessName"
   | "areaName"
   | "images"

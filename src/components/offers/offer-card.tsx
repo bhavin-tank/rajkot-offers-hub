@@ -12,6 +12,7 @@ import { formatDistance, formatRupees, formatUntil } from "@/lib/format";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { SaveButton } from "./save-button";
+import { offerPath } from "@/lib/paths";
 
 interface OfferCardProps {
   offer: OfferSummary;
@@ -59,7 +60,7 @@ export function OfferCard({
       </div>
       <div className={cn("flex flex-col gap-1.5 px-4 pt-4 pb-[18px]", expired && "opacity-65")}>
         <h3 className="line-clamp-2 text-base leading-[1.45] font-semibold">
-          <Link href={`/offers/${offer.slug}`} className="after:absolute after:inset-0 after:content-['']">
+          <Link href={offerPath(offer)} className="after:absolute after:inset-0 after:content-['']">
             {offer.title}
           </Link>
         </h3>

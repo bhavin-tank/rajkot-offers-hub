@@ -1,6 +1,7 @@
 import { api, ApiError } from "@/lib/api/client";
 import type { BannerFeed } from "@/lib/api/types";
 import { getOfferCard } from "./offers";
+import { offerPath } from "@/lib/paths";
 
 export interface HeroSlide {
   id: string;
@@ -37,7 +38,7 @@ async function target(link: BannerFeed["items"][number]["link"]): Promise<{ href
   if (!id) return null;
   if (resource === "promotion") {
     const offer = await getOfferCard(id);
-    return offer && !offer.isExpired ? { href: `/offers/${offer.slug}`, alt: offer.title } : null;
+    return offer && !offer.isExpired ? { href: offerPath(offer), alt: offer.title } : null;
   }
   if (resource === "category") {
     const category = (await rootCategories()).find((c) => c.id === id);

@@ -139,15 +139,17 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
           );
         })}
       </nav>
-      {items.map((item, i) => (
-        <section
-          key={item.value}
-          id={item.value}
-          className={cn(topBar ? "scroll-mt-28 lg:scroll-mt-14" : "scroll-mt-14", "lg:px-8", item.className, i > 0 && "mt-10 border-t border-line lg:mt-14")}
-        >
-          {item.content}
-        </section>
-      ))}
+      <div className="flex flex-col gap-10 lg:gap-14">
+        {items.map((item, i) => (
+          <section
+            key={item.value}
+            id={item.value}
+            className={cn(topBar ? "scroll-mt-28 lg:scroll-mt-14" : "scroll-mt-14", "lg:px-8", item.className, i > 0 && "border-t border-line")}
+          >
+            {item.content}
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

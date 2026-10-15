@@ -69,6 +69,7 @@ export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSumm
     slug: offerHandle(card),
     title: card.title,
     badge: card.headline || card.value_label,
+    businessSlug: card.business.slug,
     businessName: card.business.name,
     areaName: card.business.area || card.business.city || "Rajkot",
     images: [cover || logo || FALLBACK_IMAGE],

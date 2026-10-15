@@ -3,6 +3,7 @@ import { getAreaSlugs, getBusinessSlugs, getCategories, getLiveOffers } from "@/
 import { offersPath } from "@/lib/areas";
 import { absoluteUrl } from "@/lib/site";
 import type { OfferSummary } from "@/types";
+import { offerPath, shopPath } from "@/lib/paths";
 
 /** Latest end date in `list`, as a last-modified hint for the page listing them. */
 function newest(list: OfferSummary[]) {
@@ -47,7 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/privacy"),
     entry("/terms"),
     ...lists,
-    ...live.map((o) => entry(`/offers/${o.slug}`, [o], o.images.slice(0, 1))),
-    ...businessSlugs.map((slug) => entry(`/businesses/${slug}`)),
+    ...live.map((o) => entry(offerPath(o), [o], o.images.slice(0, 1))),
+    ...businessSlugs.map((slug) => entry(shopPath(slug))),
   ];
 }

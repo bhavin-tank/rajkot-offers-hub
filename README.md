@@ -99,6 +99,8 @@ src/
     [lang]/(focus)/ detail and task pages: desktop header only, each page draws its
                    own mobile top bar or action bar
                    offers/[slug], businesses/[slug], categories/[slug], submit-offer
+                   (shops and offers are served at /<shop> and /<shop>/<offer> by a proxy rewrite;
+                   /businesses/<shop> and /offers/<offer> redirect there, see lib/known-paths.ts)
     not-found.tsx  404
   components/
     ui/            design-system primitives with no domain knowledge
@@ -128,7 +130,7 @@ src/
 | Site | API |
 |---|---|
 | Offer lists, filters, search, sort | `GET /promotions` (`category`, `areas`, `type`, `ends_within_days`, `sort`, `q`) |
-| Offer page | `GET /promotions/{id}` — URLs are `/offers/<slug>-<id>` |
+| Offer page | `GET /promotions/{id}` — URLs are `/<shop>/<slug>-<id>` (the id is what the page looks the offer up by) |
 | Shop page, its live and past offers | `GET /businesses/{slug}`, `GET /promotions?business=` (`&lifecycle=ended`) |
 | Categories and areas with counts | `GET /promotions/categories` (`areas`), `GET /promotions/areas` |
 | Login (WhatsApp code once, then a 6-digit MPIN) | `POST /auth/request`, `/auth/verify`, `/auth/mpin`, `/auth/refresh`, `/auth/logout` |

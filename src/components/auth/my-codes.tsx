@@ -7,6 +7,7 @@ import type { Page, PromotionClaim } from "@/lib/api/types";
 import { formatShortDate } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import type { MessageKey } from "@/lib/i18n/translate";
+import { offerPath } from "@/lib/paths";
 
 const STATUS: Record<PromotionClaim["status"], MessageKey> = {
   claimed: "Ready to use",
@@ -30,7 +31,7 @@ export async function MyCodes({ token }: { token: string }) {
             <li key={claim.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
               <div className="flex flex-1 flex-col gap-1">
                 {claim.promotion ? (
-                  <Link href={`/offers/${offerHandle(claim.promotion)}`} className="font-medium hover:underline">
+                  <Link href={offerPath({ businessSlug: claim.promotion.business.slug, slug: offerHandle(claim.promotion) })} className="font-medium hover:underline">
                     {claim.promotion.title}
                   </Link>
                 ) : null}

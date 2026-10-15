@@ -3,7 +3,7 @@ import { canonicalAreaUrl } from "@/lib/areas";
 import { defaultLocale, LOCALE_COOKIE, languageSwitchEnabled, localizePath, splitLocale } from "@/lib/i18n/config";
 import { clearSessionCookies, setSessionCookies } from "@/lib/auth/cookies";
 import { renewSession } from "@/lib/auth/proxy-session";
-import { hasUnknownSlug } from "@/lib/known-paths";
+import { hasUnknownSlug, shopRoute } from "@/lib/known-paths";
 
 /** Pages that read the signed-in user; the session is renewed before they render. */
 const SESSION_PAGES = new Set(["/login", "/account"]);
@@ -27,9 +27,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(localizePath(locale ?? defaultLocale, canonical), request.url), 308);
   }
 
+  // Shops and offers live at "/<shop>" and "/<shop>/<offer>"; their older addresses are sent there.
+  const shop = await shopRoute(path);
+  if (shop?.kind === "redirect") {
+    return NextResponse.redirect(new URL(`${localizePath(locale ?? defaultLocale, shop.path)}${search}`, request.url), 308);
+  }
+  const served = shop?.kind === "rewrite" ? shop.path : path;
+
   // Unknown slugs go to the catch-all 404 page now, while a 404 status can still be sent.
   // Four segments are deeper than any real route, so only the catch-all matches.
-  if (await hasUnknownSlug(path)) {
+  if (!shop && (await hasUnknownSlug(path))) {
     return NextResponse.rewrite(new URL(`/${locale ?? defaultLocale}/_/not/found/page`, request.url));
   }
 
@@ -41,13 +48,15 @@ export async function proxy(request: NextRequest) {
   };
   const forward = { request: { headers: request.headers } };
 
-  if (locale) return withSession(NextResponse.next(forward));
+  if (locale) {
+    return withSession(shop ? NextResponse.rewrite(new URL(`/${locale}${served}${search}`, request.url), forward) : NextResponse.next(forward));
+  }
 
   // No prefix: honour a saved Gujarati choice, otherwise serve English.
   if (languageSwitchEnabled && request.cookies.get(LOCALE_COOKIE)?.value === "gu") {
     return NextResponse.redirect(new URL(`${localizePath("gu", pathname)}${search}`, request.url));
   }
-  return withSession(NextResponse.rewrite(new URL(`/${defaultLocale}${pathname === "/" ? "" : pathname}${search}`, request.url), forward));
+  return withSession(NextResponse.rewrite(new URL(`/${defaultLocale}${served === "/" ? "" : served}${search}`, request.url), forward));
 }
 
 export const config = {

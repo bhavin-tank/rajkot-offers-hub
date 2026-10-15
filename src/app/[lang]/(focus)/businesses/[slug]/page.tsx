@@ -24,6 +24,7 @@ import { directionsHref } from "@/lib/utils";
 import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
 import type { Business, OfferSummary, Rating, Review } from "@/types";
 import { RatingInline } from "@/components/ui/rating";
+import { shopPath } from "@/lib/paths";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/businesses/[slug]">): Promise<Metadata> {
   const [t, business] = await Promise.all([getT(), params.then((p) => getBusiness(p.slug))]);
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/businesses
   return pageMetadata({
     title: t("{business}, {area}, Rajkot: offers, hours and address", vars),
     description: t("{category} • {area}, Rajkot. {about}", { ...vars, about: business.about }),
-    path: `/businesses/${business.slug}`,
+    path: shopPath(business.slug),
     image: business.cover,
   });
 }
@@ -164,7 +165,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
     getBusinessOffers(business.slug),
     getBusinessReviews(business.id, business.outlets),
   ]);
-  const path = `/businesses/${business.slug}`;
+  const path = shopPath(business.slug);
   const subtitle = t("{category} • {area}, Rajkot", { category: business.categoryName, area: business.areaName });
 
   const crumbs = await breadcrumbLd([

@@ -25,6 +25,7 @@ import { formatRange, formatRupees } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
 import { cn, directionsHref } from "@/lib/utils";
+import { offerPath } from "@/lib/paths";
 
 export async function offerMetadata(slug: string): Promise<Metadata> {
   const [t, locale, offer] = await Promise.all([getT(), getLocale(), getOffer(slug)]);
@@ -37,7 +38,7 @@ export async function offerMetadata(slug: string): Promise<Metadata> {
       offer: offer.offerText,
       dates: formatRange(offer.validFrom, offer.validTo, locale),
     }),
-    path: `/offers/${offer.slug}`,
+    path: offerPath(offer),
     image: offer.images[0],
     // An ended offer stays reachable for old links but should not show up in search.
     noindex: offer.isExpired,
@@ -58,7 +59,7 @@ async function OfferContent({ slug }: { slug: string }) {
 
   const expired = offer.isExpired;
   const validity = `${formatRange(offer.validFrom, offer.validTo, locale)}${expired ? ` · ${t("Expired")}` : ""}`;
-  const path = `/offers/${offer.slug}`;
+  const path = offerPath(offer);
   const geo = offer.geo ?? business.geo;
   const minSpend = offer.minSpend ? t("On bills of {amount} or more", { amount: formatRupees(offer.minSpend) }) : null;
 

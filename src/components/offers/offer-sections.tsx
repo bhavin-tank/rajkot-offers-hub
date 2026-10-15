@@ -7,6 +7,7 @@ import { buttonClass } from "@/components/ui/button";
 import { getT } from "@/lib/i18n/server";
 import { cn, directionsHref } from "@/lib/utils";
 import { TrackedAnchor } from "./track";
+import { shopPath } from "@/lib/paths";
 
 /** Store icon, name and area, linking to the business profile. */
 export async function BusinessRow({
@@ -31,7 +32,7 @@ export async function BusinessRow({
         <p className="truncate text-[13px] text-muted">{t("{area}, Rajkot", { area })}</p>
       </div>
       <Link
-        href={`/businesses/${slug}`}
+        href={shopPath(slug)}
         className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline"
       >
         {t("View store")}
