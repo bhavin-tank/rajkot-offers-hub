@@ -40,6 +40,7 @@ export default async function HomePage() {
     getFeaturedOffers(),
     getHeroSlides(),
   ]);
+  const homeCategories = categories.filter((c) => c.inHomeRow);
 
   return (
     <>
@@ -74,8 +75,9 @@ export default async function HomePage() {
       )}
 
       <Section className="pt-0 lg:pt-0">
-        <SectionHeader title={t("Category")} href="/categories" />
-        <CategoryIconRow categories={categories.filter((c) => c.inHomeRow)} />
+        {/* "See all" only when the row leaves some categories out (ones with no live offers). */}
+        <SectionHeader title={t("Category")} href={homeCategories.length < categories.length ? "/categories" : undefined} />
+        <CategoryIconRow categories={homeCategories} />
       </Section>
 
       <Section tone="surface">
