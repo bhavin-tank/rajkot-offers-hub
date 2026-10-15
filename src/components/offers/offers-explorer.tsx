@@ -153,7 +153,7 @@ export async function OffersExplorer({
       <div className="flex flex-col gap-4 lg:gap-6">
         {/* On a phone the search and chips stay under the header while the list scrolls. */}
         {!nothingYet && (
-          <div className="sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 py-3 lg:static lg:mx-0 lg:border-0 lg:p-0">
+          <div className="sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0">
             {withSearch && <SearchBar defaultValue={filters.q} action={basePath} className="lg:hidden" />}
             {/* On desktop the switch ends the chip row; on a phone it floats above the bottom menu. */}
             <div className="lg:flex lg:items-start lg:justify-between lg:gap-4">
