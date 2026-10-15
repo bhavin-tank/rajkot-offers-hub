@@ -70,6 +70,13 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
+  /** Keeps the highlighted tab visible when the bar scrolls sideways on a narrow screen. */
+  function keepInView(tab: HTMLAnchorElement | null) {
+    const nav = bar.current;
+    if (!tab || !nav || nav.scrollWidth <= nav.clientWidth) return;
+    nav.scrollTo({ left: tab.offsetLeft - (nav.clientWidth - tab.offsetWidth) / 2, behavior: "smooth" });
+  }
+
   function go(event: MouseEvent, value: string) {
     const section = document.getElementById(value);
     if (!section) return;
@@ -101,7 +108,7 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
         ref={bar}
         aria-label={label}
         className={cn(
-          "sticky z-30 -mx-5 flex gap-7 border-b border-line bg-white px-5 lg:top-0 lg:mx-0 lg:gap-8 lg:px-0",
+          "sticky z-30 -mx-5 flex gap-6 overflow-x-auto border-b [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-line bg-white px-5 lg:top-0 lg:mx-0 lg:gap-8 lg:px-0",
           topBar ? "top-14" : "top-0",
         )}
       >
@@ -112,9 +119,10 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
               key={item.value}
               href={`#${item.value}`}
               aria-current={selected ? "true" : undefined}
+              ref={selected ? keepInView : undefined}
               onClick={(event) => go(event, item.value)}
               className={cn(
-                "-mb-px border-b-2 pt-3 pb-3 text-[15px] transition-colors",
+                "-mb-px shrink-0 border-b-2 pt-3 pb-3 text-[15px] whitespace-nowrap transition-colors",
                 selected
                   ? "border-primary font-semibold text-ink"
                   : "border-transparent font-medium text-muted hover:text-ink",

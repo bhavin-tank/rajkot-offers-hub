@@ -401,6 +401,7 @@ export const gu = {
   "{rating} out of 5": "5 માંથી {rating}",
   "Used this offer": "આ ઓફર વાપરી છે",
   "Outlets": "આઉટલેટ્સ",
+  "Outlet": "આઉટલેટ",
   "Main outlet": "મુખ્ય આઉટલેટ",
   "Opening hours": "ખુલવાનો સમય",
   "Featured offers": "ખાસ ઓફર્સ",

@@ -107,8 +107,36 @@ async function OffersTab({ active, expired }: { active: OfferSummary[]; expired:
   );
 }
 
-async function InfoTab({ business }: { business: Business }) {
-  const [t, reviews] = await Promise.all([getT(), getBusinessReviews(business.id, business.outlets)]);
+async function PhotosTab({ business }: { business: Business }) {
+  const t = await getT();
+  return (
+    <div className="pt-5 lg:pt-8">
+      <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">{t("Photos")}</h2>
+      <ul className="grid grid-cols-3 gap-2 lg:gap-4">
+        {business.photos.map((src) => (
+          <li key={src} className="relative aspect-square overflow-hidden rounded-xl bg-surface lg:aspect-[4/3]">
+            <Image src={src} alt={t("Photo of {business}", { business: business.name })} fill sizes="(min-width: 1024px) 270px, 33vw" className="object-cover" />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function OutletsTab({ business }: { business: Business }) {
+  return (
+    <div className="pt-5 lg:pt-8">
+      {business.outlets.length > 1 ? (
+        <OutletList outlets={business.outlets} />
+      ) : (
+        <MapCard address={business.address} geo={business.geo} layout="split" />
+      )}
+    </div>
+  );
+}
+
+async function AboutTab({ business }: { business: Business }) {
+  const t = await getT();
   return (
     <div className="flex flex-col gap-7 pt-5 lg:pt-8">
       <section>
@@ -122,22 +150,6 @@ async function InfoTab({ business }: { business: Business }) {
         <h2 className="mb-3 text-lg font-semibold">{t("Hours")}</h2>
         <HoursTable hours={business.hours} />
       </section>
-      {business.outlets.length > 1 ? (
-        <OutletList outlets={business.outlets} />
-      ) : (
-        <MapCard address={business.address} geo={business.geo} layout="split" />
-      )}
-      <ReviewList reviews={reviews.items} total={reviews.total} />
-      <section>
-        <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">{t("Photos")}</h2>
-        <ul className="grid grid-cols-3 gap-2 lg:gap-4">
-          {business.photos.map((src) => (
-            <li key={src} className="relative aspect-square overflow-hidden rounded-xl bg-surface lg:aspect-[4/3]">
-              <Image src={src} alt={t("Photo of {business}", { business: business.name })} fill sizes="(min-width: 1024px) 270px, 33vw" className="object-cover" />
-            </li>
-          ))}
-        </ul>
-      </section>
     </div>
   );
 }
@@ -146,7 +158,10 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
   const t = await getT();
   const business = await getBusiness((await params).slug);
   if (!business) notFound();
-  const { active, expired } = await getBusinessOffers(business.slug);
+  const [{ active, expired }, reviews] = await Promise.all([
+    getBusinessOffers(business.slug),
+    getBusinessReviews(business.id, business.outlets),
+  ]);
   const path = `/businesses/${business.slug}`;
   const subtitle = t("{category} • {area}, Rajkot", { category: business.categoryName, area: business.areaName });
 
@@ -163,7 +178,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
       <Container className="px-0 lg:px-5 lg:pt-6">
         <div className="relative aspect-video overflow-hidden bg-surface lg:aspect-auto lg:h-80 lg:rounded-2xl">
           <Image src={business.cover} alt="" fill priority sizes="(min-width: 1240px) 1200px, 100vw" className="object-cover" />
-          <div className="absolute inset-x-4 top-4 flex justify-between lg:inset-x-auto lg:top-auto lg:right-5 lg:bottom-5">
+          <div className="absolute inset-x-4 top-4 flex justify-between lg:inset-x-auto lg:top-5 lg:right-5 lg:bottom-auto">
             <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")} className="lg:hidden">
               <ArrowLeft size={20} aria-hidden />
             </IconLink>
@@ -177,7 +192,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </div>
       </Container>
 
-      <Container className="pb-28 lg:grid lg:grid-cols-[340px_1fr] lg:items-start lg:gap-12 lg:pb-20">
+      <Container className="pb-28 lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-12 lg:pb-20">
         {/* Mobile identity block. */}
         <div className="flex flex-col gap-4 lg:hidden">
           <Avatar logo={business.logo} className="-mt-10 size-20" />
@@ -190,7 +205,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </div>
 
         {/* Desktop sidebar. */}
-        <aside className="sticky top-6 -mt-12 hidden flex-col gap-5 rounded-2xl border border-line bg-white p-6 shadow-card lg:flex">
+        <aside className="sticky top-6 -mt-12 hidden lg:col-start-2 lg:row-start-1 flex-col gap-5 rounded-2xl border border-line bg-white p-6 shadow-card lg:flex">
           <Avatar logo={business.logo} className="-mt-16 size-[88px]" />
           <div>
             <h1 className="text-[28px] leading-tight font-semibold">{business.name}</h1>
@@ -209,7 +224,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </aside>
 
         <SectionTabs
-          className="mt-6 lg:mt-8"
+          className="mt-6 min-w-0 lg:col-start-1 lg:row-start-1 lg:mt-8"
           label={t("Page sections")}
           topBar={
             <div className="flex h-full items-center justify-between gap-1 border-b border-line px-2">
@@ -226,7 +241,26 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
               label: t("Offers ({count})", { count: active.length }),
               content: <OffersTab active={active} expired={expired} />,
             },
-            { value: "info", label: t("Info"), content: <InfoTab business={business} /> },
+            ...(business.photos.length ? [{ value: "photos", label: t("Photos"), content: <PhotosTab business={business} /> }] : []),
+            {
+              value: "outlets",
+              label: business.outlets.length > 1 ? t("Outlets") : t("Outlet"),
+              content: <OutletsTab business={business} />,
+            },
+            { value: "about", label: t("About us"), content: <AboutTab business={business} /> },
+            ...(reviews.total
+              ? [
+                  {
+                    value: "reviews",
+                    label: t("Reviews"),
+                    content: (
+                      <div className="pt-5 lg:pt-8">
+                        <ReviewList reviews={reviews.items} total={reviews.total} />
+                      </div>
+                    ),
+                  },
+                ]
+              : []),
           ]}
         />
       </Container>
