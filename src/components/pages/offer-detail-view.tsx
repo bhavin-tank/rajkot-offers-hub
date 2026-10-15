@@ -206,7 +206,11 @@ async function OfferContent({ slug }: { slug: string }) {
       </Container>
 
       <Container className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
-        <div className="mt-6 flex min-w-0 flex-col gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
+        <div className="mt-6 flex min-w-0 flex-col gap-6 lg:gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
+          {/* On a phone the shop comes before the tabs; on desktop it is a card in the side column. */}
+          <section className="rounded-2xl border border-line bg-white p-4 lg:hidden">
+            <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} logo={business.logo} />
+          </section>
           <SectionTabs
             label={t("Page sections")}
             topBar={
