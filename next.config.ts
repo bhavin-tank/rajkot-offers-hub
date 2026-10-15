@@ -21,6 +21,13 @@ const localMedia = process.env.NODE_ENV !== "production" && (mediaUrl?.hostname 
 const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
+  experimental: {
+    // A page's prerendered shell is stored with its "use cache" data, which Next deflates and
+    // inflates with a 500 MB output limit. Cloudflare Workers' zlib refuses that limit with a
+    // RangeError, so the per-request part of every page that read cached API data never
+    // rendered and the response hung. Stored as plain JSON instead (a little more R2 space).
+    disableResumeDataCacheCompression: true,
+  },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com", pathname: "/photo-**" }, ...mediaPattern()],
     ...(localMedia && { dangerouslyAllowLocalIP: true }),

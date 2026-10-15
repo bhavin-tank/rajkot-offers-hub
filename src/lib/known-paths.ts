@@ -18,21 +18,25 @@ interface Known {
   categories: Set<string>;
 }
 
-let cached: { known: Promise<Known>; loadedAt: number } | undefined;
+let cached: { known: Known; loadedAt: number } | undefined;
 
-function known() {
-  if (!cached || Date.now() - cached.loadedAt > TTL_MS) {
-    const loading = Promise.all([
-      api<{ data: AreaCount[] }>("/promotions/areas"),
-      api<{ data: CategoryChip[] }>("/promotions/categories"),
-    ]).then(([areas, categories]) => ({
-      areas: new Set(areas.data.map((a) => a.slug)),
-      categories: new Set(categories.data.map((c) => c.slug)),
-    }));
-    cached = { known: loading, loadedAt: Date.now() };
-    loading.catch(() => (cached = undefined));
-  }
-  return cached.known;
+/**
+ * Keeps the lists, never a load in progress: on Cloudflare Workers a promise one request
+ * started cannot settle inside another, so requests sharing an in-flight load were cancelled
+ * as hung. Requests that find nothing fresh each load for themselves.
+ */
+async function known(): Promise<Known> {
+  if (cached && Date.now() - cached.loadedAt <= TTL_MS) return cached.known;
+  const [areas, categories] = await Promise.all([
+    api<{ data: AreaCount[] }>("/promotions/areas"),
+    api<{ data: CategoryChip[] }>("/promotions/categories"),
+  ]);
+  const lists = {
+    areas: new Set(areas.data.map((a) => a.slug)),
+    categories: new Set(categories.data.map((c) => c.slug)),
+  };
+  cached = { known: lists, loadedAt: Date.now() };
+  return lists;
 }
 
 /** Top-level pages; any other first segment is an area. */
