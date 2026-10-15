@@ -20,7 +20,7 @@ const external = { target: "_blank", rel: "noreferrer" } as const;
 const tileClass = "flex h-[72px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-surface text-xs font-medium hover:bg-canvas";
 const whatsappTileClass = "flex h-[72px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-whatsapp-soft text-xs font-medium text-whatsapp-ink hover:bg-whatsapp/15";
 
-/** WhatsApp, directions and call in one row. */
+/** Call (icon only), WhatsApp and directions (icon and text) in one row. */
 export async function ContactRow({
   contact,
   disabled,
@@ -36,15 +36,26 @@ export async function ContactRow({
 }) {
   const t = await getT();
   return (
-    <div className={cn("flex gap-2.5", className)}>
+    <div className={cn("flex gap-2", className)}>
       {disabled ? (
-        <Button variant="outline" iconOnly disabled aria-label="WhatsApp">
-          <WhatsAppIcon size={20} />
+        <Button iconOnly disabled aria-label={t("Call")}>
+          <Phone size={20} aria-hidden />
         </Button>
       ) : (
-        <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "whatsappSolid", iconOnly: true })}>
+        <ContactLink business={contact.slug} kind="call" number={contact.phone} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ iconOnly: true })}>
+          <Phone size={20} aria-hidden />
+          <span className="sr-only">{t("Call")}</span>
+        </ContactLink>
+      )}
+      {disabled ? (
+        <Button variant="outline" disabled className="min-w-0 shrink flex-1 px-2.5">
           <WhatsAppIcon size={20} />
-          <span className="sr-only">WhatsApp</span>
+          WhatsApp
+        </Button>
+      ) : (
+        <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "whatsappSolid", className: "min-w-0 shrink flex-1 px-2.5" })}>
+          <WhatsAppIcon size={20} />
+          WhatsApp
         </ContactLink>
       )}
       <TrackedAnchor
@@ -52,21 +63,11 @@ export async function ContactRow({
         {...external}
         offerId={offerId}
         event="directions"
-        className={buttonClass({ variant: "outline", className: "px-4" })}
+        className={buttonClass({ variant: "outline", className: "min-w-0 shrink flex-1 px-2.5" })}
       >
         <Navigation size={18} aria-hidden />
         {t("Directions")}
       </TrackedAnchor>
-      {disabled ? (
-        <Button disabled className="flex-1">
-          {t("Offer expired")}
-        </Button>
-      ) : (
-        <ContactLink business={contact.slug} kind="call" number={contact.phone} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ className: "flex-1" })}>
-          <Phone size={18} aria-hidden />
-          {t("Call")}
-        </ContactLink>
-      )}
     </div>
   );
 }
