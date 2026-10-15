@@ -60,6 +60,17 @@
   }
 }
 
+/* Mobile (below the lg breakpoint): hide every scrollbar, keep scrolling. */
+@media (max-width: 1023.98px) {
+  * {
+    scrollbar-width: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @utility no-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar {
