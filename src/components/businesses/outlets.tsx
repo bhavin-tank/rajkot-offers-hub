@@ -116,7 +116,7 @@ export async function OutletSideCards({ outlets, contact, path }: { outlets: Out
             </div>
             <details className="group border-t border-line">
               <summary className="flex cursor-pointer list-none items-center justify-between px-6 py-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-                {t("Hours")}
+                {t("Opening hours")}
                 <ChevronDown aria-hidden className="size-[18px] text-muted transition-transform group-open:rotate-180" />
               </summary>
               <div className="px-6 pb-5">

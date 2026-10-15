@@ -300,7 +300,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </div>
 
         {/* Desktop side cards; on a phone this information sits under About us. */}
-        <aside className="sticky top-6 mt-6 hidden max-h-[calc(100dvh-3rem)] flex-col gap-6 overflow-y-auto lg:flex [scrollbar-width:none]">
+        <aside className="mt-6 hidden flex-col gap-6 lg:flex">
           <section className="overflow-hidden rounded-2xl border border-line bg-white">
             <OutletMap outlets={pins} className="h-[260px]" />
           </section>
