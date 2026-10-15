@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { OfferPin, OfferSummary } from "@/types";
 import { Button } from "@/components/ui/button";
 import { loadMoreOffersAction, loadOfferPinsAction, type OfferListQuery } from "@/lib/actions/offer-list";
 import { useT } from "@/lib/i18n/client";
 import { OfferCardSkeleton, OfferGrid } from "./offer-card";
+import { MapDrawer, useIsDesktop } from "./map-drawer";
 import { OffersMap } from "./offers-map";
 import { useOffersView } from "./view-toggle";
 
@@ -19,16 +20,21 @@ interface OfferResultsProps {
   total: number;
   /** Link to the next page, for visitors without JavaScript. */
   nextHref: string;
+  /** The search and filter chips shown above the map when it opens in a drawer on a phone. */
+  mapHeader?: ReactNode;
 }
 
 /**
  * The results as a list or a map, as chosen with the View toggle. The list loads its next page as the visitor
- * nears the bottom; the map reads its pins the first time it is opened. Remount (by `key`) when
- * the filters change.
+ * nears the bottom; the map reads its pins the first time it is opened. On a phone the map opens in a
+ * drawer over the list. Remount (by `key`) when the filters change.
  */
-export function OfferResults({ query, initialItems, initialPage, initialHasMore, total, nextHref }: OfferResultsProps) {
+export function OfferResults({ query, initialItems, initialPage, initialHasMore, total, nextHref, mapHeader }: OfferResultsProps) {
   const t = useT();
-  const { view } = useOffersView();
+  const { view, setView } = useOffersView();
+  const isDesktop = useIsDesktop();
+  // The list stays in the page behind the phone's map drawer.
+  const showList = view === "list" || !isDesktop;
   const [items, setItems] = useState(initialItems);
   const [page, setPage] = useState(initialPage);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -59,12 +65,12 @@ export function OfferResults({ query, initialItems, initialPage, initialHasMore,
 
   useEffect(() => {
     const el = sentinel.current;
-    if (view !== "list" || !el || !hasMore || failed) return;
+    if (!showList || !el || !hasMore || failed) return;
     // Observing again after every page also catches a sentinel that is still on screen.
     const observer = new IntersectionObserver((entries) => entries[0]?.isIntersecting && void loadMore(), { rootMargin: "600px 0px" });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [view, hasMore, failed, loadMore, items.length]);
+  }, [showList, hasMore, failed, loadMore, items.length]);
 
   useEffect(() => {
     if (view !== "map" || pins || mapFailed) return;
@@ -78,9 +84,27 @@ export function OfferResults({ query, initialItems, initialPage, initialHasMore,
     };
   }, [view, pins, mapFailed, query]);
 
+  const mapBody = (fill: boolean) =>
+    pins ? (
+      <OffersMap pins={pins.pins} total={pins.total || total} fill={fill} />
+    ) : mapFailed ? (
+      <div className="flex flex-col items-center gap-3 rounded-2xl border border-line bg-surface px-5 py-16 text-sm text-muted">
+        {t("We could not load the map.")}
+        <Button type="button" variant="outline" onClick={() => setMapFailed(false)}>
+          {t("Try again")}
+        </Button>
+      </div>
+    ) : (
+      <div
+        role="status"
+        aria-label={t("Loading the map")}
+        className={fill ? "min-h-0 flex-1 animate-pulse rounded-2xl bg-surface" : "h-[62dvh] min-h-[420px] animate-pulse rounded-2xl bg-surface lg:h-[640px]"}
+      />
+    );
+
   return (
     <>
-      {view === "list" ? (
+      {showList && (
         <div>
           <OfferGrid offers={items} columns={4} />
           {hasMore && (
@@ -106,22 +130,15 @@ export function OfferResults({ query, initialItems, initialPage, initialHasMore,
             </div>
           )}
         </div>
-      ) : (
-        <div>
-          {pins ? (
-            <OffersMap pins={pins.pins} total={pins.total || total} />
-          ) : mapFailed ? (
-            <div className="flex flex-col items-center gap-3 rounded-2xl border border-line bg-surface px-5 py-16 text-sm text-muted">
-              {t("We could not load the map.")}
-              <Button type="button" variant="outline" onClick={() => setMapFailed(false)}>
-                {t("Try again")}
-              </Button>
-            </div>
-          ) : (
-            <div role="status" aria-label={t("Loading the map")} className="h-[62dvh] min-h-[420px] animate-pulse rounded-2xl bg-surface lg:h-[640px]" />
-          )}
-        </div>
       )}
+      {view === "map" &&
+        (isDesktop ? (
+          <div>{mapBody(false)}</div>
+        ) : (
+          <MapDrawer onClose={() => setView("list")} header={mapHeader}>
+            {mapBody(true)}
+          </MapDrawer>
+        ))}
     </>
   );
 }

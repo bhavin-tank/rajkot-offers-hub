@@ -19,7 +19,7 @@ const SHOWN_OFFERS = 2;
  * The list's shops on an OpenStreetMap map, one pin per shop. Tapping a pin highlights it and
  * shows the shop's offers in a card over the map's bottom edge. Leaflet loads only when this mounts.
  */
-export function OffersMap({ pins, total, className }: { pins: OfferPin[]; total: number; className?: string }) {
+export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; total: number; /** Take the height the parent gives, instead of a fixed one. */ fill?: boolean; className?: string }) {
   const t = useT();
   const box = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<number | null>(null);
@@ -79,9 +79,14 @@ export function OffersMap({ pins, total, className }: { pins: OfferPin[]; total:
 
   const pin = selected === null ? undefined : pins[selected];
   return (
-    <div className={cn("flex flex-col gap-3", className)}>
-      <div className="relative isolate overflow-hidden rounded-2xl border border-line">
-        <div ref={box} role="region" aria-label={t("Map")} className="z-0 h-[62dvh] min-h-[420px] bg-surface map-stripes lg:h-[640px]" />
+    <div className={cn("flex flex-col gap-3", fill && "min-h-0 flex-1", className)}>
+      <div className={cn("relative isolate overflow-hidden rounded-2xl border border-line", fill && "min-h-0 flex-1")}>
+        <div
+          ref={box}
+          role="region"
+          aria-label={t("Map")}
+          className={cn("z-0 bg-surface map-stripes", fill ? "h-full" : "h-[62dvh] min-h-[420px] lg:h-[640px]")}
+        />
         {pin && (
           <div className="absolute right-3 bottom-3 left-3 z-[1000] rounded-2xl border border-line bg-white p-3 shadow-card lg:right-auto lg:w-[380px]">
             <div className="flex items-start justify-between gap-3">
