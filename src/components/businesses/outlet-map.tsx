@@ -34,6 +34,7 @@ export function OutletMap({ outlets, className }: { outlets: MapOutlet[]; classN
   const t = useT();
   const box = useRef<HTMLDivElement>(null);
   const directions = t("Directions");
+  const mapCredits = t("Map credits");
 
   useEffect(() => {
     const el = box.current;
@@ -45,13 +46,37 @@ export function OutletMap({ outlets, className }: { outlets: MapOutlet[]; classN
     async function start(target: HTMLElement) {
       const L = (await import("leaflet")).default;
       if (cancelled) return;
-      const instance = L.map(target, { zoomControl: true, attributionControl: true, scrollWheelZoom: false });
+      const instance = L.map(target, { zoomControl: true, attributionControl: false, scrollWheelZoom: false });
       map = instance;
-      instance.attributionControl.setPrefix(false);
-      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "© OpenStreetMap contributors",
-      }).addTo(instance);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(instance);
+
+      // OpenStreetMap's licence requires the credit, so it stays, folded behind a small "i" that opens it.
+      const credit = new L.Control({ position: "bottomright" });
+      credit.onAdd = () => {
+        const wrap = L.DomUtil.create("div");
+        wrap.style.cssText = "display:flex;align-items:center;gap:6px;margin:0 8px 8px 0;font:11px/1.2 Inter,system-ui,sans-serif";
+        const link = document.createElement("a");
+        link.href = "https://www.openstreetmap.org/copyright";
+        link.target = "_blank";
+        link.rel = "noreferrer";
+        link.textContent = "© OpenStreetMap contributors";
+        link.style.cssText = "display:none;background:rgb(255 255 255 / .9);color:#041c32;padding:4px 8px;border-radius:6px";
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "i";
+        button.setAttribute("aria-label", mapCredits);
+        button.setAttribute("aria-expanded", "false");
+        button.style.cssText = "width:22px;height:22px;border-radius:50%;border:0;background:rgb(255 255 255 / .9);color:#041c32;font:italic 700 12px Georgia,serif;cursor:pointer;box-shadow:0 1px 4px rgb(0 0 0 / .25)";
+        button.onclick = () => {
+          const open = link.style.display === "none";
+          link.style.display = open ? "block" : "none";
+          button.setAttribute("aria-expanded", String(open));
+        };
+        wrap.append(link, button);
+        L.DomEvent.disableClickPropagation(wrap);
+        return wrap;
+      };
+      credit.addTo(instance);
 
       const many = outlets.length > 1;
       const bounds = L.latLngBounds([]);
@@ -107,7 +132,7 @@ export function OutletMap({ outlets, className }: { outlets: MapOutlet[]; classN
       observer.disconnect();
       map?.remove();
     };
-  }, [outlets, directions]);
+  }, [outlets, directions, mapCredits]);
 
   return <div ref={box} role="region" aria-label={t("Map")} className={cn("relative isolate z-0 h-[260px] bg-surface map-stripes", className)} />;
 }
