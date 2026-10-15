@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, MapPin, Phone, Store, Tag } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, MapPin, Navigation, Phone, Store, Tag } from "lucide-react";
+import { Link } from "@/components/i18n/link";
 import { WhatsAppIcon } from "@/components/icons/brand";
+import { ShopAvatar } from "@/components/businesses/avatar";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
+import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
+import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { OfferCarousel } from "@/components/offers/offer-card";
 import { OfferCode } from "@/components/offers/offer-code";
-import { OfferGallery } from "@/components/offers/offer-gallery";
 import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
 import { SaveButton, SaveTextButton } from "@/components/offers/save-button";
@@ -17,15 +20,16 @@ import { ShareButton } from "@/components/offers/share-button";
 import { TrackedAnchor, TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClass } from "@/components/ui/button";
-import { DetailRow, Divider } from "@/components/ui/display";
+import { DetailRow } from "@/components/ui/display";
 import { RatingInline } from "@/components/ui/rating";
 import { IconLink } from "@/components/ui/icon-button";
+import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getCategory, getOffer, getOfferReviews, getSimilarOffers } from "@/lib/data";
 import { formatRange, formatRupees } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
 import { cn, directionsHref } from "@/lib/utils";
-import { offerPath } from "@/lib/paths";
+import { offerPath, shopPath } from "@/lib/paths";
 
 export async function offerMetadata(slug: string): Promise<Metadata> {
   const [t, locale, offer] = await Promise.all([getT(), getLocale(), getOffer(slug)]);
@@ -62,6 +66,7 @@ async function OfferContent({ slug }: { slug: string }) {
   const path = offerPath(offer);
   const geo = offer.geo ?? business.geo;
   const minSpend = offer.minSpend ? t("On bills of {amount} or more", { amount: formatRupees(offer.minSpend) }) : null;
+  const images = [...new Set(offer.images)];
 
   const badge = (
     <Badge variant={expired ? "expired" : "offer"} size="md">
@@ -69,20 +74,13 @@ async function OfferContent({ slug }: { slug: string }) {
     </Badge>
   );
 
-  const titleBlock = (
-    <>
-      {category && (
-        <Badge variant="neutral" size="xs" className="self-start">
-          {category.shortName}
-        </Badge>
-      )}
-      <h1 className={cn("text-[26px] leading-[1.3] font-semibold lg:text-[32px] lg:leading-tight", expired && "text-muted")}>
-        {offer.title}
-      </h1>
-      {offer.rating && <RatingInline rating={offer.rating} className="text-sm text-muted" />}
-      <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} logo={business.logo} />
-    </>
-  );
+  // One pin per outlet the offer is valid at; without that list, the shop's own outlets, else its address.
+  const valid = offer.branches.filter((b) => b.geo);
+  const several = valid.length > 1;
+  const pins: MapOutlet[] = valid.length
+    ? valid.map((b, i) => ({ id: b.id, name: several ? b.name : business.name, address: b.areaName, lat: b.geo!.lat, lng: b.geo!.lng, main: b.isMain, ...(several ? { number: i + 1 } : {}) }))
+    : [{ id: business.id, name: business.name, address: offer.address, lat: geo.lat, lng: geo.lng, main: true }];
+  if (!pins.some((pin) => pin.main)) pins[0] = { ...pins[0], main: true };
 
   const crumbs = await breadcrumbLd([
     { name: t("Home"), path: "/" },
@@ -91,19 +89,62 @@ async function OfferContent({ slug }: { slug: string }) {
     { name: offer.title, path },
   ]);
 
+  const mobileButtons = (
+    <div className="absolute inset-x-4 top-4 flex justify-between lg:hidden">
+      <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
+        <ArrowLeft size={20} aria-hidden />
+      </IconLink>
+      <div className="flex gap-2">
+        <ShareButton title={offer.title} path={path} offerId={offer.id} />
+        <SaveButton slug={offer.slug} size="lg" />
+      </div>
+    </div>
+  );
+
+  const details = (
+    <div className="flex flex-col gap-6 pt-5 lg:pt-8">
+      {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} className="lg:hidden" />}
+      <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5">
+        <DetailRow icon={Tag} label={t("Offer")}>
+          {offer.offerText}
+          {minSpend && <span className="mt-1 block font-semibold">{minSpend}</span>}
+        </DetailRow>
+        <DetailRow icon={CalendarDays} label={t("Validity")}>
+          {validity}
+        </DetailRow>
+        <DetailRow icon={Clock} label={t("Timings")}>
+          {offer.timings}
+        </DetailRow>
+        <DetailRow icon={MapPin} label={t("Address")}>
+          {offer.address}
+        </DetailRow>
+        {offer.validAt.length > 0 && (
+          <DetailRow icon={Store} label={t("Valid at")}>
+            <ul>
+              {offer.validAt.map((branch) => (
+                <li key={branch}>{branch}</li>
+              ))}
+            </ul>
+          </DetailRow>
+        )}
+      </div>
+      <MapCard address={offer.address} geo={geo} offerId={offer.id} className="lg:hidden" />
+    </div>
+  );
+
   return (
-    <>
+    <div className="lg:bg-surface lg:pt-6 lg:pb-16">
       <JsonLd data={await offerLd(offer, business)} />
       {!expired && <TrackOfferView offerId={offer.id} />}
       <JsonLd data={crumbs} />
       {expired && (
-        <div role="status" className="bg-surface px-5 py-3 text-center text-sm font-medium text-muted">
+        <div role="status" className="bg-surface px-5 py-3 text-center text-sm font-medium text-muted lg:mb-6 lg:rounded-2xl">
           {t("This offer has ended")}
         </div>
       )}
 
-      <Container className="px-0 pb-8 lg:px-5 lg:pt-6 lg:pb-20">
-        <div className="hidden lg:mb-6 lg:block">
+      <Container className="px-0 lg:px-5">
+        <div className="hidden lg:mb-4 lg:block">
           <Breadcrumb
             items={[
               { href: "/", label: t("Home") },
@@ -112,72 +153,100 @@ async function OfferContent({ slug }: { slug: string }) {
             ]}
           />
         </div>
-
-        <div className="lg:grid lg:grid-cols-[3fr_2fr] lg:items-start lg:gap-12">
-          <div className="flex flex-col">
-            <OfferGallery
-              images={offer.images}
-              alt={offer.title}
-              expired={expired}
-              badge={badge}
-              overlay={
-                <div className="absolute inset-x-4 top-4 flex justify-between lg:hidden">
-                  <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
-                    <ArrowLeft size={20} aria-hidden />
-                  </IconLink>
-                  <div className="flex gap-2">
-                    <ShareButton title={offer.title} path={path} offerId={offer.id} />
-                    <SaveButton slug={offer.slug} size="lg" />
-                  </div>
-                </div>
-              }
-            />
-
-            <div className="relative -mt-5 flex flex-col gap-4 rounded-t-3xl bg-white px-5 pt-6 lg:mt-8 lg:gap-6 lg:rounded-none lg:p-0">
-              <div className="flex flex-col gap-4 lg:hidden">
-                {titleBlock}
-                <Divider />
+        <div className="overflow-hidden lg:rounded-2xl lg:border lg:border-line lg:bg-white">
+          <PhotoMosaic images={images} alt={offer.title} linked={false}>
+            <div className={cn("absolute bottom-4 left-4", expired && "opacity-80")}>{badge}</div>
+            {mobileButtons}
+          </PhotoMosaic>
+          <div className="flex flex-col gap-3 px-5 pt-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-8 lg:py-6">
+            <div className="flex min-w-0 items-start gap-4 lg:items-center">
+              <ShopAvatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
+              <div className="min-w-0">
+                <h1 className={cn("text-[22px] leading-snug font-semibold lg:text-[28px] lg:leading-tight", expired && "text-muted")}>{offer.title}</h1>
+                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted lg:text-[15px]">
+                  <Link href={shopPath(business.slug)} className="font-medium text-ink hover:underline">
+                    {business.name}
+                  </Link>
+                  <span aria-hidden className="hidden sm:inline">
+                    •
+                  </span>
+                  {t("{area}, Rajkot", { area: offer.areaName })}
+                  {offer.rating && <RatingInline rating={offer.rating} className="text-sm text-muted" />}
+                </p>
               </div>
-
-              <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5">
-                <DetailRow icon={Tag} label={t("Offer")}>
-                  {offer.offerText}
-                  {minSpend && <span className="mt-1 block font-semibold">{minSpend}</span>}
-                </DetailRow>
-                <DetailRow icon={CalendarDays} label={t("Validity")}>
-                  {validity}
-                </DetailRow>
-                <DetailRow icon={Clock} label={t("Timings")}>
-                  {offer.timings}
-                </DetailRow>
-                <DetailRow icon={MapPin} label={t("Address")}>
-                  {offer.address}
-                </DetailRow>
-                {offer.validAt.length > 0 && (
-                  <DetailRow icon={Store} label={t("Valid at")}>
-                    <ul>
-                      {offer.validAt.map((branch) => (
-                        <li key={branch}>{branch}</li>
-                      ))}
-                    </ul>
-                  </DetailRow>
-                )}
-              </div>
-
-              {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} className="lg:hidden" />}
-              <HowToGetSteps steps={offer.steps} />
-              <TermsAccordion terms={offer.terms} />
-              <MapCard address={offer.address} geo={geo} layout="split" offerId={offer.id} />
-              <ReviewList reviews={reviews.items} total={reviews.total} />
-              <p className="text-xs leading-relaxed text-faint">
-                {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
-              </p>
+            </div>
+            <div className="hidden shrink-0 items-center gap-3 lg:flex">
+              {expired ? (
+                <>
+                  <Button size="sm" disabled>
+                    {t("Offer expired")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ size: "sm" })}>
+                    <Phone size={18} aria-hidden />
+                    {t("Call")}
+                  </ContactLink>
+                  <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
+                    <WhatsAppIcon size={18} />
+                    WhatsApp
+                  </ContactLink>
+                </>
+              )}
+              <TrackedAnchor href={directionsHref(geo.lat, geo.lng)} target="_blank" rel="noreferrer" offerId={offer.id} event="directions" className={buttonClass({ variant: "outline", size: "sm" })}>
+                <Navigation size={18} aria-hidden />
+                {t("Directions")}
+              </TrackedAnchor>
+              <ShareButton title={offer.title} path={path} variant="pill" offerId={offer.id} />
             </div>
           </div>
+        </div>
+      </Container>
 
-          <aside className="sticky top-6 hidden flex-col gap-5 rounded-2xl border border-line bg-white p-7 shadow-card lg:flex">
-            {titleBlock}
-            <Divider />
+      <Container className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
+        <div className="mt-6 min-w-0 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
+          <SectionTabs
+            label={t("Page sections")}
+            topBar={
+              <div className="flex h-full items-center justify-between gap-1 border-b border-line px-2">
+                <IconLink href="/offers" variant="plain" size="lg" aria-label={t("Go back")}>
+                  <ArrowLeft size={22} aria-hidden />
+                </IconLink>
+                <p className="min-w-0 flex-1 truncate text-base font-semibold">{offer.title}</p>
+                <ShareButton title={offer.title} path={path} variant="plain" offerId={offer.id} />
+              </div>
+            }
+            items={[
+              { value: "details", label: t("Details"), content: details },
+              { value: "how", label: t("How to get it"), content: <div className="pt-5 lg:pt-8"><HowToGetSteps steps={offer.steps} /></div> },
+              ...(offer.terms.length
+                ? [{ value: "terms", label: t("Terms"), content: <div className="pt-5 lg:pt-8"><TermsAccordion terms={offer.terms} /></div> }]
+                : []),
+              ...(reviews.total
+                ? [
+                    {
+                      value: "reviews",
+                      label: t("Reviews ({count})", { count: reviews.total }),
+                      content: (
+                        <div className="pt-5 lg:pt-8">
+                          <ReviewList reviews={reviews.items} total={reviews.total} />
+                        </div>
+                      ),
+                    },
+                  ]
+                : []),
+            ]}
+          />
+          <p className="mt-10 text-xs leading-relaxed text-faint lg:px-8">
+            {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
+          </p>
+        </div>
+
+        {/* Desktop side cards; on a phone the same information sits in the tabs. */}
+        <aside className="mt-6 hidden flex-col gap-6 lg:flex">
+          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
+            <h2 className="text-lg font-semibold">{t("Get this offer")}</h2>
             <div className="flex flex-col gap-2 text-sm">
               <p className="flex items-center gap-2">
                 <CalendarDays size={16} className="text-muted" aria-hidden />
@@ -195,49 +264,31 @@ async function OfferContent({ slug }: { slug: string }) {
               )}
             </div>
             {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
-            {expired ? (
-              <Button disabled block>
-                {t("Offer expired")}
-              </Button>
-            ) : (
-              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ block: true })}>
-                <Phone size={18} aria-hidden />
-                {business.contactMasked ? t("Call") : t("Call · {phone}", { phone: business.phone })}
-              </ContactLink>
-            )}
-            <div className="grid grid-cols-2 gap-2.5">
-              {expired ? (
-                <Button variant="outline" disabled>
-                  <WhatsAppIcon size={18} />
-                  WhatsApp
-                </Button>
-              ) : (
-                <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "whatsapp" })}>
-                  <WhatsAppIcon size={18} />
-                  WhatsApp
-                </ContactLink>
-              )}
-              <TrackedAnchor
-                href={directionsHref(geo.lat, geo.lng)}
-                target="_blank"
-                rel="noreferrer"
-                offerId={offer.id}
-                event="directions"
-                className={buttonClass({ variant: "outline" })}
-              >
-                {t("Directions")}
-              </TrackedAnchor>
-            </div>
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center">
               <SaveTextButton slug={offer.slug} />
-              <ShareButton title={offer.title} path={path} variant="text" offerId={offer.id} />
             </div>
-          </aside>
-        </div>
+          </section>
+          <section className="overflow-hidden rounded-2xl border border-line bg-white">
+            <OutletMap outlets={pins} className="h-[220px]" />
+            <div className="flex flex-col gap-1 p-6">
+              <p className="text-[15px] leading-relaxed font-medium">{offer.address}</p>
+              {offer.validAt.length > 0 && (
+                <ul className="text-sm text-muted">
+                  {offer.validAt.map((branch) => (
+                    <li key={branch}>{branch}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+          <section className="rounded-2xl border border-line bg-white p-6">
+            <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} logo={business.logo} />
+          </section>
+        </aside>
       </Container>
 
       {similar.length > 0 && (
-        <section className="bg-surface py-8 lg:py-20">
+        <section className="mt-10 bg-surface py-8 lg:mt-16 lg:py-0">
           <Container>
             <SectionHeader title={t("Similar offers")} />
             <OfferCarousel offers={similar} />
@@ -248,7 +299,7 @@ async function OfferContent({ slug }: { slug: string }) {
       {/* Room for the mobile action bar. */}
       <div aria-hidden className="h-24 lg:hidden" />
       <StickyActionBar contact={{ ...business, geo }} disabled={expired} offerId={offer.id} />
-    </>
+    </div>
   );
 }
 

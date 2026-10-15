@@ -143,6 +143,7 @@ export function toOffer(detail: PromotionDetail, business?: Business): Offer {
       ? [...new Set(branches.map((b) => b.area || b.name)), city].join(", ")
       : (business?.address ?? [detail.business.area, detail.business.city].filter(Boolean).join(", ")),
     validAt: branches.length > 1 || elsewhere ? branches.map(branchLabel) : [],
+    branches: branches.map((b) => ({ id: b.id, name: b.name, areaName: b.area || b.city || "Rajkot", isMain: b.is_main, ...(branchGeo(b) ? { geo: branchGeo(b) } : {}) })),
     ...(elsewhere && branchGeo(branches[0]) ? { geo: branchGeo(branches[0]) } : {}),
     steps: STEPS[detail.redemption_mode].map((text) => ({ text })),
     terms: (detail.terms ?? "").split("\n").map((t) => t.trim()).filter(Boolean),

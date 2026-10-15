@@ -90,6 +90,8 @@ export interface Offer {
   rating?: Rating;
   /** Branches the offer is valid at ("Main branch, Yagnik Road"), when the shop lists more than its main one. */
   validAt: string[];
+  /** The outlets the offer is valid at, for the map; empty when the API does not say. */
+  branches: { id: string; name: string; areaName: string; isMain: boolean; geo?: { lat: number; lng: number } }[];
   /** Where to send directions: the offer's branch when it is not valid at the main one. */
   geo?: { lat: number; lng: number };
 }
