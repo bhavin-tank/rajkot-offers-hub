@@ -198,6 +198,7 @@ async function OfferContent({ slug }: { slug: string }) {
                 <Navigation size={18} aria-hidden />
                 {t("Directions")}
               </TrackedAnchor>
+              <SaveTextButton slug={offer.slug} variant="outline" />
               <ShareButton title={offer.title} path={path} variant="pill" offerId={offer.id} />
             </div>
           </div>
@@ -214,7 +215,10 @@ async function OfferContent({ slug }: { slug: string }) {
                   <ArrowLeft size={22} aria-hidden />
                 </IconLink>
                 <p className="min-w-0 flex-1 truncate text-base font-semibold">{offer.title}</p>
-                <ShareButton title={offer.title} path={path} variant="plain" offerId={offer.id} />
+                <div className="flex shrink-0">
+                  <SaveButton slug={offer.slug} size="lg" variant="plain" />
+                  <ShareButton title={offer.title} path={path} variant="plain" offerId={offer.id} />
+                </div>
               </div>
             }
             items={[
@@ -262,9 +266,6 @@ async function OfferContent({ slug }: { slug: string }) {
               )}
             </div>
             {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
-            <div className="flex justify-center">
-              <SaveTextButton slug={offer.slug} />
-            </div>
           </section>
           <section className="overflow-hidden rounded-2xl border border-line bg-white">
             <OutletMap outlets={pins} className="h-[220px]" />
