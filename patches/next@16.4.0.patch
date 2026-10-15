@@ -1,0 +1,30 @@
+diff --git a/dist/esm/server/use-cache/use-cache-wrapper.js b/dist/esm/server/use-cache/use-cache-wrapper.js
+index 7837534f252dcb92ca6d1b131018cbe329c5cdff..eda13f31002f5af9c533926b14d77b25a65dfdb7 100644
+--- a/dist/esm/server/use-cache/use-cache-wrapper.js
++++ b/dist/esm/server/use-cache/use-cache-wrapper.js
+@@ -1980,7 +1980,9 @@ export async function cache(kind, id, boundArgsLength, originalFn, args) {
+         // not be registered for other requests to join. And a draft mode request
+         // must not join a pending public fill, because it would be served the
+         // published content instead of the draft.
+-        const skipCrossRequestDedupe = isPrivate && !process.env.__NEXT_DEV_SERVER || workStore.isDraftMode;
++        // Cloudflare Workers: a promise from one request can never settle inside another, and a leader whose
++        // cache write is cut off leaves its entry in this map for good, hanging every later request for the key.
++        const skipCrossRequestDedupe = isPrivate && !process.env.__NEXT_DEV_SERVER || workStore.isDraftMode || globalThis.navigator?.userAgent === 'Cloudflare-Workers';
+         try {
+             // The loop handles cross-request root param mismatches: when a
+             // cross-request joiner discovers that the leader's root params differ
+diff --git a/dist/server/use-cache/use-cache-wrapper.js b/dist/server/use-cache/use-cache-wrapper.js
+index 801d1f687fecbd774e9601f1dab1526c9d127652..a90db8ea1f2398449108a42bfa70ffceada68d51 100644
+--- a/dist/server/use-cache/use-cache-wrapper.js
++++ b/dist/server/use-cache/use-cache-wrapper.js
+@@ -2036,7 +2036,9 @@ async function cache(kind, id, boundArgsLength, originalFn, args) {
+         // not be registered for other requests to join. And a draft mode request
+         // must not join a pending public fill, because it would be served the
+         // published content instead of the draft.
+-        const skipCrossRequestDedupe = isPrivate && !process.env.__NEXT_DEV_SERVER || workStore.isDraftMode;
++        // Cloudflare Workers: a promise from one request can never settle inside another, and a leader whose
++        // cache write is cut off leaves its entry in this map for good, hanging every later request for the key.
++        const skipCrossRequestDedupe = isPrivate && !process.env.__NEXT_DEV_SERVER || workStore.isDraftMode || globalThis.navigator?.userAgent === 'Cloudflare-Workers';
+         try {
+             // The loop handles cross-request root param mismatches: when a
+             // cross-request joiner discovers that the leader's root params differ
