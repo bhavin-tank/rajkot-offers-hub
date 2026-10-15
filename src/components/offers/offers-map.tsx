@@ -31,6 +31,8 @@ export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; 
     if (!el || pins.length === 0) return;
 
     let map: import("leaflet").Map | undefined;
+    let resizer: ResizeObserver | undefined;
+    const abort = new AbortController();
     let cancelled = false;
 
     void (async () => {
@@ -58,12 +60,29 @@ export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; 
       });
       instance.on("click", () => choose(null));
 
-      if (pins.length > 1) instance.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
-      else instance.setView(bounds.getCenter(), 15);
+      const fit = () => {
+        if (pins.length > 1) instance.fitBounds(bounds, { padding: [40, 40], maxZoom: 16, animate: false });
+        else instance.setView(bounds.getCenter(), 15, { animate: false });
+      };
+      fit();
+
+      // The box can settle after the map starts (a drawer finishing its layout): redraw at the real size,
+      // and re-fit the pins until the visitor has moved the map themselves.
+      let touched = false;
+      const touch = () => (touched = true);
+      el.addEventListener("pointerdown", touch, { signal: abort.signal });
+      el.addEventListener("wheel", touch, { signal: abort.signal, passive: true });
+      resizer = new ResizeObserver(() => {
+        instance.invalidateSize();
+        if (!touched) fit();
+      });
+      resizer.observe(el);
     })();
 
     return () => {
       cancelled = true;
+      resizer?.disconnect();
+      abort.abort();
       map?.remove();
       setSelected(null);
     };
