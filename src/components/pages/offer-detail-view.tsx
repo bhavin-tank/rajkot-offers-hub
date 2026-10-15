@@ -229,11 +229,7 @@ async function OfferContent({ slug }: { slug: string }) {
         {/* Desktop side cards; on a phone the same information sits in the tabs. */}
         <aside className="mt-6 hidden flex-col gap-6 lg:flex">
           {/* Validity, timings and minimum spend are in the Details tab; only the code needs its own card. */}
-          {hasCode && (
-            <section className="rounded-2xl border border-line bg-white p-6">
-              <OfferCode offerId={offer.id} mode={offer.redemptionMode} />
-            </section>
-          )}
+          {hasCode && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
           <section className="overflow-hidden rounded-2xl border border-line bg-white">
             <OutletMap outlets={pins} className="h-[220px]" />
             <div className="flex flex-col gap-1 p-6">
