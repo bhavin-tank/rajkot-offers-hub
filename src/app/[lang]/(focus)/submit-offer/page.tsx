@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
 async function Intro({ large }: { large?: boolean }) {
   const t = await getT();
   return (
-    <div className={large ? undefined : "text-center"}>
+    <div>
       <h1 className={large ? "text-4xl leading-tight font-bold" : "text-2xl leading-[1.3] font-bold"}>
         {t("Take your offer to Rajkot")}
       </h1>
@@ -70,7 +70,7 @@ async function GetTheApp() {
   const t = await getT();
   const { android, ios } = site.ownerApp;
   return (
-    <div className="flex flex-col gap-5 text-center lg:text-left">
+    <div className="flex flex-col gap-5">
       <h2 className="text-xl font-semibold">{t("List your offer with the business app")}</h2>
       <p className="text-sm text-muted">{t("It is free. Add your shop once, then post new offers whenever you like and see how many people view, call and visit.")}</p>
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -127,7 +127,7 @@ export default async function SubmitOfferPage() {
             </div>
             <GetTheApp />
             <div className="flex flex-col gap-4 border-t border-line pt-6">
-              <h2 className="text-center text-lg font-semibold lg:text-left">{t("How it works")}</h2>
+              <h2 className="text-lg font-semibold">{t("How it works")}</h2>
               <HowSteps />
             </div>
           </div>
