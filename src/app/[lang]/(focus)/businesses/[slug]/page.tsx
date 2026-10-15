@@ -8,6 +8,7 @@ import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { ActionTiles, StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
 import { OutletList } from "@/components/businesses/outlets";
+import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { HoursTable, OpenStatusPill } from "@/components/businesses/opening-hours";
 import { Container } from "@/components/layout/container";
@@ -196,6 +197,13 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
     </div>
   );
 
+  // One pin per outlet that has a location; a shop without outlet locations gets a single pin at its address.
+  const pins: MapOutlet[] = business.outlets.flatMap((o) =>
+    o.geo ? [{ id: o.id, name: business.outlets.length > 1 ? o.name : business.name, address: o.address, lat: o.geo.lat, lng: o.geo.lng, main: o.isMain }] : [],
+  );
+  if (!pins.length) pins.push({ id: business.id, name: business.name, address: business.address, lat: business.geo.lat, lng: business.geo.lng, main: true });
+  if (!pins.some((pin) => pin.main)) pins[0] = { ...pins[0], main: true };
+
   const meta = (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
       {rating && <RatingInline rating={rating} className="text-sm" />}
@@ -292,6 +300,9 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
 
         {/* Desktop side cards; on a phone this information sits under About us. */}
         <aside className="sticky top-6 mt-6 hidden max-h-[calc(100dvh-3rem)] flex-col gap-6 overflow-y-auto lg:flex [scrollbar-width:none]">
+          <section className="overflow-hidden rounded-2xl border border-line bg-white">
+            <OutletMap outlets={pins} className="h-[260px]" />
+          </section>
           <section className="flex flex-col gap-5 rounded-2xl border border-line bg-white p-6">
             <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t("Contact")}</h2>
             <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true, size: "sm" })}>
