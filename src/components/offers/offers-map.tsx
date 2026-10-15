@@ -9,11 +9,14 @@ import type { Marker } from "leaflet";
 import type { OfferPin } from "@/types";
 import { formatDistance } from "@/lib/format";
 import { useT } from "@/lib/i18n/client";
-import { createMap, pinIcon } from "@/lib/leaflet";
+import { createMap, pillIcon } from "@/lib/leaflet";
 import { offerPath, shopPath } from "@/lib/paths";
 import { cn } from "@/lib/utils";
 
 const SHOWN_OFFERS = 2;
+
+/** What the pin says: the shop's first offer, as its value ("₹500 OFF"). */
+const tag = (pin: OfferPin) => pin.offers[0].badge;
 
 /**
  * The list's shops on an OpenStreetMap map, one pin per shop. Tapping a pin highlights it and
@@ -44,7 +47,7 @@ export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; 
       const markers: Marker[] = [];
       const choose = (index: number | null) => {
         markers.forEach((marker, i) => {
-          marker.setIcon(pinIcon(L, i === index));
+          marker.setIcon(pillIcon(L, tag(pins[i]), i === index, pins[i].offers.length - 1));
           marker.setZIndexOffset(i === index ? 1000 : 0);
         });
         setSelected(index);
@@ -52,7 +55,7 @@ export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; 
 
       const bounds = L.latLngBounds([]);
       pins.forEach((pin, index) => {
-        const marker = L.marker([pin.lat, pin.lng], { icon: pinIcon(L, false), title: pin.businessName, keyboard: true })
+        const marker = L.marker([pin.lat, pin.lng], { icon: pillIcon(L, tag(pin), false, pin.offers.length - 1), title: pin.businessName, keyboard: true })
           .addTo(instance)
           .on("click", () => choose(index));
         markers.push(marker);
