@@ -67,6 +67,7 @@ export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSumm
   return {
     id: card.id,
     slug: offerHandle(card),
+    urlSlug: card.slug,
     title: card.title,
     badge: card.headline || card.value_label,
     businessSlug: card.business.slug,

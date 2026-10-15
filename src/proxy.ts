@@ -32,6 +32,10 @@ export async function proxy(request: NextRequest) {
   if (shop?.kind === "redirect") {
     return NextResponse.redirect(new URL(`${localizePath(locale ?? defaultLocale, shop.path)}${search}`, request.url), 308);
   }
+  // The API is down, so a shop's offer cannot be told from a missing one: not a 404, which would be cached as a fact.
+  if (shop?.kind === "unavailable") {
+    return new NextResponse("Service temporarily unavailable", { status: 503, headers: { "Retry-After": "30" } });
+  }
   const served = shop?.kind === "rewrite" ? shop.path : path;
 
   // Unknown slugs go to the catch-all 404 page now, while a 404 status can still be sent.

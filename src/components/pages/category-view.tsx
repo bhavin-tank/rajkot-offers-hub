@@ -62,7 +62,7 @@ async function CategoryOffers({
   const filters = { ...parseFilters(await searchParams), category: undefined, areas: area ? [area.slug] : undefined, near: await getNear() };
   const result = await getOffers({ ...filters, category: slug });
 
-  const chips = subcategories.length
+  const subcategoryOptions = subcategories.length
     ? [
         { label: t("All"), patch: { subcategory: undefined }, selected: !filters.subcategory },
         ...subcategories.map((sub) => ({ label: sub.name, patch: { subcategory: sub.slug }, selected: filters.subcategory === sub.slug })),
@@ -74,8 +74,8 @@ async function CategoryOffers({
       basePath={`/categories/${slug}`}
       filters={filters}
       result={result}
-      chips={chips}
-      layout="inline"
+      category={slug}
+      scope={{ label: t("Sub-category"), options: subcategoryOptions }}
       emptyTitle={t("No offers in this category right now")}
       emptyHint={t("New offers will appear here.")}
       emptyAction={{ href: "/categories", label: t("Browse other categories") }}

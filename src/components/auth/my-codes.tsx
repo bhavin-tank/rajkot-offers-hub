@@ -2,7 +2,6 @@ import { Link } from "@/components/i18n/link";
 import { Qr } from "@/components/offers/offer-code";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api/client";
-import { offerHandle } from "@/lib/api/mappers";
 import type { Page, PromotionClaim } from "@/lib/api/types";
 import { formatShortDate } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
@@ -31,7 +30,7 @@ export async function MyCodes({ token }: { token: string }) {
             <li key={claim.id} className="flex flex-col gap-3 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center">
               <div className="flex flex-1 flex-col gap-1">
                 {claim.promotion ? (
-                  <Link href={offerPath({ businessSlug: claim.promotion.business.slug, slug: offerHandle(claim.promotion) })} className="font-medium hover:underline">
+                  <Link href={offerPath({ businessSlug: claim.promotion.business.slug, urlSlug: claim.promotion.slug })} className="font-medium hover:underline">
                     {claim.promotion.title}
                   </Link>
                 ) : null}

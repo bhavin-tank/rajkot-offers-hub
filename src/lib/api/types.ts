@@ -181,17 +181,6 @@ export interface TokenPair {
   expires_in: number;
 }
 
-/** `GET /locations/pincodes/{pincode}` (India Post data). */
-export interface PincodeLookup {
-  pincode: string;
-  state: { code: string; name: string };
-  district: { slug: string; name: string; city: string };
-  city: string;
-  latitude: number | null;
-  longitude: number | null;
-  areas: { name: string; office_type: string; is_delivery: boolean }[];
-}
-
 /** A claimed personal code (`POST /promotions/{id}/claims`, `GET /promotion-claims`). */
 export interface PromotionClaim {
   id: string;

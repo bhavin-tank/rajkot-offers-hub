@@ -1,6 +1,6 @@
 import { api, ApiError } from "@/lib/api/client";
 import { offerIdFromHandle } from "@/lib/api/mappers";
-import type { AreaCount, CategoryChip } from "@/lib/api/types";
+import type { AreaCount, CategoryChip, Page, PromotionCard } from "@/lib/api/types";
 
 /**
  * Detail pages look up their slug inside <Suspense>, so by the time they call
@@ -10,8 +10,13 @@ import type { AreaCount, CategoryChip } from "@/lib/api/types";
  * Categories and areas are short lists, kept in memory for a minute. Offer URLs
  * are checked for shape only (they carry the offer's id); a shop that does not
  * exist still falls back to the page's own not-found state.
+ *
+ * A lookup that fails because the API cannot be reached is never taken for "not found":
+ * that would answer a real page with a 404 while the API is down.
  */
 const TTL_MS = 60_000;
+/** The "-<id>" an older offer address ends with. */
+const UUID_SUFFIX = /-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface Known {
   areas: Set<string>;
@@ -85,13 +90,38 @@ async function shopExists(slug: string) {
   }
 }
 
-/** What the proxy does with a shop or offer URL: serve another path under this URL, or send the visitor to a new one. */
-export type ShopRoute = { kind: "rewrite" | "redirect"; path: string };
+/** The id behind a shop's offer slug, remembered for a minute (a missing offer too). */
+const offerIds = new Map<string, { id: string | null; at: number }>();
 
 /**
- * Shops live at "/<shop>" and their offers at "/<shop>/<offer>". Those URLs are served by the
- * "/businesses/<shop>" and "/offers/<offer>" pages, and the old addresses of both are sent
- * to the new ones. Areas and the site's own pages keep the first segment; anything else is
+ * Offer addresses carry no id ("/<shop>/<slug>"), and the API looks offers up by id only, so the id
+ * comes from the shop's own offers: live ones first, then past ones. Slugs are unique within a shop.
+ */
+async function offerIdBySlug(shop: string, slug: string): Promise<string | null> {
+  const key = `${shop}/${slug}`;
+  const hit = offerIds.get(key);
+  if (hit && Date.now() - hit.at <= TTL_MS) return hit.id;
+  let id: string | null = null;
+  for (const lifecycle of [undefined, "ended"]) {
+    const page = await api<Page<PromotionCard>>("/promotions", { query: { business: shop, lifecycle, per_page: 100 } });
+    id = page.data.find((offer) => offer.slug === slug)?.id ?? null;
+    if (id) break;
+  }
+  if (offerIds.size > 1000) offerIds.clear();
+  offerIds.set(key, { id, at: Date.now() });
+  return id;
+}
+
+/**
+ * What the proxy does with a shop or offer URL: serve another path under this URL, send the visitor
+ * to a new one, or say the API is down (the offer cannot be told apart from a missing one).
+ */
+export type ShopRoute = { kind: "rewrite" | "redirect"; path: string } | { kind: "unavailable" };
+
+/**
+ * Shops live at "/<shop>" and their offers at "/<shop>/<offer-slug>". Those URLs are served by the
+ * "/businesses/<shop>" and "/offers/<slug>-<id>" pages, and the old addresses of both (including
+ * offer addresses that carry the id) are sent to the new ones. Areas and the site's own pages keep the first segment; anything else is
  * a shop when the API knows it. Null means this is not a shop or offer URL.
  */
 export async function shopRoute(path: string): Promise<ShopRoute | null> {
@@ -104,8 +134,8 @@ export async function shopRoute(path: string): Promise<ShopRoute | null> {
     const id = second && third === undefined ? offerIdFromHandle(second) : null;
     if (!id) return null;
     try {
-      const { data } = await api<{ data: { business: { slug: string } } }>(`/promotions/${id}`);
-      return { kind: "redirect", path: `/${data.business.slug}/${second}` };
+      const { data } = await api<{ data: { slug: string; business: { slug: string } } }>(`/promotions/${id}`);
+      return { kind: "redirect", path: `/${data.business.slug}/${data.slug}` };
     } catch (error) {
       // Unknown or unreachable: the offer page shows its own not-found state.
       if (!(error instanceof ApiError && error.status === 404)) console.error("Offer lookup failed", error);
@@ -114,14 +144,24 @@ export async function shopRoute(path: string): Promise<ShopRoute | null> {
   }
 
   if (PAGES.has(first) || third !== undefined) return null;
-  const offer = second !== undefined;
-  if (offer && !offerIdFromHandle(second)) return null;
   try {
     if ((await known()).areas.has(first)) return null;
     if (!(await shopExists(first))) return null;
   } catch (error) {
     console.error("Shop lookup failed", error);
-    return null;
+    // Which page it is cannot be told now; the shop page reports the failure itself.
+    return second === undefined ? { kind: "rewrite", path: `/businesses/${first}` } : { kind: "unavailable" };
   }
-  return { kind: "rewrite", path: offer ? `/offers/${second}` : `/businesses/${first}` };
+  if (second === undefined) return { kind: "rewrite", path: `/businesses/${first}` };
+
+  // An address from before offers lost their id ("<slug>-<id>"): send it to the clean one.
+  if (offerIdFromHandle(second)) return { kind: "redirect", path: `/${first}/${second.replace(UUID_SUFFIX, "")}` };
+
+  try {
+    const id = await offerIdBySlug(first, second);
+    return id ? { kind: "rewrite", path: `/offers/${second}-${id}` } : null;
+  } catch (error) {
+    console.error("Offer lookup failed", error);
+    return { kind: "unavailable" };
+  }
 }

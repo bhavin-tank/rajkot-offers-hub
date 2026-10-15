@@ -42,7 +42,7 @@ export function OfferCard({
         className,
       )}
     >
-      <div className={cn("relative aspect-[4/3] overflow-hidden bg-surface", expired && "opacity-65 grayscale")}>
+      <div className={cn("relative aspect-[16/9] overflow-hidden bg-surface sm:aspect-[4/3]", expired && "opacity-65 grayscale")}>
         <Image
           src={offer.images[0]}
           alt=""
@@ -110,7 +110,7 @@ export function OfferCard({
 export function OfferCardSkeleton() {
   return (
     <div className="overflow-hidden rounded-2xl border border-line bg-white">
-      <Skeleton className="aspect-[4/3] rounded-none" />
+      <Skeleton className="aspect-[16/9] rounded-none sm:aspect-[4/3]" />
       <div className="flex flex-col gap-2.5 p-4">
         <Skeleton className="h-4 w-4/5" />
         <Skeleton className="h-3.5 w-2/5" />
@@ -155,9 +155,9 @@ export function OfferGrid({
   );
 }
 
-export function OfferGridSkeleton({ count = 6 }: { count?: number }) {
+export function OfferGridSkeleton({ count = 6, columns = 3 }: { count?: number; columns?: 3 | 4 }) {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+    <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6", columns === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4")}>
       {Array.from({ length: count }, (_, i) => (
         <OfferCardSkeleton key={i} />
       ))}

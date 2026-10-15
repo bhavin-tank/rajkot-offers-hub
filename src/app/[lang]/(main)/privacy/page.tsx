@@ -23,7 +23,7 @@ export default async function PrivacyPage() {
       updated="14 October 2026"
       intro={
         <p>
-          {site.name} ({site.domain}) lists offers from local businesses in Rajkot. This policy explains what personal data we
+          {site.name} lists offers from local businesses in Rajkot. This policy explains what personal data we
           collect when you use the website, why, who can see it, and how you can see, correct or delete it, in line with India&apos;s
           Digital Personal Data Protection Act, 2023. You can browse offers without an account.
         </p>
@@ -57,7 +57,7 @@ export default async function PrivacyPage() {
           title: "Location",
           body: (
             <p>
-              &quot;Near me&quot; only uses your location when you tap &quot;Use my location&quot; or enter a pincode. We round it to about
+              &quot;Near me&quot; only uses your location when you tap &quot;Use my location&quot;. We round it to about
               100 metres, keep it in a cookie in your own browser, and send it with offer lists only to sort them by distance. It is
               not saved to your account. You can remove it any time with &quot;Clear&quot; in the location menu.
             </p>

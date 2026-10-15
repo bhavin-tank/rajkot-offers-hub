@@ -39,7 +39,6 @@ export async function Footer({ className }: { className?: string }) {
             <InstagramIcon size={15} />
             {site.instagram}
           </a>
-          <span>{site.domain}</span>
           <span className="flex gap-3">
             {legalNav.map((item) => (
               <Link key={item.href} href={item.href} className="hover:text-ink">

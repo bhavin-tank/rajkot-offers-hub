@@ -164,7 +164,7 @@ function businessRef(business: Business, locale: Locale) {
 }
 
 /** A shop's profile as a LocalBusiness: address, map pin, hours and contact. */
-export async function localBusinessLd(business: Business, offers: Pick<Offer, "slug" | "title" | "businessSlug">[] = []) {
+export async function localBusinessLd(business: Business, offers: Pick<Offer, "urlSlug" | "title" | "businessSlug">[] = []) {
   const locale = await getLocale();
   const url = absoluteUrl(localizePath(locale, shopPath(business.slug)));
   const links = [

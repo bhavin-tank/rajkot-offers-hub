@@ -51,8 +51,10 @@ export type RedemptionMode = "walk_in" | "shared_code" | "unique_claim";
 export interface Offer {
   /** The API's id (UUID). */
   id: string;
-  /** URL handle: "<slug>-<id>". */
+  /** The offer's identity: "<slug>-<id>". Saved offers and list keys use it; the address does not. */
   slug: string;
+  /** What the offer's address ends with: "/<shop>/<urlSlug>". Unique within its shop. */
+  urlSlug: string;
   title: string;
   badge: string;
   type: OfferType;
@@ -97,6 +99,7 @@ export type OfferSummary = Pick<
   Offer,
   | "id"
   | "slug"
+  | "urlSlug"
   | "title"
   | "badge"
   | "businessSlug"
@@ -111,6 +114,18 @@ export type OfferSummary = Pick<
   | "imageIsLogo"
   | "rating"
 >;
+
+/** One shop on the offers map, with its offers from the list being viewed. */
+export interface OfferPin {
+  businessSlug: string;
+  businessName: string;
+  areaName: string;
+  lat: number;
+  lng: number;
+  /** Km from the visitor, when they set a location. */
+  distanceKm?: number;
+  offers: { urlSlug: string; title: string; badge: string; image: string; imageIsLogo?: boolean }[];
+}
 
 export interface OpeningHours {
   /** 0 = Monday … 6 = Sunday. */
