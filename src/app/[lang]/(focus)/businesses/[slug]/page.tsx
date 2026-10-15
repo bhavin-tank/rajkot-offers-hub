@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Globe, MapPin, Navigation, Phone, Store, Tag } from "lucide-react";
+import { ArrowLeft, Globe, Navigation, Phone, Store, Tag } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
@@ -47,18 +47,12 @@ function Avatar({ logo, className }: { logo?: string; className?: string }) {
   );
 }
 
-async function InfoRows({ business }: { business: Business }) {
+/** The shop's Instagram and website, when it has them; address and phone live with the outlets. */
+async function LinkRows({ business }: { business: Business }) {
   const t = await getT();
+  if (!business.instagram && !business.website) return null;
   return (
     <div className="flex flex-col gap-4">
-      <DetailRow icon={MapPin} label={t("Address")}>
-        {business.address}
-      </DetailRow>
-      <DetailRow icon={Phone} label={t("Phone")}>
-        <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className="cursor-pointer text-left hover:text-primary">
-          {business.contactMasked ? `${business.phone} · ${t("Log in to see the number")}` : business.phone}
-        </ContactLink>
-      </DetailRow>
       {business.instagram && (
         <DetailRow icon={InstagramIcon} label="Instagram">
           {business.instagram}
@@ -157,7 +151,7 @@ async function AboutTab({ business }: { business: Business }) {
         <p className="max-w-[640px] text-[15px] leading-relaxed text-muted lg:text-base">{business.about}</p>
       </section>
       <div className="lg:hidden">
-        <InfoRows business={business} />
+        <LinkRows business={business} />
       </div>
     </div>
   );
@@ -304,17 +298,8 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
           </section>
           <OutletSideCards outlets={business.outlets} contact={business} path={path} />
           {(business.instagram || business.website) && (
-            <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
-              {business.instagram && (
-                <DetailRow icon={InstagramIcon} label="Instagram">
-                  {business.instagram}
-                </DetailRow>
-              )}
-              {business.website && (
-                <DetailRow icon={Globe} label={t("Website")}>
-                  {business.website}
-                </DetailRow>
-              )}
+            <section className="rounded-2xl border border-line bg-white p-6">
+              <LinkRows business={business} />
             </section>
           )}
         </aside>
