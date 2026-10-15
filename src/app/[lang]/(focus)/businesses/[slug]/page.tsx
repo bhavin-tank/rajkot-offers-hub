@@ -205,22 +205,6 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 <p className="mt-1 text-sm text-muted lg:text-[15px]">{subtitle}</p>
               </div>
             </div>
-            <div className="hidden shrink-0 items-center gap-3 lg:flex">
-              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ size: "sm" })}>
-                <Phone size={18} aria-hidden />
-                {t("Call")}
-              </ContactLink>
-              <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
-                <WhatsAppIcon size={18} />
-                WhatsApp
-              </ContactLink>
-              <a href={directionsHref(business.geo.lat, business.geo.lng)} target="_blank" rel="noreferrer" className={buttonClass({ variant: "outline", size: "sm" })}>
-                <Navigation size={18} aria-hidden />
-                {t("Directions")}
-              </a>
-              <ShareButton title={business.name} path={path} variant="pill" />
-              <SaveTextButton slug={business.slug} kind="shop" variant="outline" />
-            </div>
           </div>
         </div>
       </Container>
@@ -288,6 +272,24 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
           )}
         </aside>
       </Container>
+
+      {/* Desktop: the shop's actions float at the bottom centre while the page scrolls. */}
+      <div className="fixed bottom-6 left-1/2 z-40 hidden -translate-x-1/2 items-center gap-3 rounded-2xl border border-line bg-white p-3 shadow-float lg:flex">
+        <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ size: "sm" })}>
+          <Phone size={18} aria-hidden />
+          {t("Call")}
+        </ContactLink>
+        <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
+          <WhatsAppIcon size={18} />
+          WhatsApp
+        </ContactLink>
+        <a href={directionsHref(business.geo.lat, business.geo.lng)} target="_blank" rel="noreferrer" className={buttonClass({ variant: "outline", size: "sm" })}>
+          <Navigation size={18} aria-hidden />
+          {t("Directions")}
+        </a>
+        <ShareButton title={business.name} path={path} variant="pill" />
+        <SaveTextButton slug={business.slug} kind="shop" variant="outline" />
+      </div>
 
       <StickyActionBar
         contact={business}
