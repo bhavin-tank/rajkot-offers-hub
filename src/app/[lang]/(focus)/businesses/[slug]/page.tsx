@@ -288,7 +288,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </div>
 
         {/* Desktop side cards; on a phone this information sits under About us. */}
-        <aside className="sticky top-6 hidden max-h-[calc(100dvh-3rem)] flex-col gap-6 overflow-y-auto lg:flex [scrollbar-width:none]">
+        <aside className="sticky top-6 mt-6 hidden max-h-[calc(100dvh-3rem)] flex-col gap-6 overflow-y-auto lg:flex [scrollbar-width:none]">
           <section className="flex flex-col gap-5 rounded-2xl border border-line bg-white p-6">
             <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t("Contact")}</h2>
             <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true })}>
