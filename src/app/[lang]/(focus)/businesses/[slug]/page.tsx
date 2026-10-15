@@ -10,7 +10,6 @@ import { ContactLink } from "@/components/businesses/contact-link";
 import { OutletSideCards } from "@/components/businesses/outlets";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
-import { OpenStatusPill } from "@/components/businesses/opening-hours";
 import { Container } from "@/components/layout/container";
 import { OfferCard } from "@/components/offers/offer-card";
 import { ReviewList } from "@/components/offers/reviews";
@@ -193,13 +192,6 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
   if (!pins.length) pins.push({ id: business.id, name: business.name, address: business.address, lat: business.geo.lat, lng: business.geo.lng, main: true });
   if (!pins.some((pin) => pin.main)) pins[0] = { ...pins[0], main: true };
 
-  const meta = (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
-      <OpenStatusPill hours={business.hours} />
-      {business.outlets.length > 1 && <span>{t("{count} outlets", { count: business.outlets.length })}</span>}
-    </div>
-  );
-
   return (
     <div className="lg:bg-surface lg:pt-6 lg:pb-16">
       <JsonLd data={await localBusinessLd(business, active)} />
@@ -218,10 +210,8 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                   {rating && <RatingInline rating={rating} className="text-sm text-muted" />}
                 </div>
                 <p className="mt-1 text-sm text-muted lg:text-[15px]">{subtitle}</p>
-                <div className="mt-2 hidden lg:block">{meta}</div>
               </div>
             </div>
-            <div className="lg:hidden">{meta}</div>
             <div className="hidden shrink-0 items-center gap-3 lg:flex">
               <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ size: "sm" })}>
                 <Phone size={18} aria-hidden />
