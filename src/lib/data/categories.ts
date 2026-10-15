@@ -2,19 +2,14 @@ import { api, orUndefined } from "@/lib/api/client";
 import { toArea, toCategory } from "@/lib/api/mappers";
 import type { AreaCount, CategoryChip, Page, PromotionCard } from "@/lib/api/types";
 import type { Area, AreaWithCount, CategoryWithCount } from "@/types";
-import { cacheFor, TAGS } from "./cache";
 
 /** Every area with live offers, busiest first. */
 async function areaCounts(): Promise<AreaCount[]> {
-  "use cache";
-  cacheFor(TAGS.offers, TAGS.catalog);
   return (await api<{ data: AreaCount[] }>("/promotions/areas")).data;
 }
 
 /** The main categories with live offer counts, for all of Rajkot or within one area (by name). */
 async function categoryChips(areaName?: string, parent?: string): Promise<CategoryChip[]> {
-  "use cache";
-  cacheFor(TAGS.offers, TAGS.catalog);
   return (await api<{ data: CategoryChip[] }>("/promotions/categories", { query: { parent, areas: areaName ? [areaName] : undefined } })).data;
 }
 
@@ -31,8 +26,6 @@ export async function getCategories(areaSlug?: string): Promise<CategoryWithCoun
 
 /** A category's ancestors (root first), to find the offer category above a deeper slug (a business's own category). */
 async function ancestorSlugs(slug: string): Promise<string[]> {
-  "use cache";
-  cacheFor(TAGS.catalog);
   const detail = await orUndefined(api<{ data: { breadcrumbs?: { slug: string }[] } }>(`/categories/${encodeURIComponent(slug)}`));
   return detail?.data.breadcrumbs?.map((crumb) => crumb.slug) ?? [];
 }
@@ -76,8 +69,6 @@ export async function getAreaSlugs() {
 }
 
 async function liveTotal() {
-  "use cache";
-  cacheFor(TAGS.offers);
   return (await api<Page<PromotionCard>>("/promotions", { query: { per_page: 1 } })).meta.total;
 }
 

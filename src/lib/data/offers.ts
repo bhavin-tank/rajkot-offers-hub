@@ -3,7 +3,6 @@ import { offerIdFromHandle, toOffer, toOfferSummary, TYPE_TO_API } from "@/lib/a
 import type { Page, PromotionCard, PromotionDetail } from "@/lib/api/types";
 import type { Offer, OfferFilters, OfferSummary, Paged, SortKey, ValidityKey } from "@/types";
 import { getBusiness } from "./businesses";
-import { cacheFor, TAGS } from "./cache";
 import { areaName } from "./categories";
 
 export const PAGE_SIZE = 9;
@@ -19,8 +18,6 @@ type FeedQuery = Record<string, string | number | string[] | undefined>;
  * the cache: `daysLeft` reads today's date, which a prerender may only do there.
  */
 async function feed(query: FeedQuery): Promise<{ items: OfferSummary[]; total: number }> {
-  "use cache";
-  cacheFor(TAGS.offers);
   const page = await api<Page<PromotionCard>>("/promotions", { query });
   return { items: page.data.map(toOfferSummary), total: page.meta.total };
 }
@@ -47,9 +44,14 @@ export async function getOffers(filters: OfferFilters = {}): Promise<Paged<Offer
   const page = Math.max(1, filters.page ?? 1);
   const query = await feedQuery(filters);
   if (!query) return { items: [], total: 0, page, hasMore: false };
-  // "Load more" shows every page up to the requested one.
-  const { items, total } = await feed({ ...query, per_page: Math.min(page * PAGE_SIZE, MAX_PER_PAGE) });
-  return { items, total, page, hasMore: items.length < total };
+  // "Load more" shows every page up to the requested one. Each page is its own cached request,
+  // so the list can grow past what one request may return (the API caps `per_page` at 100).
+  const first = await feed({ ...query, per_page: PAGE_SIZE, page: 1 });
+  // A page number beyond the last one only shows what exists.
+  const last = Math.min(page, Math.ceil(first.total / PAGE_SIZE));
+  const rest = await Promise.all(Array.from({ length: Math.max(0, last - 1) }, (_, i) => feed({ ...query, per_page: PAGE_SIZE, page: i + 2 })));
+  const items = [first, ...rest].flatMap((p) => p.items);
+  return { items, total: first.total, page, hasMore: items.length < first.total };
 }
 
 async function promotion(id: string): Promise<PromotionDetail | undefined> {
@@ -57,16 +59,12 @@ async function promotion(id: string): Promise<PromotionDetail | undefined> {
 }
 
 async function offerById(id: string): Promise<Offer | undefined> {
-  "use cache";
-  cacheFor(TAGS.offers, TAGS.businesses);
   const detail = await promotion(id);
   if (!detail) return undefined;
   return toOffer(detail, await getBusiness(detail.business.slug));
 }
 
-async function offerCard(id: string): Promise<OfferSummary | undefined> {
-  "use cache";
-  cacheFor(TAGS.offers);
+export async function getOfferCard(id: string): Promise<OfferSummary | undefined> {
   const detail = await promotion(id);
   return detail && toOfferSummary(detail);
 }
@@ -116,14 +114,12 @@ export async function getBusinessOffers(businessSlug: string) {
 /** Cards for the given handles (e.g. saved offers), in that order; unknown or unpublished ones are skipped. */
 export async function getOffersByHandles(handles: string[]): Promise<OfferSummary[]> {
   const ids = handles.map(offerIdFromHandle).filter((id): id is string => Boolean(id)).slice(0, 60);
-  const cards = await Promise.all(ids.map(offerCard));
+  const cards = await Promise.all(ids.map(getOfferCard));
   return cards.filter((card): card is OfferSummary => Boolean(card));
 }
 
 /** Every live offer's handle, for static params and the sitemap. */
 export async function getLiveOffers(): Promise<OfferSummary[]> {
-  "use cache";
-  cacheFor(TAGS.offers);
   const offers: OfferSummary[] = [];
   for (let page = 1; page <= 50; page++) {
     const result = await api<Page<PromotionCard>>("/promotions", { query: { per_page: MAX_PER_PAGE, page, sort: "latest" } });
@@ -135,4 +131,10 @@ export async function getLiveOffers(): Promise<OfferSummary[]> {
 
 export async function getOfferSlugs() {
   return (await getLiveOffers()).map((o) => o.slug);
+}
+
+/** Offers the platform highlights (the featured strip), live ones only. */
+export async function getFeaturedOffers(limit = 8): Promise<OfferSummary[]> {
+  const page = await api<{ data: PromotionCard[] }>("/promotions/featured", { query: { per_page: limit } });
+  return page.data.slice(0, limit).map(toOfferSummary);
 }

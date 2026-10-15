@@ -1,7 +1,7 @@
 import { daysBetween, toIsoDay } from "@/lib/format";
 import { img } from "@/lib/mock/images";
-import type { Area, Business, Category, CategoryIcon, Offer, OfferSummary, OfferType, OpeningHours } from "@/types";
-import type { AreaCount, Branch, BusinessHours, BusinessResource, CategoryChip, PromotionCard, PromotionDetail, PromotionType } from "./types";
+import type { Area, Business, Category, CategoryIcon, Offer, OfferSummary, OfferType, OpeningHours, Outlet, Rating, Review } from "@/types";
+import type { Address, AreaCount, Branch, BranchResource, BusinessHours, BusinessResource, CategoryChip, PromotionCard, PromotionDetail, PromotionType, ReviewResource } from "./types";
 
 /**
  * API resources → the site's domain types (`@/types`), so pages and components
@@ -50,6 +50,12 @@ function amount(value: number | string | null | undefined) {
   return value != null && Number.isFinite(number) && number > 0 ? number : undefined;
 }
 
+/** A rating once there is a review to average; null counts and zero averages show nothing. */
+function rating(avg: number | string | null | undefined, count: number | undefined): Rating | undefined {
+  const value = Number(avg);
+  return count && count > 0 && Number.isFinite(value) && value > 0 ? { avg: Math.round(value * 10) / 10, count } : undefined;
+}
+
 export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSummary {
   const validTo = day(card.ends_at);
   // Cards carry `cover_url`; the detail resource carries a `cover` object instead.
@@ -57,6 +63,7 @@ export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSumm
   // Without a photo of its own, the offer shows its shop's logo rather than a stock picture.
   const logo = cover ? undefined : card.business.logo_url;
   const minSpend = amount(card.min_spend);
+  const stars = rating(card.rating_avg, card.rating_count);
   return {
     id: card.id,
     slug: offerHandle(card),
@@ -71,6 +78,7 @@ export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSumm
     daysLeft: daysBetween(toIsoDay(new Date()), validTo),
     ...(card.distance_km != null ? { distanceKm: card.distance_km } : {}),
     ...(minSpend ? { minSpend } : {}),
+    ...(stars ? { rating: stars } : {}),
   };
 }
 
@@ -176,6 +184,46 @@ function instagramHandle(url: string | undefined) {
 
 const RAJKOT = { lat: 22.3039, lng: 70.8022 };
 
+/** "12, Shivam Complex, Yagnik Road" (street only), and the same with area and city for display. */
+function addressLines(address: Address | null | undefined) {
+  const street = [address?.address_line1, address?.address_line2, address?.landmark].filter(Boolean).join(", ");
+  const city = [address?.city || "Rajkot", address?.postal_code].filter(Boolean).join(" ");
+  // The street line often already ends in the area name; don't say it twice.
+  const area = address?.area && !street.toLowerCase().includes(address.area.toLowerCase()) ? address.area : undefined;
+  return { street, full: [street, area, city].filter(Boolean).join(", ") };
+}
+
+function toOutlet(branch: BranchResource): Outlet {
+  const lat = Number(branch.address?.latitude);
+  const lng = Number(branch.address?.longitude);
+  const stars = rating(branch.rating_avg, branch.rating_count);
+  return {
+    id: branch.id,
+    name: branch.name,
+    isMain: branch.is_main,
+    areaName: branch.address?.area || branch.address?.city || "Rajkot",
+    address: addressLines(branch.address).full,
+    ...(lat && lng ? { geo: { lat, lng } } : {}),
+    hours: toHours(branch.business_hours),
+    ...(stars ? { rating: stars } : {}),
+  };
+}
+
+export function toReview(resource: ReviewResource, outlets: Outlet[] = []): Review {
+  const outlet = outlets.length > 1 ? outlets.find((o) => o.id === resource.branch_id) : undefined;
+  return {
+    id: resource.id,
+    rating: resource.rating,
+    title: resource.title ?? "",
+    body: resource.body ?? "",
+    author: resource.user && !resource.user.is_deleted && resource.user.name ? resource.user.name : "",
+    date: day(resource.created_at),
+    verified: Boolean(resource.verified_redemption),
+    ...(outlet ? { outlet: outlet.name } : {}),
+    scores: resource.ratings.map(({ label, score }) => ({ label, score })),
+  };
+}
+
 export function toBusiness(resource: BusinessResource): Business {
   const address = resource.addresses.find((a) => a.is_primary) ?? resource.addresses[0];
   const phone = resource.phones.find((p) => p.is_primary) ?? resource.phones[0];
@@ -183,10 +231,10 @@ export function toBusiness(resource: BusinessResource): Business {
   const category = resource.categories.find((c) => c.is_primary) ?? resource.categories[0];
   const website = resource.links.find((l) => l.type === "website")?.url;
   const areaName = address?.area || address?.city || "Rajkot";
-  const street = [address?.address_line1, address?.address_line2, address?.landmark].filter(Boolean).join(", ");
-  const city = [address?.city || "Rajkot", address?.postal_code].filter(Boolean).join(" ");
+  const { street, full } = addressLines(address);
   const cover = resource.cover?.url ?? resource.gallery[0]?.url ?? FALLBACK_IMAGE;
   return {
+    id: resource.id,
     slug: resource.slug,
     name: resource.name,
     categorySlug: category?.slug ?? "",
@@ -194,8 +242,9 @@ export function toBusiness(resource: BusinessResource): Business {
     areaSlug: slugify(areaName),
     areaName,
     cover,
+    ...(resource.logo?.url ? { logo: resource.logo.url } : {}),
     about: resource.description || resource.tagline || "",
-    address: [street, address?.area, city].filter(Boolean).join(", "),
+    address: full,
     streetAddress: street,
     postalCode: address?.postal_code ?? "",
     phone: phone?.full_number ?? "",
@@ -204,6 +253,7 @@ export function toBusiness(resource: BusinessResource): Business {
     instagram: instagramHandle(resource.links.find((l) => l.type === "instagram")?.url),
     website: website && !website.includes("•") ? website : undefined,
     hours: toHours(resource.business_hours),
+    outlets: [...(resource.branches ?? [])].sort((a, b) => Number(b.is_main) - Number(a.is_main)).map(toOutlet),
     photos: resource.gallery.length ? resource.gallery.map((m) => m.url) : [cover],
     geo: {
       lat: Number(address?.latitude) || RAJKOT.lat,

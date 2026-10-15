@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Link } from "@/components/i18n/link";
 import { ArrowRight, MapPin, Navigation, Store } from "lucide-react";
 import type { OfferStep } from "@/types";
@@ -12,16 +13,18 @@ export async function BusinessRow({
   slug,
   name,
   area,
+  logo,
 }: {
   slug: string;
   name: string;
   area: string;
+  logo?: string;
 }) {
   const t = await getT();
   return (
     <div className="flex items-center gap-3">
-      <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-surface">
-        <Store size={20} aria-hidden />
+      <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface">
+        {logo ? <Image src={logo} alt="" fill sizes="44px" className="object-cover" /> : <Store size={20} aria-hidden />}
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-[15px] font-semibold">{name}</p>

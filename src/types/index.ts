@@ -84,6 +84,8 @@ export interface Offer {
   minSpend?: number;
   /** `images[0]` is the shop's logo standing in for a missing offer photo, so show it whole. */
   imageIsLogo?: boolean;
+  /** Average of approved reviews; only once the offer has one. */
+  rating?: Rating;
   /** Branches the offer is valid at ("Main branch, Yagnik Road"), when the shop lists more than its main one. */
   validAt: string[];
   /** Where to send directions: the offer's branch when it is not valid at the main one. */
@@ -106,6 +108,7 @@ export type OfferSummary = Pick<
   | "distanceKm"
   | "minSpend"
   | "imageIsLogo"
+  | "rating"
 >;
 
 export interface OpeningHours {
@@ -116,7 +119,44 @@ export interface OpeningHours {
   closes: string | null;
 }
 
+export interface Rating {
+  /** 1–5. */
+  avg: number;
+  count: number;
+}
+
+export interface Review {
+  id: string;
+  /** 1–5. */
+  rating: number;
+  title: string;
+  body: string;
+  author: string;
+  /** "YYYY-MM-DD". */
+  date: string;
+  /** The reviewer redeemed the offer's code at the shop. */
+  verified: boolean;
+  /** The outlet the review is about, when the shop has several. */
+  outlet?: string;
+  /** Quality, service, value… each out of 5. */
+  scores: { label: string; score: number }[];
+}
+
+/** One of a shop's outlets; the main one comes first. */
+export interface Outlet {
+  id: string;
+  name: string;
+  isMain: boolean;
+  areaName: string;
+  address: string;
+  geo?: { lat: number; lng: number };
+  hours: OpeningHours[];
+  rating?: Rating;
+}
+
 export interface Business {
+  /** The API's id (UUID); reviews are read by it. */
+  id: string;
   slug: string;
   name: string;
   categorySlug: string;
@@ -124,6 +164,8 @@ export interface Business {
   areaSlug: string;
   areaName: string;
   cover: string;
+  /** The shop's logo, when it has uploaded one. */
+  logo?: string;
   about: string;
   /** Full one-line address for display. */
   address: string;
@@ -137,6 +179,8 @@ export interface Business {
   instagram?: string;
   website?: string;
   hours: OpeningHours[];
+  /** Every outlet, main first; one entry for a shop with a single location. */
+  outlets: Outlet[];
   photos: string[];
   geo: { lat: number; lng: number };
 }
