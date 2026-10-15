@@ -53,7 +53,7 @@ export function SavedShops() {
   }
 
   return (
-    <ul className="grid grid-cols-1 gap-4 pt-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 lg:pt-8">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
       {list.map((shop) => (
         <li key={shop.slug} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4">
           <Link href={shopPath(shop.slug)} className="flex min-w-0 flex-1 items-center gap-3">

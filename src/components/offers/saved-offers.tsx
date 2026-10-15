@@ -61,12 +61,13 @@ export function SavedOffers() {
 
   return (
     <Tabs
+      variant="chips"
       items={[
         {
           value: "active",
           label: t("Live ({count})", { count: active.length }),
           content: (
-            <div className="pt-5 lg:pt-8">
+            <div className="pt-4 lg:pt-6">
               {active.length ? (
                 <Grid>
                   {active.map((offer) => (
@@ -94,7 +95,7 @@ export function SavedOffers() {
           value: "expired",
           label: t("Expired ({count})", { count: expired.length }),
           content: (
-            <div className="pt-5 lg:pt-8">
+            <div className="pt-4 lg:pt-6">
               {expired.length ? (
                 <Grid>
                   {expired.map((offer) => (

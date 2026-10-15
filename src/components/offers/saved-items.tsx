@@ -30,7 +30,8 @@ export function SavedItems() {
 
   return (
     <Tabs
-      listClassName="gap-8"
+      variant="segmented"
+      panelClassName="pt-5 lg:pt-6"
       items={[
         { value: "offers", label: t("Offers ({count})", { count: offers.saved.length }), content: <SavedOffers /> },
         { value: "shops", label: t("Shops ({count})", { count: shops.saved.length }), content: <SavedShops /> },
