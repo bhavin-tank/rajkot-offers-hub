@@ -227,7 +227,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 <Phone size={18} aria-hidden />
                 {t("Call")}
               </ContactLink>
-              <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "outline", className: "px-5" })}>
+              <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "whatsapp", className: "px-5" })}>
                 <WhatsAppIcon size={18} />
                 WhatsApp
               </ContactLink>

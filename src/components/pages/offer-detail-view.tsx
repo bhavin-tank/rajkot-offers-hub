@@ -211,7 +211,7 @@ async function OfferContent({ slug }: { slug: string }) {
                   WhatsApp
                 </Button>
               ) : (
-                <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "outline" })}>
+                <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "whatsapp" })}>
                   <WhatsAppIcon size={18} />
                   WhatsApp
                 </ContactLink>

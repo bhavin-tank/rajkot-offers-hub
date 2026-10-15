@@ -18,6 +18,7 @@ interface Contact {
 const external = { target: "_blank", rel: "noreferrer" } as const;
 
 const tileClass = "flex h-[72px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-surface text-xs font-medium hover:bg-canvas";
+const whatsappTileClass = "flex h-[72px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-whatsapp-soft text-xs font-medium text-whatsapp-ink hover:bg-whatsapp/15";
 
 /** Mobile bar fixed to the bottom of offer and business pages: WhatsApp, directions and call. */
 export async function StickyActionBar({
@@ -39,7 +40,7 @@ export async function StickyActionBar({
           <WhatsAppIcon size={20} />
         </Button>
       ) : (
-        <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "outline", iconOnly: true })}>
+        <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "whatsappSolid", iconOnly: true })}>
           <WhatsAppIcon size={20} />
           <span className="sr-only">WhatsApp</span>
         </ContactLink>
@@ -89,7 +90,7 @@ export async function ActionTiles({ contact, includeCall, className }: { contact
               kind={tile.contact}
               number={tile.contact === "call" ? contact.phone : contact.whatsapp}
               masked={contact.contactMasked}
-              className={tileClass}
+              className={tile.contact === "whatsapp" ? whatsappTileClass : tileClass}
             >
               {tile.icon}
               {tile.label}
