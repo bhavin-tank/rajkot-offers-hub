@@ -397,6 +397,15 @@ export const gu = {
   "What Rajkot Offers Hub collects, why, who sees it and how to delete it.": "Rajkot Offers Hub કઈ માહિતી લે છે, શા માટે, કોણ જુએ છે અને તેને કેવી રીતે ડિલીટ કરવી.",
   "The rules for using Rajkot Offers Hub, its offers and codes.": "Rajkot Offers Hub, તેની ઓફર્સ અને કોડ વાપરવાના નિયમો.",
   "By continuing, you agree to our terms and privacy policy.": "આગળ વધીને, તમે અમારી શરતો અને પ્રાઇવસી પોલિસી સ્વીકારો છો.",
+  "Reviews": "રિવ્યૂ",
+  "{rating} out of 5": "5 માંથી {rating}",
+  "Used this offer": "આ ઓફર વાપરી છે",
+  "Outlets": "આઉટલેટ્સ",
+  "Main outlet": "મુખ્ય આઉટલેટ",
+  "Opening hours": "ખુલવાનો સમય",
+  "Featured offers": "ખાસ ઓફર્સ",
+  "Highlights": "ખાસ આકર્ષણ",
+  "Go to slide {n}": "સ્લાઇડ {n} પર જાઓ",
 } as const;
 
 export type MessageKey = keyof typeof gu;

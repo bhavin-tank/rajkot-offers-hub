@@ -48,6 +48,9 @@ export interface PromotionCard {
   cover_thumb_url: string | null;
   /** Only when the feed was sent lat/lng; null when the shop has no location. */
   distance_km?: number | null;
+  /** Average of the offer's approved reviews; null until it has one. */
+  rating_avg?: number | null;
+  rating_count?: number;
   created_at?: string;
   business: BusinessCaption;
 }
@@ -113,6 +116,17 @@ export interface Link {
  */
 export type BusinessHours = Record<string, unknown>;
 
+/** One of a shop's outlets, with its own address and hours (`business.branches`). */
+export interface BranchResource {
+  id: string;
+  name: string;
+  is_main: boolean;
+  business_hours: BusinessHours | null;
+  address: Address | null;
+  rating_avg?: number | null;
+  rating_count?: number;
+}
+
 export interface BusinessResource {
   id: string;
   name: string;
@@ -128,6 +142,9 @@ export interface BusinessResource {
   logo: Media | null;
   cover: Media | null;
   gallery: Media[];
+  /** Every outlet, the main one first. */
+  branches?: BranchResource[];
+  established_year?: number | null;
   updated_at: string;
   live_promotions_count?: number;
 }
@@ -185,4 +202,32 @@ export interface PromotionClaim {
   expires_at: string | null;
   redeemed_at: string | null;
   promotion?: PromotionCard;
+}
+
+/** `GET /promotions/{id}/reviews` and `GET /businesses/{id}/reviews`: approved reviews only. */
+export interface ReviewResource {
+  id: string;
+  title: string | null;
+  body: string | null;
+  rating: number;
+  verified_redemption?: boolean;
+  branch_id: string | null;
+  ratings: { key: string; label: string; score: number }[];
+  user: { name: string | null; is_deleted: boolean } | null;
+  created_at: string;
+}
+
+/** `GET /banners?placement=…`: the slides of one placement, with the crop sizes they were made for. */
+export interface BannerFeed {
+  placement: string;
+  display: { autoplay_ms: number; loop: boolean };
+  items: {
+    id: string;
+    images: Partial<Record<"mobile" | "tablet" | "desktop", Media | null>>;
+    link: {
+      type: "none" | "web" | "screen" | "resource";
+      action: { resource?: string; id?: string } | null;
+      url: string | null;
+    };
+  }[];
 }
