@@ -246,7 +246,7 @@ async function OfferContent({ slug }: { slug: string }) {
 
       {/* Room for the mobile action bar. */}
       <div aria-hidden className="h-24 lg:hidden" />
-      <StickyActionBar contact={{ ...business, geo }}layout="offer" disabled={expired} offerId={offer.id} />
+      <StickyActionBar contact={{ ...business, geo }} disabled={expired} offerId={offer.id} />
     </>
   );
 }

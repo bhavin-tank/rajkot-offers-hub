@@ -302,7 +302,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </aside>
       </Container>
 
-      <StickyActionBar contact={business} layout="business" />
+      <StickyActionBar contact={business} />
     </div>
   );
 }
