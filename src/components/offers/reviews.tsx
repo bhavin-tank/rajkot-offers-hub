@@ -15,21 +15,24 @@ export async function ReviewList({ reviews, total, title }: { reviews: Review[];
       </h2>
       <ul className="flex flex-col divide-y divide-line">
         {reviews.map((review) => (
-          <li key={review.id} className="py-5 first:pt-1 last:pb-1">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <Stars value={review.rating} label={t("{rating} out of 5", { rating: review.rating })} />
-              {review.verified && (
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-open">
-                  <BadgeCheck size={14} aria-hidden />
-                  {t("Used this offer")}
-                </span>
-              )}
+          <li key={review.id} className="py-5 first:pt-1 last:pb-0">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[15px] font-semibold">{review.author}</p>
+                <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted">
+                  {[review.outlet, formatShortDate(review.date, locale)].filter(Boolean).join(" · ")}
+                  {review.verified && (
+                    <span className="inline-flex items-center gap-1 font-medium text-open">
+                      <BadgeCheck size={14} aria-hidden />
+                      {t("Used this offer")}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <Stars value={review.rating} label={t("{rating} out of 5", { rating: review.rating })} className="mt-0.5 shrink-0" />
             </div>
-            {review.title && <p className="mt-2 text-[15px] font-semibold">{review.title}</p>}
-            {review.body && <p className="mt-1 text-sm leading-relaxed text-muted">{review.body}</p>}
-            <p className="mt-2 text-xs text-muted">
-              {[review.author, review.outlet, formatShortDate(review.date, locale)].filter(Boolean).join(" · ")}
-            </p>
+            {review.title && <p className="mt-3 text-[15px] font-semibold">{review.title}</p>}
+            {review.body && <p className={`${review.title ? "mt-1" : "mt-3"} text-sm leading-relaxed text-muted`}>{review.body}</p>}
           </li>
         ))}
       </ul>
