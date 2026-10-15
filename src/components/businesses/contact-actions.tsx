@@ -20,15 +20,67 @@ const external = { target: "_blank", rel: "noreferrer" } as const;
 const tileClass = "flex h-[72px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-surface text-xs font-medium hover:bg-canvas";
 const whatsappTileClass = "flex h-[72px] w-full cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl bg-whatsapp-soft text-xs font-medium text-whatsapp-ink hover:bg-whatsapp/15";
 
-/** Mobile bar fixed to the bottom of offer and business pages: WhatsApp, directions and call. */
-export async function StickyActionBar({
+/** WhatsApp, directions and call in one row. */
+export async function ContactRow({
+  contact,
+  disabled,
+  offerId,
+  className,
+}: {
+  contact: Contact;
+  /** On an offer page: taps count towards that offer's stats. */
+  offerId?: string;
+  /** Expired offer: call and WhatsApp are disabled. */
+  disabled?: boolean;
+  className?: string;
+}) {
+  const t = await getT();
+  return (
+    <div className={cn("flex gap-2.5", className)}>
+      {disabled ? (
+        <Button variant="outline" iconOnly disabled aria-label="WhatsApp">
+          <WhatsAppIcon size={20} />
+        </Button>
+      ) : (
+        <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "whatsappSolid", iconOnly: true })}>
+          <WhatsAppIcon size={20} />
+          <span className="sr-only">WhatsApp</span>
+        </ContactLink>
+      )}
+      <TrackedAnchor
+        href={directionsHref(contact.geo.lat, contact.geo.lng)}
+        {...external}
+        offerId={offerId}
+        event="directions"
+        className={buttonClass({ variant: "outline", className: "px-4" })}
+      >
+        <Navigation size={18} aria-hidden />
+        {t("Directions")}
+      </TrackedAnchor>
+      {disabled ? (
+        <Button disabled className="flex-1">
+          {t("Offer expired")}
+        </Button>
+      ) : (
+        <ContactLink business={contact.slug} kind="call" number={contact.phone} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ className: "flex-1" })}>
+          <Phone size={18} aria-hidden />
+          {t("Call")}
+        </ContactLink>
+      )}
+    </div>
+  );
+}
+
+/** Mobile bar fixed to the bottom of offer and business pages: WhatsApp, directions and call, or what the page puts there instead. */
+export function StickyActionBar({
   contact,
   disabled,
   offerId,
   lead,
   children,
 }: {
-  contact: Contact;
+  /** Leave out to show no contact buttons (the page shows them elsewhere). */
+  contact?: Contact;
   /** Shown above the buttons, inside the same bar (an offer's code). */
   children?: React.ReactNode;
   /** A row of main actions above the contact buttons (save and share). */
@@ -38,43 +90,11 @@ export async function StickyActionBar({
   /** Expired offer: call and WhatsApp are disabled. */
   disabled?: boolean;
 }) {
-  const t = await getT();
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col gap-3 border-t border-line bg-white px-5 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] lg:hidden">
       {children}
       {lead && <div className="flex gap-2.5">{lead}</div>}
-      <div className="flex gap-2.5">
-        {disabled ? (
-          <Button variant="outline" iconOnly disabled aria-label="WhatsApp">
-            <WhatsAppIcon size={20} />
-          </Button>
-        ) : (
-          <ContactLink business={contact.slug} kind="whatsapp" number={contact.whatsapp} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ variant: "whatsappSolid", iconOnly: true })}>
-            <WhatsAppIcon size={20} />
-            <span className="sr-only">WhatsApp</span>
-          </ContactLink>
-        )}
-        <TrackedAnchor
-          href={directionsHref(contact.geo.lat, contact.geo.lng)}
-          {...external}
-          offerId={offerId}
-          event="directions"
-          className={buttonClass({ variant: "outline", className: "px-4" })}
-        >
-          <Navigation size={18} aria-hidden />
-          {t("Directions")}
-        </TrackedAnchor>
-        {disabled ? (
-          <Button disabled className="flex-1">
-            {t("Offer expired")}
-          </Button>
-        ) : (
-          <ContactLink business={contact.slug} kind="call" number={contact.phone} masked={contact.contactMasked} offerId={offerId} className={buttonClass({ className: "flex-1" })}>
-            <Phone size={18} aria-hidden />
-            {t("Call")}
-          </ContactLink>
-        )}
-      </div>
+      {contact && <ContactRow contact={contact} disabled={disabled} offerId={offerId} />}
     </div>
   );
 }

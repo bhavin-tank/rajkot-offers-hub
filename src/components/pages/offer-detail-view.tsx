@@ -6,14 +6,14 @@ import { ArrowLeft, CalendarDays, Clock, MapPin, Navigation, Phone, Store, Tag }
 import { Link } from "@/components/i18n/link";
 import { WhatsAppIcon } from "@/components/icons/brand";
 import { ShopAvatar } from "@/components/businesses/avatar";
-import { StickyActionBar } from "@/components/businesses/contact-actions";
+import { ContactRow, StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { OfferCarousel } from "@/components/offers/offer-card";
 import { OfferCode } from "@/components/offers/offer-code";
-import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
+import { BranchCards, BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
 import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
@@ -83,6 +83,9 @@ async function OfferContent({ slug }: { slug: string }) {
     : [{ id: business.id, name: business.name, address: offer.address, lat: geo.lat, lng: geo.lng, main: true }];
   if (!pins.some((pin) => pin.main)) pins[0] = { ...pins[0], main: true };
 
+  // On a phone several outlets get a card each (the desktop has the map and its list); one outlet keeps the address card.
+  const cardsOnPhone = offer.branches.length > 1;
+
   const crumbs = await breadcrumbLd([
     { name: t("Home"), path: "/" },
     { name: t("Offers"), path: "/offers" },
@@ -115,7 +118,7 @@ async function OfferContent({ slug }: { slug: string }) {
           {offer.address}
         </DetailRow>
         {offer.validAt.length > 0 && (
-          <DetailRow icon={Store} label={t("Valid at")}>
+          <DetailRow icon={Store} label={t("Valid at")} className={cardsOnPhone ? "max-lg:hidden" : undefined}>
             <ul>
               {offer.validAt.map((branch) => (
                 <li key={branch}>{branch}</li>
@@ -124,7 +127,11 @@ async function OfferContent({ slug }: { slug: string }) {
           </DetailRow>
         )}
       </div>
-      <MapCard address={offer.address} geo={geo} offerId={offer.id} className="lg:hidden" />
+      {cardsOnPhone ? (
+        <BranchCards branches={offer.branches} offerId={offer.id} className="lg:hidden" />
+      ) : (
+        <MapCard address={offer.address} geo={geo} offerId={offer.id} className="lg:hidden" />
+      )}
     </div>
   );
 
@@ -156,7 +163,8 @@ async function OfferContent({ slug }: { slug: string }) {
           </PhotoMosaic>
           <div className="flex flex-col gap-3 px-5 pt-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-8 lg:py-6">
             <div className="flex min-w-0 items-start gap-4 lg:items-center">
-              <ShopAvatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
+              {/* On a phone the shop card below shows the logo. */}
+              <ShopAvatar logo={business.logo} className="hidden size-20 shrink-0 lg:flex" />
               <div className="min-w-0">
                 <h1 className={cn("text-[22px] leading-snug font-semibold lg:text-[28px] lg:leading-tight", expired && "text-muted")}>{offer.title}</h1>
                 {/* On a phone the shop card below says whose offer it is, so only the rating stays here. */}
@@ -205,8 +213,9 @@ async function OfferContent({ slug }: { slug: string }) {
       <Container className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
         <div className="mt-6 flex min-w-0 flex-col gap-6 lg:gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
           {/* On a phone the shop comes before the tabs; on desktop it is a card in the side column. */}
-          <section className="rounded-2xl border border-line bg-white p-4 lg:hidden">
+          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-4 lg:hidden">
             <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} logo={business.logo} />
+            <ContactRow contact={{ ...business, geo }} disabled={expired} offerId={offer.id} />
           </section>
           <SectionTabs
             label={t("Page sections")}
@@ -245,26 +254,12 @@ async function OfferContent({ slug }: { slug: string }) {
 
         {/* Desktop side cards; on a phone the same information sits in the tabs. */}
         <aside className="mt-6 hidden flex-col gap-6 lg:flex">
-          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
-            <h2 className="text-lg font-semibold">{t("Get this offer")}</h2>
-            <div className="flex flex-col gap-2 text-sm">
-              <p className="flex items-center gap-2">
-                <CalendarDays size={16} className="text-muted" aria-hidden />
-                {validity}
-              </p>
-              <p className="flex items-center gap-2">
-                <Clock size={16} className="text-muted" aria-hidden />
-                {offer.timings}
-              </p>
-              {minSpend && (
-                <p className="flex items-center gap-2 font-medium">
-                  <Tag size={16} className="text-muted" aria-hidden />
-                  {minSpend}
-                </p>
-              )}
-            </div>
-            {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
-          </section>
+          {/* Validity, timings and minimum spend are in the Details tab; only the code needs its own card. */}
+          {hasCode && (
+            <section className="rounded-2xl border border-line bg-white p-6">
+              <OfferCode offerId={offer.id} mode={offer.redemptionMode} />
+            </section>
+          )}
           <section className="overflow-hidden rounded-2xl border border-line bg-white">
             <OutletMap outlets={pins} className="h-[220px]" />
             <div className="flex flex-col gap-1 p-6">
@@ -294,11 +289,8 @@ async function OfferContent({ slug }: { slug: string }) {
       )}
 
       {/* Room for the mobile action bar. */}
-      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-64" : "h-40")} />
+      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-48" : "h-28")} />
       <StickyActionBar
-        contact={{ ...business, geo }}
-        disabled={expired}
-        offerId={offer.id}
         lead={
           <>
             <SaveBarButton slug={offer.slug} />
