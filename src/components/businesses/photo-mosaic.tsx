@@ -19,7 +19,7 @@ export async function PhotoMosaic({ images, alt, children }: { images: string[];
   return (
     <div
       className={cn(
-        "relative grid h-60 gap-1 overflow-hidden bg-surface sm:h-72 lg:h-[380px]",
+        "relative grid h-48 gap-1 overflow-hidden bg-surface sm:h-60 lg:h-[280px]",
         many && "grid-cols-[2fr_1fr]",
         wide && "lg:grid-cols-[2fr_1fr_1fr]",
         n >= 3 && "grid-rows-2",
