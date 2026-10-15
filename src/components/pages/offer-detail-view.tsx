@@ -2,24 +2,27 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, MapPin, Phone, Tag } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, MapPin, Phone, Store, Tag } from "lucide-react";
 import { WhatsAppIcon } from "@/components/icons/brand";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
+import { ContactLink } from "@/components/businesses/contact-link";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { OfferCarousel } from "@/components/offers/offer-card";
+import { OfferCode } from "@/components/offers/offer-code";
 import { OfferGallery } from "@/components/offers/offer-gallery";
 import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
 import { SaveButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
+import { TrackedAnchor, TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
-import { Button, ButtonAnchor } from "@/components/ui/button";
+import { Button, buttonClass } from "@/components/ui/button";
 import { DetailRow, Divider } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
 import { getBusiness, getCategory, getOffer, getSimilarOffers } from "@/lib/data";
-import { formatRange } from "@/lib/format";
+import { formatRange, formatRupees } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
-import { cn, directionsHref, telHref, whatsappHref } from "@/lib/utils";
+import { cn, directionsHref } from "@/lib/utils";
 
 export async function offerMetadata(slug: string): Promise<Metadata> {
   const [t, locale, offer] = await Promise.all([getT(), getLocale(), getOffer(slug)]);
@@ -53,6 +56,8 @@ async function OfferContent({ slug }: { slug: string }) {
   const expired = offer.isExpired;
   const validity = `${formatRange(offer.validFrom, offer.validTo, locale)}${expired ? ` · ${t("Expired")}` : ""}`;
   const path = `/offers/${offer.slug}`;
+  const geo = offer.geo ?? business.geo;
+  const minSpend = offer.minSpend ? t("On bills of {amount} or more", { amount: formatRupees(offer.minSpend) }) : null;
 
   const badge = (
     <Badge variant={expired ? "expired" : "offer"} size="md">
@@ -70,7 +75,7 @@ async function OfferContent({ slug }: { slug: string }) {
       <h1 className={cn("text-[26px] leading-[1.3] font-semibold lg:text-[32px] lg:leading-tight", expired && "text-muted")}>
         {offer.title}
       </h1>
-      <BusinessRow slug={business.slug} name={business.name} area={business.areaName} />
+      <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} />
     </>
   );
 
@@ -84,6 +89,7 @@ async function OfferContent({ slug }: { slug: string }) {
   return (
     <>
       <JsonLd data={await offerLd(offer, business)} />
+      {!expired && <TrackOfferView offerId={offer.id} />}
       <JsonLd data={crumbs} />
       {expired && (
         <div role="status" className="bg-surface px-5 py-3 text-center text-sm font-medium text-muted">
@@ -115,7 +121,7 @@ async function OfferContent({ slug }: { slug: string }) {
                     <ArrowLeft size={20} aria-hidden />
                   </IconLink>
                   <div className="flex gap-2">
-                    <ShareButton title={offer.title} path={path} />
+                    <ShareButton title={offer.title} path={path} offerId={offer.id} />
                     <SaveButton slug={offer.slug} size="lg" />
                   </div>
                 </div>
@@ -131,6 +137,7 @@ async function OfferContent({ slug }: { slug: string }) {
               <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5">
                 <DetailRow icon={Tag} label={t("Offer")}>
                   {offer.offerText}
+                  {minSpend && <span className="mt-1 block font-semibold">{minSpend}</span>}
                 </DetailRow>
                 <DetailRow icon={CalendarDays} label={t("Validity")}>
                   {validity}
@@ -141,11 +148,21 @@ async function OfferContent({ slug }: { slug: string }) {
                 <DetailRow icon={MapPin} label={t("Address")}>
                   {offer.address}
                 </DetailRow>
+                {offer.validAt.length > 0 && (
+                  <DetailRow icon={Store} label={t("Valid at")}>
+                    <ul>
+                      {offer.validAt.map((branch) => (
+                        <li key={branch}>{branch}</li>
+                      ))}
+                    </ul>
+                  </DetailRow>
+                )}
               </div>
 
+              {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} className="lg:hidden" />}
               <HowToGetSteps steps={offer.steps} />
               <TermsAccordion terms={offer.terms} />
-              <MapCard address={offer.address} geo={business.geo} layout="split" />
+              <MapCard address={offer.address} geo={geo} layout="split" offerId={offer.id} />
               <p className="text-xs leading-relaxed text-faint">
                 {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
               </p>
@@ -164,16 +181,23 @@ async function OfferContent({ slug }: { slug: string }) {
                 <Clock size={16} className="text-muted" aria-hidden />
                 {offer.timings}
               </p>
+              {minSpend && (
+                <p className="flex items-center gap-2 font-medium">
+                  <Tag size={16} className="text-muted" aria-hidden />
+                  {minSpend}
+                </p>
+              )}
             </div>
+            {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} />}
             {expired ? (
               <Button disabled block>
                 {t("Offer expired")}
               </Button>
             ) : (
-              <ButtonAnchor href={telHref(business.phone)} block>
+              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ block: true })}>
                 <Phone size={18} aria-hidden />
-                {t("Call · {phone}", { phone: business.phone })}
-              </ButtonAnchor>
+                {business.contactMasked ? t("Call") : t("Call · {phone}", { phone: business.phone })}
+              </ContactLink>
             )}
             <div className="grid grid-cols-2 gap-2.5">
               {expired ? (
@@ -182,23 +206,25 @@ async function OfferContent({ slug }: { slug: string }) {
                   WhatsApp
                 </Button>
               ) : (
-                <ButtonAnchor href={whatsappHref(business.whatsapp)} target="_blank" rel="noreferrer" variant="outline">
+                <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "outline" })}>
                   <WhatsAppIcon size={18} />
                   WhatsApp
-                </ButtonAnchor>
+                </ContactLink>
               )}
-              <ButtonAnchor
-                href={directionsHref(business.geo.lat, business.geo.lng)}
+              <TrackedAnchor
+                href={directionsHref(geo.lat, geo.lng)}
                 target="_blank"
                 rel="noreferrer"
-                variant="outline"
+                offerId={offer.id}
+                event="directions"
+                className={buttonClass({ variant: "outline" })}
               >
                 {t("Directions")}
-              </ButtonAnchor>
+              </TrackedAnchor>
             </div>
             <div className="flex justify-center gap-4">
               <SaveTextButton slug={offer.slug} />
-              <ShareButton title={offer.title} path={path} variant="text" />
+              <ShareButton title={offer.title} path={path} variant="text" offerId={offer.id} />
             </div>
           </aside>
         </div>
@@ -215,7 +241,7 @@ async function OfferContent({ slug }: { slug: string }) {
 
       {/* Room for the mobile action bar. */}
       <div aria-hidden className="h-24 lg:hidden" />
-      <StickyActionBar contact={business} layout="offer" disabled={expired} />
+      <StickyActionBar contact={{ ...business, geo }}layout="offer" disabled={expired} offerId={offer.id} />
     </>
   );
 }

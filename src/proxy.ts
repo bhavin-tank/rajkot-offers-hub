@@ -1,7 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { canonicalAreaUrl } from "@/lib/areas";
 import { defaultLocale, LOCALE_COOKIE, languageSwitchEnabled, localizePath, splitLocale } from "@/lib/i18n/config";
+import { clearSessionCookies, setSessionCookies } from "@/lib/auth/cookies";
+import { renewSession } from "@/lib/auth/proxy-session";
 import { hasUnknownSlug } from "@/lib/known-paths";
+
+/** Pages that read the signed-in user; the session is renewed before they render. */
+const SESSION_PAGES = new Set(["/login", "/account"]);
 
 /**
  * Locale routing. English pages live at "/en/..." internally but are
@@ -28,13 +33,21 @@ export async function proxy(request: NextRequest) {
     return NextResponse.rewrite(new URL(`/${locale ?? defaultLocale}/_/not/found/page`, request.url));
   }
 
-  if (locale) return NextResponse.next();
+  const session = SESSION_PAGES.has(path) ? await renewSession(request) : null;
+  const withSession = (response: NextResponse) => {
+    if (session === "signed-out") clearSessionCookies(response.cookies);
+    else if (session) setSessionCookies(response.cookies, session);
+    return response;
+  };
+  const forward = { request: { headers: request.headers } };
+
+  if (locale) return withSession(NextResponse.next(forward));
 
   // No prefix: honour a saved Gujarati choice, otherwise serve English.
   if (languageSwitchEnabled && request.cookies.get(LOCALE_COOKIE)?.value === "gu") {
     return NextResponse.redirect(new URL(`${localizePath("gu", pathname)}${search}`, request.url));
   }
-  return NextResponse.rewrite(new URL(`/${defaultLocale}${pathname === "/" ? "" : pathname}${search}`, request.url));
+  return withSession(NextResponse.rewrite(new URL(`/${defaultLocale}${pathname === "/" ? "" : pathname}${search}`, request.url), forward));
 }
 
 export const config = {

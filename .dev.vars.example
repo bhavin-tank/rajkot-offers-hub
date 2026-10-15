@@ -1,0 +1,3 @@
+# Local `pnpm preview` (the built worker in workerd). Copy to .dev.vars.
+RAJKOT_API_URL=http://api.rajkotoffers.test:8000/api
+# API_FRONTEND_KEY=

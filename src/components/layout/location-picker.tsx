@@ -1,17 +1,19 @@
 "use client";
 
-import { Check, ChevronDown, MapPin } from "lucide-react";
+import { Check, ChevronDown, LocateFixed, MapPin } from "lucide-react";
 import NextLink from "next/link";
-import { useParams, usePathname, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Sheet } from "@/components/ui/sheet";
 import { isAreaScoped, stripArea } from "@/lib/areas";
 import { localizePath, splitLocale } from "@/lib/i18n/config";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { formatOfferCount } from "@/lib/format";
+import { NEAR_CHANGED_EVENT, parseNear, PICK_LOCATION_EVENT, readNearCookie, subscribeNear } from "@/lib/location";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import type { AreaWithCount } from "@/types";
+import { NearMe } from "./near-me";
 
 interface LocationPickerProps {
   areas: AreaWithCount[];
@@ -25,10 +27,10 @@ const pillClass =
   "inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border bg-white pr-2.5 pl-2.5 text-[13px] font-medium lg:h-10 lg:px-3.5 lg:text-sm";
 
 /**
- * Header city pill. Opens a list of Rajkot's areas; picking one moves to
- * that area's version of the page ("/kalawad-road/offers"), "All Rajkot"
- * moves back to the plain one ("/offers"). The choice lives in the URL, so
- * it can be shared and needs no extra storage.
+ * Header city pill. Opens "near me" (GPS or a pincode, kept in a cookie) and a list
+ * of Rajkot's areas; picking an area moves to that area's version of the page
+ * ("/kalawad-road/offers"), "All Rajkot" moves back to the plain one ("/offers").
+ * The area lives in the URL, so it can be shared and needs no extra storage.
  */
 export function LocationPicker(props: LocationPickerProps) {
   const t = useT();
@@ -52,13 +54,26 @@ function Picker({ areas, total, categorySlugs }: LocationPickerProps) {
   const t = useT();
   const locale = useLocale();
   const [open, setOpen] = useState(false);
+  const pill = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { area: currentSlug } = useParams<{ area?: string }>();
+  const near = parseNear(useSyncExternalStore(subscribeNear, readNearCookie, () => null));
 
   const current = areas.find((area) => area.slug === currentSlug);
-  const label = current ? current.name : t(site.city);
-  const narrowed = Boolean(current);
+  const label = current ? current.name : near ? (near.pincode ? t("Near {pincode}", { pincode: near.pincode }) : t("Near me")) : t(site.city);
+  const narrowed = Boolean(current || near);
+
+  // "Nearest first" (and other buttons) ask for a location through an event. The header is
+  // drawn twice (desktop and mobile); only the visible pill opens its sheet.
+  useEffect(() => {
+    const pick = () => {
+      if (pill.current?.offsetParent) setOpen(true);
+    };
+    window.addEventListener(PICK_LOCATION_EVENT, pick);
+    return () => window.removeEventListener(PICK_LOCATION_EVENT, pick);
+  }, []);
 
   // The offers and categories pages exist per area, so stay on the same page (and keep its
   // search, category and sort); from any other page go to the offers list.
@@ -77,21 +92,47 @@ function Picker({ areas, total, categorySlugs }: LocationPickerProps) {
     return localizePath(locale, `${slug ? `/${slug}` : ""}${base}${query ? `?${query}` : ""}`);
   }
 
+  /** This list (or all offers), nearest first. */
+  function nearestHref() {
+    const params = new URLSearchParams(scoped ? searchParams.toString() : "");
+    params.delete("page");
+    params.set("sort", "nearest");
+    return localizePath(locale, `${currentSlug ? `/${currentSlug}` : ""}${scoped ? page : "/offers"}?${params}`);
+  }
+
+  function nearChanged() {
+    window.dispatchEvent(new Event(NEAR_CHANGED_EVENT));
+  }
+
   return (
     <>
       <button
+        ref={pill}
         type="button"
         aria-haspopup="dialog"
         aria-label={t("Choose your area")}
         onClick={() => setOpen(true)}
         className={cn(pillClass, narrowed ? "border-primary text-primary" : "border-line hover:border-input")}
       >
-        <MapPin size={15} aria-hidden />
+        {near && !current ? <LocateFixed size={15} aria-hidden /> : <MapPin size={15} aria-hidden />}
         <span className="max-w-[110px] truncate lg:max-w-[200px]">{label}</span>
         <ChevronDown size={14} className={narrowed ? "" : "text-muted"} aria-hidden />
       </button>
 
       <Sheet open={open} onClose={() => setOpen(false)} title={t("Choose your area")}>
+        <NearMe
+          near={near}
+          onLocated={() => {
+            nearChanged();
+            setOpen(false);
+            router.push(nearestHref(), { scroll: false });
+          }}
+          onCleared={() => {
+            nearChanged();
+            router.refresh();
+          }}
+        />
+        <p className="px-3 pt-3 pb-1 text-xs font-semibold tracking-[0.04em] text-muted">{t("Areas")}</p>
         <ul className="flex flex-col gap-0.5 pb-1">
           <AreaRow
             href={hrefFor()}

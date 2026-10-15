@@ -18,7 +18,8 @@ export interface Category {
   icon: CategoryIcon;
   image: string;
   description: string;
-  subcategories: string[];
+  /** Child categories; `slug` is the filter value. Empty in lists that don't need them. */
+  subcategories: { slug: string; name: string }[];
   /** Shown in the home icon row. */
   inHomeRow: boolean;
   /** Shown as the seasonal banner instead of a grid tile. */
@@ -45,7 +46,12 @@ export interface OfferStep {
   text: string;
 }
 
+export type RedemptionMode = "walk_in" | "shared_code" | "unique_claim";
+
 export interface Offer {
+  /** The API's id (UUID). */
+  id: string;
+  /** URL handle: "<slug>-<id>". */
   slug: string;
   title: string;
   badge: string;
@@ -68,14 +74,26 @@ export interface Offer {
   address: string;
   steps: OfferStep[];
   terms: string[];
+  redemptionMode: RedemptionMode;
   /** Derived from validTo at read time. */
   isExpired: boolean;
   daysLeft: number;
+  /** Km to the shop's nearest outlet; only on lists read with the visitor's location. */
+  distanceKm?: number;
+  /** Smallest bill (₹) the offer applies to. */
+  minSpend?: number;
+  /** `images[0]` is the shop's logo standing in for a missing offer photo, so show it whole. */
+  imageIsLogo?: boolean;
+  /** Branches the offer is valid at ("Main branch, Yagnik Road"), when the shop lists more than its main one. */
+  validAt: string[];
+  /** Where to send directions: the offer's branch when it is not valid at the main one. */
+  geo?: { lat: number; lng: number };
 }
 
 /** The fields an offer card needs. */
 export type OfferSummary = Pick<
   Offer,
+  | "id"
   | "slug"
   | "title"
   | "badge"
@@ -85,6 +103,9 @@ export type OfferSummary = Pick<
   | "validTo"
   | "isExpired"
   | "daysLeft"
+  | "distanceKm"
+  | "minSpend"
+  | "imageIsLogo"
 >;
 
 export interface OpeningHours {
@@ -109,8 +130,10 @@ export interface Business {
   /** Street part only ("12, Sample Complex, Kalawad Road"), for structured data. */
   streetAddress: string;
   postalCode: string;
+  /** Masked ("+9198••••••02") until a signed-in visitor reveals them. */
   phone: string;
   whatsapp: string;
+  contactMasked: boolean;
   instagram?: string;
   website?: string;
   hours: OpeningHours[];
@@ -118,7 +141,7 @@ export interface Business {
   geo: { lat: number; lng: number };
 }
 
-export type SortKey = "newest" | "ending" | "discount";
+export type SortKey = "newest" | "ending" | "discount" | "nearest";
 export type ValidityKey = "today" | "week" | "month";
 
 export interface OfferFilters {
@@ -130,6 +153,8 @@ export interface OfferFilters {
   validity?: ValidityKey;
   sort?: SortKey;
   page?: number;
+  /** The visitor's location (from the location cookie, never the URL). */
+  near?: { lat: number; lng: number };
 }
 
 export interface Paged<T> {

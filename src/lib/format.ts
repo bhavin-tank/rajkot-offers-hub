@@ -89,6 +89,18 @@ export function formatEndsIn(daysLeft: number, locale: Locale) {
 
 export const ENDING_SOON_DAYS = 3;
 
+/** "800 m", "2.4 km", "12 km" */
+export function formatDistance(km: number, t: T) {
+  const metres = Math.max(100, Math.round(km * 10) * 100);
+  if (metres < 1000) return t("{m} m", { m: metres });
+  return t("{km} km", { km: km < 10 ? Math.round(km * 10) / 10 : Math.round(km) });
+}
+
+/** 25000 → "₹25,000" */
+export function formatRupees(amount: number) {
+  return `₹${amount.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+}
+
 /** "1 offer", "5 offers" */
 export function formatOfferCount(count: number, t: T) {
   return t(count === 1 ? "{count} offer" : "{count} offers", { count });

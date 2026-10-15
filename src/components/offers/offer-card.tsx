@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { Link } from "@/components/i18n/link";
-import { Clock, MapPin } from "lucide-react";
+import { Clock, MapPin, Tag } from "lucide-react";
 import type { ReactNode } from "react";
 import type { OfferSummary } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/display";
-import { formatUntil } from "@/lib/format";
+import { formatDistance, formatRupees, formatUntil } from "@/lib/format";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { SaveButton } from "./save-button";
@@ -47,7 +47,10 @@ export function OfferCard({
           fill
           sizes={sizes}
           priority={priority}
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          className={cn(
+            "transition-transform duration-300 group-hover:scale-[1.03]",
+            offer.imageIsLogo ? "object-contain p-8" : "object-cover",
+          )}
         />
         <Badge variant={expired ? "expired" : "offer"} className="absolute top-3 left-3">
           {expired ? t("Expired") : offer.badge}
@@ -59,7 +62,15 @@ export function OfferCard({
             {offer.title}
           </Link>
         </h3>
-        <p className="text-sm text-muted">{offer.businessName}</p>
+        <p className="text-sm text-muted">
+          {offer.businessName}
+          {offer.distanceKm !== undefined && (
+            <>
+              {" · "}
+              <span className="font-medium text-ink">{formatDistance(offer.distanceKm, t)}</span>
+            </>
+          )}
+        </p>
         <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-muted">
           <span className="inline-flex items-center gap-1">
             <MapPin size={14} aria-hidden />
@@ -73,6 +84,12 @@ export function OfferCard({
             {formatUntil(offer.validTo, locale)}
           </span>
         </p>
+        {offer.minSpend && (
+          <p className="flex items-center gap-1 text-[13px] text-muted">
+            <Tag size={14} aria-hidden />
+            {t("On bills of {amount} or more", { amount: formatRupees(offer.minSpend) })}
+          </p>
+        )}
       </div>
       {footer && <div className="relative z-10 mt-auto px-4 pb-4">{footer}</div>}
       <SaveButton slug={offer.slug} className="absolute top-3 right-3 z-10" />

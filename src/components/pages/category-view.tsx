@@ -8,10 +8,9 @@ import { BottomNav } from "@/components/layout/nav-links";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
 import { OffersSkeleton } from "@/components/offers/offers-skeleton";
 import { offersMetadata } from "@/components/pages/offers-view";
-import { getCategory, getOffers } from "@/lib/data";
+import { getCategory, getNear, getOffers } from "@/lib/data";
 import { parseFilters } from "@/lib/filters";
-import { localizeContent } from "@/lib/i18n/content-server";
-import { getLocale, getT } from "@/lib/i18n/server";
+import { getT } from "@/lib/i18n/server";
 import type { Area } from "@/types";
 import { resolveArea } from "./resolve-area";
 
@@ -55,19 +54,18 @@ async function CategoryOffers({
 }: {
   slug: string;
   area?: Area;
-  subcategories: string[];
+  subcategories: { slug: string; name: string }[];
   searchParams: SearchParams;
 }) {
   const t = await getT();
-  const locale = await getLocale();
   // The category comes from the path, never from the query.
-  const filters = { ...parseFilters(await searchParams), category: undefined, areas: area ? [area.slug] : undefined };
+  const filters = { ...parseFilters(await searchParams), category: undefined, areas: area ? [area.slug] : undefined, near: await getNear() };
   const result = await getOffers({ ...filters, category: slug });
 
   const chips = subcategories.length
     ? [
         { label: t("All"), patch: { subcategory: undefined }, selected: !filters.subcategory },
-        ...subcategories.map((sub) => ({ label: localizeContent(locale, sub), patch: { subcategory: sub }, selected: filters.subcategory === sub })),
+        ...subcategories.map((sub) => ({ label: sub.name, patch: { subcategory: sub.slug }, selected: filters.subcategory === sub.slug })),
       ]
     : [];
 

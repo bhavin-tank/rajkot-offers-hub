@@ -1,63 +1,65 @@
-import { findSlugs } from "@/server/services/slugs";
+import { api } from "@/lib/api/client";
+import { offerIdFromHandle } from "@/lib/api/mappers";
+import type { AreaCount, CategoryChip } from "@/lib/api/types";
 
 /**
  * Detail pages look up their slug inside <Suspense>, so by the time they call
  * notFound() the 200 status has already been sent ("soft 404"). The proxy asks
- * this first and answers unknown slugs with a real 404.
+ * this first and answers unknown URLs with a real 404.
  *
- * The proxy runs before the page cache, so the slug sets are kept in memory
- * for a minute instead of reading MongoDB on every request.
+ * Categories and areas are short lists, kept in memory for a minute. Offer URLs
+ * are checked for shape only (they carry the offer's id); a shop that does not
+ * exist still falls back to the page's own not-found state.
  */
 const TTL_MS = 60_000;
 
-interface KnownSlugs {
+interface Known {
   areas: Set<string>;
-  businesses: Set<string>;
   categories: Set<string>;
-  offers: Set<string>;
 }
 
-let cached: { slugs: Promise<KnownSlugs>; expires: number } | undefined;
+let cached: { known: Known; loadedAt: number } | undefined;
 
-function knownSlugs() {
-  if (!cached || cached.expires < Date.now()) {
-    const slugs = findSlugs().then((s) => ({
-      areas: new Set(s.areas),
-      businesses: new Set(s.businesses),
-      categories: new Set(s.categories),
-      offers: new Set(s.offers),
-    }));
-    cached = { slugs, expires: Date.now() + TTL_MS };
-    // Don't keep a failed lookup for the whole minute.
-    slugs.catch(() => (cached = undefined));
-  }
-  return cached.slugs;
+/**
+ * Keeps the lists, never a load in progress: on Cloudflare Workers a promise one request
+ * started cannot settle inside another, so requests sharing an in-flight load were cancelled
+ * as hung. Requests that find nothing fresh each load for themselves.
+ */
+async function known(): Promise<Known> {
+  if (cached && Date.now() - cached.loadedAt <= TTL_MS) return cached.known;
+  const [areas, categories] = await Promise.all([
+    api<{ data: AreaCount[] }>("/promotions/areas"),
+    api<{ data: CategoryChip[] }>("/promotions/categories"),
+  ]);
+  const lists = {
+    areas: new Set(areas.data.map((a) => a.slug)),
+    categories: new Set(categories.data.map((c) => c.slug)),
+  };
+  cached = { known: lists, loadedAt: Date.now() };
+  return lists;
 }
 
 /** Top-level pages; any other first segment is an area. */
-const PAGES = new Set(["offers", "categories", "contact", "how-it-works", "saved", "submit-offer"]);
+const PAGES = new Set(["offers", "categories", "contact", "how-it-works", "saved", "submit-offer", "login", "account", "businesses", "privacy", "terms"]);
 
 /**
- * Whether `path` (without locale prefix) names a business, offer, category or
- * area that does not exist. When the database can't be reached it answers
- * false and leaves the page to show its own not-found state.
+ * Whether `path` (without locale prefix) names an offer, category or area that
+ * does not exist. When the API can't be reached it answers false and leaves the
+ * page to show its own not-found state.
  */
 export async function hasUnknownSlug(path: string) {
   const [first, second, third] = path.split("/").slice(1);
-  if (!first || (PAGES.has(first) && first !== "offers" && first !== "categories")) return false;
-
-  let known: KnownSlugs;
+  if (!first) return false;
+  if (first === "offers" && second !== undefined && offerIdFromHandle(second)) return false;
+  if (PAGES.has(first) && first !== "offers" && first !== "categories") return false;
   try {
-    known = await knownSlugs();
+    const { areas, categories } = await known();
+    if (first === "offers") return second !== undefined && !categories.has(second);
+    if (first === "categories") return second !== undefined && !categories.has(second);
+    if (!areas.has(first)) return true;
+    return (second === "offers" || second === "categories") && third !== undefined && !categories.has(third);
   } catch (error) {
     console.error("Slug lookup failed", error);
     return false;
   }
-  const { areas, businesses, categories, offers } = known;
-
-  if (first === "businesses") return second !== undefined && !businesses.has(second);
-  if (first === "offers") return second !== undefined && !categories.has(second) && !offers.has(second);
-  if (first === "categories") return second !== undefined && !categories.has(second);
-  if (!areas.has(first)) return true;
-  return (second === "offers" || second === "categories") && third !== undefined && !categories.has(third);
 }

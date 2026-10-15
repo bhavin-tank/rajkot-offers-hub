@@ -26,6 +26,7 @@ export const SORT_OPTIONS: { value: SortKey; label: MessageKey }[] = [
   { value: "newest", label: "Newest offers" },
   { value: "ending", label: "Ending soon" },
   { value: "discount", label: "Highest discount" },
+  { value: "nearest", label: "Nearest first" },
 ];
 
 type RawParams = Record<string, string | string[] | undefined>;
