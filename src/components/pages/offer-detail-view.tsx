@@ -67,6 +67,7 @@ async function OfferContent({ slug }: { slug: string }) {
   const geo = offer.geo ?? business.geo;
   const minSpend = offer.minSpend ? t("On bills of {amount} or more", { amount: formatRupees(offer.minSpend) }) : null;
   const images = [...new Set(offer.images)];
+  const hasCode = !expired && offer.redemptionMode !== "walk_in";
 
   const badge = (
     <Badge variant={expired ? "expired" : "offer"} size="md">
@@ -103,7 +104,6 @@ async function OfferContent({ slug }: { slug: string }) {
 
   const details = (
     <div className="flex flex-col gap-6">
-      {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} className="lg:hidden" />}
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5">
         <DetailRow icon={Tag} label={t("Offer")}>
           {offer.offerText}
@@ -296,8 +296,11 @@ async function OfferContent({ slug }: { slug: string }) {
       )}
 
       {/* Room for the mobile action bar. */}
-      <div aria-hidden className="h-24 lg:hidden" />
-      <StickyActionBar contact={{ ...business, geo }} disabled={expired} offerId={offer.id} />
+      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-48" : "h-24")} />
+      <StickyActionBar contact={{ ...business, geo }} disabled={expired} offerId={offer.id}>
+        {/* A code sits above the buttons so it stays in reach while the page scrolls. */}
+        {hasCode && <OfferCode offerId={offer.id} mode={offer.redemptionMode} compact />}
+      </StickyActionBar>
     </div>
   );
 }
