@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Globe, Navigation, Phone, Tag } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { ShopAvatar } from "@/components/businesses/avatar";
-import { StickyActionBar } from "@/components/businesses/contact-actions";
+import { ContactRow, StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
 import { OutletSideCards } from "@/components/businesses/outlets";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
@@ -205,6 +205,8 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 <p className="mt-1 text-sm text-muted lg:text-[15px]">{subtitle}</p>
               </div>
             </div>
+            {/* On a phone the contact buttons sit under the name; on desktop they float at the bottom. */}
+            <ContactRow contact={business} className="lg:hidden" />
           </div>
         </div>
       </Container>
