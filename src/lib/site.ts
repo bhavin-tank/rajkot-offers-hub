@@ -8,7 +8,9 @@ export const site = {
   url: "https://rajkotoffershub.com",
   instagram: "@rajkotoffershub",
   email: "hello@rajkotoffershub.com",
-  whatsapp: "+91 98XXX XXXXX",
+  /** The one number for calls and WhatsApp (contact page, submit an offer, report an offer). */
+  phone: "+91 99399 83083",
+  whatsapp: "+91 99399 83083",
   location: "Rajkot, Gujarat",
   /** For structured data: the city the site serves. */
   region: "Gujarat",

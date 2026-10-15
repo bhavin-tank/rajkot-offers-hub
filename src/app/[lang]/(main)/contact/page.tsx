@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowRight, ChevronRight, Mail, MapPin } from "lucide-react";
+import { ArrowRight, ChevronRight, Mail, MapPin, Phone } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { Container } from "@/components/layout/container";
 import { ButtonAnchor } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Eyebrow } from "@/components/ui/display";
 import { getT } from "@/lib/i18n/server";
 import { pageMetadata } from "@/lib/seo";
 import { site } from "@/lib/site";
-import { instagramHref, whatsappHref } from "@/lib/utils";
+import { instagramHref, telHref, whatsappHref } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -40,6 +40,7 @@ export default async function ContactPage() {
   const t = await getT();
   const channels = [
     { title: "WhatsApp", value: site.whatsapp, icon: <WhatsAppIcon size={20} />, href: whatsappHref(site.whatsapp) },
+    { title: t("Phone"), value: site.phone, icon: <Phone size={20} aria-hidden />, href: telHref(site.phone) },
     { title: t("Email"), value: site.email, icon: <Mail size={20} aria-hidden />, href: `mailto:${site.email}` },
     { title: "Instagram", value: site.instagram, icon: <InstagramIcon size={20} />, href: instagramHref(site.instagram) },
     { title: t("Location"), value: t(site.location), icon: <MapPin size={20} aria-hidden /> },
