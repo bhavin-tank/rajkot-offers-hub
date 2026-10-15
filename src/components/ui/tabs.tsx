@@ -40,7 +40,7 @@ export function Tabs({ items, defaultValue, className, listClassName, panelClass
         role="tablist"
         className={cn(
           variant === "underline" && "flex gap-7 border-b border-line lg:gap-8",
-          variant === "segmented" && "flex w-full gap-1 rounded-full bg-surface p-1 lg:inline-flex lg:w-auto",
+          variant === "segmented" && "flex w-full gap-1 rounded-full bg-surface p-1",
           variant === "chips" && "flex gap-2",
           listClassName,
         )}
@@ -70,7 +70,7 @@ export function Tabs({ items, defaultValue, className, listClassName, panelClass
                   ),
                 variant === "segmented" &&
                   cn(
-                    "h-11 flex-1 rounded-full px-6 text-[15px] lg:flex-none",
+                    "h-11 flex-1 rounded-full px-6 text-[15px]",
                     selected ? "bg-white font-semibold text-ink shadow-card" : "font-medium text-muted hover:text-ink",
                   ),
                 variant === "chips" &&
