@@ -7,7 +7,7 @@ export const site = {
   /** The canonical address; rajkotoffers.in redirects here at the host. */
   url: "https://rajkotoffershub.com",
   instagram: "@rajkotoffershub",
-  email: "hello@rajkotoffers.in",
+  email: "hello@rajkotoffershub.com",
   whatsapp: "+91 98XXX XXXXX",
   location: "Rajkot, Gujarat",
   /** For structured data: the city the site serves. */
