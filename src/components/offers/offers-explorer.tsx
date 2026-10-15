@@ -1,4 +1,5 @@
 import { SearchX } from "lucide-react";
+import type { ReactNode } from "react";
 import type { OfferFilters, OfferSummary, Paged, SortKey } from "@/types";
 import { SearchBar } from "@/components/marketing/search-bar";
 import { ButtonLink } from "@/components/ui/button";
@@ -34,6 +35,8 @@ interface OffersExplorerProps {
   emptyTitle?: string;
   emptyHint?: string;
   emptyAction?: { href: string; label: string };
+  /** Shown under the empty state when nothing is filtered (the list is empty because there is nothing yet). */
+  emptySuggestions?: ReactNode;
 }
 
 /** Search, filter chips (category, offer type, validity, sort), and the offers as a list or on a map. */
@@ -47,6 +50,7 @@ export async function OffersExplorer({
   emptyTitle,
   emptyHint,
   emptyAction,
+  emptySuggestions,
 }: OffersExplorerProps) {
   const t = await getT();
   const href = (patch: Partial<OfferFilters> = {}) => `${basePath}${filtersToQuery(filters, patch)}`;
@@ -85,6 +89,9 @@ export async function OffersExplorer({
   );
 
   const anyFilter = Boolean(filters.q || filters.type || filters.validity);
+  const hasResults = result.items.length > 0;
+  // Nothing to narrow down: no offers and no filter or search applied (a sub-category is a filter too).
+  const nothingYet = !hasResults && !anyFilter && !filters.subcategory;
   const results = result.items.length ? (
     <>
       {anyFilter && (
@@ -137,22 +144,24 @@ export async function OffersExplorer({
           </ButtonLink>
         }
       />
+      {nothingYet && emptySuggestions}
     </>
   );
 
-  const hasResults = result.items.length > 0;
   return (
     <ViewProvider>
       <div className="flex flex-col gap-4 lg:gap-6">
         {/* On a phone the search and chips stay under the header while the list scrolls. */}
-        <div className="sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 py-3 lg:static lg:mx-0 lg:border-0 lg:p-0">
-          {withSearch && <SearchBar defaultValue={filters.q} action={basePath} className="lg:hidden" />}
-          {/* On desktop the switch ends the chip row; on a phone it floats above the bottom menu. */}
-          <div className="lg:flex lg:items-start lg:justify-between lg:gap-4">
-            {chipRow}
-            {hasResults && <ViewToggle className="hidden lg:flex" />}
+        {!nothingYet && (
+          <div className="sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 py-3 lg:static lg:mx-0 lg:border-0 lg:p-0">
+            {withSearch && <SearchBar defaultValue={filters.q} action={basePath} className="lg:hidden" />}
+            {/* On desktop the switch ends the chip row; on a phone it floats above the bottom menu. */}
+            <div className="lg:flex lg:items-start lg:justify-between lg:gap-4">
+              {chipRow}
+              {hasResults && <ViewToggle className="hidden lg:flex" />}
+            </div>
           </div>
-        </div>
+        )}
         <div>{results}</div>
       </div>
       {hasResults && <FloatingViewToggle />}

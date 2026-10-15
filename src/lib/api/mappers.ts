@@ -291,7 +291,7 @@ const ART: { match: RegExp; icon: CategoryIcon; image: string }[] = [
   { match: /home|living|grocery|daily/, icon: "sofa", image: img("photo-1555041469-a586c61ea9bc", 600) },
   { match: /entertainment|cinema|gaming/, icon: "ticket", image: img("photo-1489599849927-2ee91cede3ba", 600) },
   { match: /service|automobile|education|coaching|travel/, icon: "wrench", image: img("photo-1581578731548-c64695cc6952", 600) },
-  { match: /gift|toy|book/, icon: "gift", image: img("photo-1567401893414-76b7b1e5a7a5", 600) },
+  { match: /gift|toy|book/, icon: "gift", image: img("photo-1513885535751-8b9238bd345a", 600) },
 ];
 
 function art(slug: string) {
