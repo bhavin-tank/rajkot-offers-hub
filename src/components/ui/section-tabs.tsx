@@ -114,7 +114,7 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
         ref={bar}
         aria-label={label}
         className={cn(
-          "sticky z-30 -mx-5 flex gap-6 overflow-x-auto border-b [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-line bg-white px-5 lg:top-0 lg:mx-0 lg:gap-8 lg:rounded-t-2xl lg:px-8",
+          "sticky z-30 -mx-5 flex gap-6 overflow-x-auto border-b [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-line bg-white px-5 lg:top-[73px] lg:mx-0 lg:gap-8 lg:rounded-t-2xl lg:px-8",
           topBar ? "top-14" : "top-0",
         )}
       >
@@ -144,7 +144,7 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
         <Fragment key={item.value}>
           {/* A divider of its own, not a border, so the column's gap spaces both sides of it alike. */}
           {i > 0 && <div aria-hidden className={cn("h-px bg-line", item.className)} />}
-          <section id={item.value} className={cn(topBar ? "scroll-mt-28 lg:scroll-mt-14" : "scroll-mt-14", "lg:px-8", item.className)}>
+          <section id={item.value} className={cn(topBar ? "scroll-mt-28" : "scroll-mt-14", "lg:scroll-mt-32 lg:px-8", item.className)}>
             {item.content}
           </section>
         </Fragment>

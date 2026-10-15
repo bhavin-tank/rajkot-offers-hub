@@ -17,11 +17,11 @@ export async function LocationPill() {
   return <LocationPicker areas={areas} total={total} categorySlugs={categorySlugs} />;
 }
 
-/** Desktop header (72px). */
+/** Desktop header (72px); stays at the top of the screen while the page scrolls. */
 export async function DesktopHeader({ className }: { className?: string }) {
   const t = await getT();
   return (
-    <header className={cn("hidden border-b border-line bg-white lg:block", className)}>
+    <header className={cn("sticky top-0 z-40 hidden border-b border-line bg-white/95 backdrop-blur lg:block", className)}>
       <Container className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center">
         <Logo size="lg" priority />
         <HeaderNav />
