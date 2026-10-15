@@ -62,7 +62,7 @@ export async function MobileHeader() {
   );
 }
 
-/** Mobile top bar with back arrow and centred title. */
+/** Mobile top bar with back arrow and a left-aligned title. */
 export async function MobileTopBar({
   title,
   backHref,
@@ -79,7 +79,7 @@ export async function MobileTopBar({
         <IconLink href={backHref} variant="plain" size="lg" aria-label={t("Go back")}>
           <ArrowLeft size={22} aria-hidden />
         </IconLink>
-        <h1 className="truncate text-center text-base font-semibold">{title}</h1>
+        <h1 className="truncate pl-1 text-base font-semibold">{title}</h1>
         <div className="flex justify-end">{action}</div>
       </div>
     </header>
