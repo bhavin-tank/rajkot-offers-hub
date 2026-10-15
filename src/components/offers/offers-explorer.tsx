@@ -126,6 +126,12 @@ export async function OffersExplorer({
         initialHasMore={result.hasMore}
         total={result.total}
         nextHref={href({ page: result.page + 1 })}
+        mapHeader={
+          <>
+            {withSearch && <SearchBar defaultValue={filters.q} action={basePath} />}
+            {chipRow}
+          </>
+        }
       />
     </>
   ) : (
