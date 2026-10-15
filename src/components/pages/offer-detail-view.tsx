@@ -163,14 +163,15 @@ async function OfferContent({ slug }: { slug: string }) {
               <ShopAvatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
               <div className="min-w-0">
                 <h1 className={cn("text-[22px] leading-snug font-semibold lg:text-[28px] lg:leading-tight", expired && "text-muted")}>{offer.title}</h1>
-                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted lg:text-[15px]">
-                  <Link href={shopPath(business.slug)} className="font-medium text-ink hover:underline">
+                {/* On a phone the shop card below says whose offer it is, so only the rating stays here. */}
+                <p className={cn("mt-1 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted lg:flex lg:text-[15px]", offer.rating ? "flex" : "hidden")}>
+                  <Link href={shopPath(business.slug)} className="hidden font-medium text-ink hover:underline lg:inline">
                     {business.name}
                   </Link>
-                  <span aria-hidden className="hidden sm:inline">
+                  <span aria-hidden className="hidden lg:inline">
                     •
                   </span>
-                  {t("{area}, Rajkot", { area: offer.areaName })}
+                  <span className="hidden lg:inline">{t("{area}, Rajkot", { area: offer.areaName })}</span>
                   {offer.rating && <RatingInline rating={offer.rating} className="text-sm text-muted" />}
                 </p>
               </div>
