@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode, Fragment } from "react";
 import { cn } from "@/lib/utils";
 
 export interface SectionTab {
@@ -96,7 +96,7 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
   }
 
   return (
-    <div className={cn("flex flex-col", className)}>
+    <div className={cn("relative flex flex-col gap-6 lg:gap-8", className)}>
       {topBar && (
         <div
           inert={!stuck}
@@ -108,7 +108,8 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
           {topBar}
         </div>
       )}
-      <div ref={sentinel} aria-hidden />
+      {/* Out of the flow, so the column's gap does not count it. */}
+      <div ref={sentinel} aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px" />
       <nav
         ref={bar}
         aria-label={label}
@@ -139,17 +140,15 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
           );
         })}
       </nav>
-      <div className="flex flex-col gap-10 lg:gap-14">
-        {items.map((item, i) => (
-          <section
-            key={item.value}
-            id={item.value}
-            className={cn(topBar ? "scroll-mt-28 lg:scroll-mt-14" : "scroll-mt-14", "lg:px-8", item.className, i > 0 && "border-t border-line")}
-          >
+      {items.map((item, i) => (
+        <Fragment key={item.value}>
+          {/* A divider of its own, not a border, so the column's gap spaces both sides of it alike. */}
+          {i > 0 && <div aria-hidden className={cn("h-px bg-line", item.className)} />}
+          <section id={item.value} className={cn(topBar ? "scroll-mt-28 lg:scroll-mt-14" : "scroll-mt-14", "lg:px-8", item.className)}>
             {item.content}
           </section>
-        ))}
-      </div>
+        </Fragment>
+      ))}
     </div>
   );
 }

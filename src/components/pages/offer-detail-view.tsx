@@ -102,7 +102,7 @@ async function OfferContent({ slug }: { slug: string }) {
   );
 
   const details = (
-    <div className="flex flex-col gap-6 pt-5 lg:pt-8">
+    <div className="flex flex-col gap-6">
       {!expired && <OfferCode offerId={offer.id} mode={offer.redemptionMode} className="lg:hidden" />}
       <div className="flex flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-5">
         <DetailRow icon={Tag} label={t("Offer")}>
@@ -205,7 +205,7 @@ async function OfferContent({ slug }: { slug: string }) {
       </Container>
 
       <Container className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
-        <div className="mt-6 min-w-0 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
+        <div className="mt-6 flex min-w-0 flex-col gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
           <SectionTabs
             label={t("Page sections")}
             topBar={
@@ -219,9 +219,9 @@ async function OfferContent({ slug }: { slug: string }) {
             }
             items={[
               { value: "details", label: t("Details"), content: details },
-              { value: "how", label: t("How to get it"), content: <div className="pt-5 lg:pt-8"><HowToGetSteps steps={offer.steps} /></div> },
+              { value: "how", label: t("How to get it"), content: <HowToGetSteps steps={offer.steps} /> },
               ...(offer.terms.length
-                ? [{ value: "terms", label: t("Terms"), content: <div className="pt-5 lg:pt-8"><TermsAccordion terms={offer.terms} /></div> }]
+                ? [{ value: "terms", label: t("Terms"), content: <TermsAccordion terms={offer.terms} /> }]
                 : []),
               ...(reviews.total
                 ? [
@@ -229,16 +229,14 @@ async function OfferContent({ slug }: { slug: string }) {
                       value: "reviews",
                       label: t("Reviews ({count})", { count: reviews.total }),
                       content: (
-                        <div className="pt-5 lg:pt-8">
-                          <ReviewList reviews={reviews.items} total={reviews.total} />
-                        </div>
+                        <ReviewList reviews={reviews.items} total={reviews.total} />
                       ),
                     },
                   ]
                 : []),
             ]}
           />
-          <p className="mt-10 text-xs leading-relaxed text-faint lg:px-8">
+          <p className="text-xs leading-relaxed text-faint lg:px-8">
             {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
           </p>
         </div>

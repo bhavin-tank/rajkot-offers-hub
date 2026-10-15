@@ -73,7 +73,7 @@ function overallRating(business: Business, reviews: { items: Review[]; total: nu
 async function OffersTab({ active, expired }: { active: OfferSummary[]; expired: OfferSummary[] }) {
   const t = await getT();
   return (
-    <div className="flex flex-col gap-6 pt-5 lg:pt-8">
+    <div className="flex flex-col gap-6">
       {active.length ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-6">
           {active.map((offer) => (
@@ -110,7 +110,7 @@ async function OffersTab({ active, expired }: { active: OfferSummary[]; expired:
 async function PhotosTab({ business, images }: { business: Business; images: string[] }) {
   const t = await getT();
   return (
-    <div className="pt-5 lg:pt-8">
+    <div>
       <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">{t("Photos")}</h2>
       <ul className="grid grid-cols-3 gap-2 lg:gap-4">
         {images.map((src) => (
@@ -127,7 +127,7 @@ async function PhotosTab({ business, images }: { business: Business; images: str
 async function OutletsTab({ business, path }: { business: Business; path: string }) {
   const t = await getT();
   return (
-    <div className="flex flex-col gap-4 pt-5">
+    <div className="flex flex-col gap-4">
       <h2 className="text-lg font-semibold">{t(business.outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: business.outlets.length })}</h2>
       <OutletSideCards outlets={business.outlets} contact={business} path={path} />
     </div>
@@ -137,7 +137,7 @@ async function OutletsTab({ business, path }: { business: Business; path: string
 async function AboutTab({ business }: { business: Business }) {
   const t = await getT();
   return (
-    <div className="flex flex-col gap-7 pt-5 lg:pt-8">
+    <div className="flex flex-col gap-7">
       <section>
         <h2 className="mb-2 text-lg font-semibold lg:text-[22px]">{t("About us")}</h2>
         <p className="max-w-[640px] text-[15px] leading-relaxed text-muted lg:text-base">{business.about}</p>
@@ -265,9 +265,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                       value: "reviews",
                       label: t("Reviews ({count})", { count: reviews.total }),
                       content: (
-                        <div className="pt-5 lg:pt-8">
-                          <ReviewList reviews={reviews.items} total={reviews.total} />
-                        </div>
+                        <ReviewList reviews={reviews.items} total={reviews.total} />
                       ),
                     },
                   ]
