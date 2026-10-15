@@ -21,7 +21,7 @@ export async function LocationPill() {
 export async function DesktopHeader({ className }: { className?: string }) {
   const t = await getT();
   return (
-    <header className={cn("sticky top-0 z-40 hidden bg-white/95 shadow-header backdrop-blur lg:block", className)}>
+    <header className={cn("sticky top-0 z-40 hidden border-b border-line bg-white/95 shadow-header backdrop-blur lg:block", className)}>
       <Container className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center">
         <Logo size="lg" priority />
         <HeaderNav />
@@ -47,7 +47,7 @@ export async function DesktopHeader({ className }: { className?: string }) {
 export async function MobileHeader() {
   const t = await getT();
   return (
-    <header className="sticky top-0 z-30 bg-white/95 shadow-header backdrop-blur lg:hidden">
+    <header className="sticky top-0 z-30 border-b border-line bg-white/95 shadow-header backdrop-blur lg:hidden">
       <div className="flex h-14 items-center justify-between px-5">
         <Logo priority />
         <div className="flex items-center gap-2">
@@ -74,7 +74,7 @@ export async function MobileTopBar({
 }) {
   const t = await getT();
   return (
-    <header className="sticky top-0 z-30 bg-white shadow-header lg:hidden">
+    <header className="sticky top-0 z-30 border-b border-line bg-white shadow-header lg:hidden">
       <div className="grid h-14 grid-cols-[40px_1fr_40px] items-center px-2">
         <IconLink href={backHref} variant="plain" size="lg" aria-label={t("Go back")}>
           <ArrowLeft size={22} aria-hidden />
