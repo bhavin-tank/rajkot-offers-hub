@@ -209,7 +209,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         </div>
       </Container>
 
-      <Container className="pb-44 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6 lg:pb-0">
+      <Container className="pb-28 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6 lg:pb-0">
         <div className="mt-6 min-w-0 lg:mt-6 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
           <SectionTabs
             label={t("Page sections")}
@@ -292,7 +292,6 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
       </div>
 
       <StickyActionBar
-        contact={business}
         lead={
           <>
             <SaveBarButton slug={business.slug} kind="shop" />
