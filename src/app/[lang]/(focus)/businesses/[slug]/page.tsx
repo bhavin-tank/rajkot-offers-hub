@@ -195,7 +195,6 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
 
   const meta = (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted">
-      {rating && <RatingInline rating={rating} className="text-sm" />}
       <OpenStatusPill hours={business.hours} />
       {business.outlets.length > 1 && <span>{t("{count} outlets", { count: business.outlets.length })}</span>}
     </div>
@@ -214,7 +213,10 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
             <div className="flex min-w-0 items-start gap-4 lg:items-center">
               <Avatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
               <div className="min-w-0">
-                <h1 className="text-[26px] leading-tight font-semibold lg:text-[30px]">{business.name}</h1>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <h1 className="text-[26px] leading-tight font-semibold lg:text-[30px]">{business.name}</h1>
+                  {rating && <RatingInline rating={rating} className="text-sm text-muted" />}
+                </div>
                 <p className="mt-1 text-sm text-muted lg:text-[15px]">{subtitle}</p>
                 <div className="mt-2 hidden lg:block">{meta}</div>
               </div>
