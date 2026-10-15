@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { getAreaSlugs, getBusinessSlugs, getCategories, getLiveOffers } from "@/lib/data";
-import { cacheFor, TAGS } from "@/lib/data/cache";
 import { offersPath } from "@/lib/areas";
 import { absoluteUrl } from "@/lib/site";
 import type { OfferSummary } from "@/types";
@@ -17,9 +16,10 @@ function newest(list: OfferSummary[]) {
  * pages are also marked noindex. "/categories/<slug>" pages are left out too:
  * they show the same offers as "/offers/<slug>", which is their canonical URL.
  */
+// Rendered per request: a prerendered sitemap would refresh itself in the background, which hangs on Workers.
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  "use cache";
-  cacheFor(TAGS.offers, TAGS.catalog, TAGS.businesses);
 
   const [live, businessSlugs, areaSlugs, categories] = await Promise.all([getLiveOffers(), getBusinessSlugs(), getAreaSlugs(), getCategories()]);
   const entry = (path: string, list?: OfferSummary[], images?: string[]): MetadataRoute.Sitemap[number] => ({

@@ -18,15 +18,10 @@ import { ButtonLink, buttonClass } from "@/components/ui/button";
 import { DetailRow, Divider, EmptyState } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
 import { SectionTabs } from "@/components/ui/section-tabs";
-import { getBusiness, getBusinessOffers, getBusinessReviews, getBusinessSlugs } from "@/lib/data";
+import { getBusiness, getBusinessOffers, getBusinessReviews } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
 import type { Business, OfferSummary } from "@/types";
-import { atLeastOne, NO_PARAM } from "@/lib/static-params";
-
-export async function generateStaticParams() {
-  return atLeastOne((await getBusinessSlugs()).map((slug) => ({ slug })), { slug: NO_PARAM });
-}
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/businesses/[slug]">): Promise<Metadata> {
   const [t, business] = await Promise.all([getT(), params.then((p) => getBusiness(p.slug))]);

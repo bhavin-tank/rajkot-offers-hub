@@ -1,12 +1,6 @@
 import { OfferDetailView, offerMetadata } from "@/components/pages/offer-detail-view";
 import { OffersView, offersMetadata } from "@/components/pages/offers-view";
-import { getCategorySlugs, getOfferSlugs, isCategorySlug } from "@/lib/data";
-import { atLeastOne, NO_PARAM } from "@/lib/static-params";
-
-export async function generateStaticParams() {
-  const [categories, offers] = await Promise.all([getCategorySlugs(), getOfferSlugs()]);
-  return atLeastOne([...categories, ...offers].map((slug) => ({ slug })), { slug: NO_PARAM });
-}
+import { isCategorySlug } from "@/lib/data";
 
 export async function generateMetadata({ params }: PageProps<"/[lang]/offers/[slug]">) {
   const { slug } = await params;

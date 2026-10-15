@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Anek_Gujarati, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { ToastProvider } from "@/components/ui/toast";
-import { hasLocale, locales } from "@/lib/i18n/config";
+import { hasLocale } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/lib/i18n/client";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { DEFAULT_SHARE_IMAGE } from "@/lib/seo";
@@ -20,9 +20,11 @@ const anek = Anek_Gujarati({
   preload: false,
 });
 
-export function generateStaticParams() {
-  return locales.map((lang) => ({ lang }));
-}
+/**
+ * Every page is rendered per request. Prerendered pages (and the Cache Components that build them)
+ * are refreshed at request time, and that hangs on Cloudflare Workers once an entry expires.
+ */
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [t, locale] = await Promise.all([getT(), getLocale()]);

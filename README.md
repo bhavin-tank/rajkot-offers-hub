@@ -1,6 +1,6 @@
 # Rajkot Offers Hub
 
-Local offers from shops, cafés and salons in Rajkot. Built with Next.js 16 (App Router, Cache Components), React 19, Tailwind CSS 4 and TypeScript.
+Local offers from shops, cafés and salons in Rajkot. Built with Next.js 16 (App Router), React 19, Tailwind CSS 4 and TypeScript.
 
 ## Run
 
@@ -12,7 +12,7 @@ shop owners use the separate business app. This site is the shoppers' web front 
 pnpm install
 cp .env.example .env.local   # RAJKOT_API_URL (and MEDIA_PUBLIC_URL for the API's images)
 pnpm dev
-pnpm build      # needs the API: pages are prerendered from it
+pnpm build
 pnpm lint
 pnpm typecheck
 ```
@@ -25,13 +25,13 @@ screen in development builds.
 ## Deploy (Cloudflare Workers)
 
 The site runs on Cloudflare Workers through [OpenNext](https://opennext.js.org/cloudflare)
-(`wrangler.jsonc`, `open-next.config.ts`). Prerendered pages and the "use cache" API reads are kept in
-the R2 bucket `rajkot-offers-hub-cache`, with a Durable Object queue refreshing them in the background;
-`next/image` resizes through Cloudflare Images.
+(`wrangler.jsonc`, `open-next.config.ts`). Every page is rendered per request (`dynamic = "force-dynamic"` in the root layout); guest API reads are
+cached for a minute in the R2 bucket `rajkot-offers-hub-cache`; `next/image` resizes through Cloudflare Images.
+There are no prerendered pages: Cache Components and ISR refresh pages at request time, which hangs on
+Workers (error 1101) once an entry expires, so do not turn `cacheComponents` or `generateStaticParams` back on.
 
 **Settings** that are not secret live in the committed `.env.production` (`RAJKOT_API_URL`,
-`MEDIA_PUBLIC_URL`): Next.js reads it at build time, since pages are prerendered from the API, and
-OpenNext carries it into the worker. The one secret, once (`npx wrangler login` first):
+`MEDIA_PUBLIC_URL`): Next.js reads it at build time and OpenNext carries it into the worker. The one secret, once (`npx wrangler login` first):
 
 ```bash
 npx wrangler secret put API_FRONTEND_KEY      # the API's WEB_FRONTEND_KEY
@@ -71,9 +71,6 @@ Builds, which starts clean). `pnpm preview` runs the built worker locally (copy 
 - `patches/@opennextjs__cloudflare@1.20.10.patch` fixes a 500 on every page with Next.js 16.4
   (opennextjs-cloudflare#1448: `preview-props.json` was not bundled). Drop it, and the exact version
   pin, once a release includes the fix.
-- Every `generateStaticParams` returns at least one path (`atLeastOne` in `src/lib/static-params.ts`):
-  Cache Components fails the build on an empty list, which an API with no live offers, areas or shops
-  yet would give. The placeholder path answers 404.
 - `proxy.ts` runs as Node.js middleware, which OpenNext marks experimental on Cloudflare; it works
   here (language routing, 404s and session renewal were tested in workerd).
 
@@ -116,7 +113,7 @@ src/
   assets/          brand logo (imported through next/image)
   hooks/           client hooks (saved offers in localStorage)
   lib/
-    data/          cached data getters ("use cache"), the only API the pages use
+    data/          data getters, the only API the pages use
     api/           BSurefy API client, response types, mappers to the site's types
     auth/          session cookies and renewal
     mock/          image URL helper for marketing images
@@ -143,7 +140,7 @@ src/
 | "Near me" (pincode → location) | `GET /locations/pincodes/{pincode}`; feeds take `lat`/`lng` (`sort=nearest`, cards get `distance_km`) |
 
 - `src/lib/api/` holds the client, the response types and the mappers to the site's types in `src/types`.
-- `src/lib/data` getters cache guest reads for a few minutes (`"use cache"`); the API caches too.
+- `src/lib/data` getters read the API; `api()` caches guest GETs for a minute (Next fetch cache); the API caches too.
 - Tokens live in httpOnly cookies (`ro_at`, `ro_rt`); server actions renew them, and the proxy renews
   them before `/login` and `/account` render. The browser never calls the API directly.
 - "Submit an offer" points shop owners to the business app (`NEXT_PUBLIC_OWNER_APP_*_URL`).

@@ -36,6 +36,8 @@ export function apiBaseUrl() {
   return url.replace(/\/+$/, "");
 }
 
+const GUEST_REVALIDATE_SECONDS = 60;
+
 type Query = Record<string, string | number | boolean | undefined | null | (string | number)[]>;
 
 export interface ApiRequest {
@@ -76,7 +78,9 @@ export async function api<T>(path: string, { query, method = "GET", body, token,
     method,
     headers,
     body: body === undefined ? undefined : JSON.stringify(body),
-    cache: "no-store",
+    // Guest reads are shared by every visitor, so they are cached for a minute (the API caches too).
+    // Anything personal, or that changes data, is never cached.
+    ...(method === "GET" && !token && !client ? { next: { revalidate: GUEST_REVALIDATE_SECONDS } } : { cache: "no-store" as const }),
   });
   if (response.status === 204) return undefined as T;
 
