@@ -35,6 +35,8 @@ interface OffersExplorerProps {
   emptyTitle?: string;
   emptyHint?: string;
   emptyAction?: { href: string; label: string };
+  /** Background of the bar that sticks under the header on a phone; it has to match the page behind it. */
+  stickyBg?: string;
   /** Shown under the empty state when nothing is filtered (the list is empty because there is nothing yet). */
   emptySuggestions?: ReactNode;
 }
@@ -51,6 +53,7 @@ export async function OffersExplorer({
   emptyHint,
   emptyAction,
   emptySuggestions,
+  stickyBg = "bg-surface",
 }: OffersExplorerProps) {
   const t = await getT();
   const href = (patch: Partial<OfferFilters> = {}) => `${basePath}${filtersToQuery(filters, patch)}`;
@@ -153,7 +156,7 @@ export async function OffersExplorer({
       <div className="flex flex-col gap-4 lg:gap-6">
         {/* On a phone the search and chips stay under the header while the list scrolls. */}
         {!nothingYet && (
-          <div className="sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0">
+          <div className={cn("sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line px-5 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0", stickyBg)}>
             {withSearch && <SearchBar defaultValue={filters.q} action={basePath} className="lg:hidden" />}
             {/* On desktop the switch ends the chip row; on a phone it floats above the bottom menu. */}
             <div className="lg:flex lg:items-start lg:justify-between lg:gap-4">

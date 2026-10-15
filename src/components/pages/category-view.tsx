@@ -33,7 +33,8 @@ async function CategoryContent({ slug, area, searchParams }: { slug: string; are
   if (!category) notFound();
 
   return (
-    <>
+    // Grey page background on a phone too, like the offers page; the shell only gives it to desktop.
+    <div className="min-h-dvh bg-surface lg:min-h-0">
       <MobileTopBar title={category.name} backHref="/categories" />
       <Container className="flex flex-col gap-5 pt-4 pb-24 lg:gap-8 lg:pt-8 lg:pb-20">
         <Breadcrumb
@@ -45,7 +46,7 @@ async function CategoryContent({ slug, area, searchParams }: { slug: string; are
         </Suspense>
       </Container>
       <BottomNav />
-    </>
+    </div>
   );
 }
 
@@ -115,12 +116,12 @@ async function EmptyCategorySuggestions({ slug, filters }: { slug: string; filte
           <OfferCarousel offers={offers.items.slice(0, 8)} />
         </section>
       )}
-      <section className="flex flex-col items-start gap-3 rounded-2xl bg-surface p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
+      <section className="flex flex-col items-start gap-3 rounded-2xl border border-line bg-white p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
         <div>
           <h2 className="text-lg font-semibold">{t("Run a shop in this category?")}</h2>
           <p className="mt-1 text-[15px] text-muted">{t("List your shop’s offer for free and reach local customers.")}</p>
         </div>
-        <ButtonLink href="/submit-offer" variant="outline" className="shrink-0 bg-white">
+        <ButtonLink href="/submit-offer" variant="outline" className="shrink-0">
           {t("Submit an offer")}
         </ButtonLink>
       </section>
