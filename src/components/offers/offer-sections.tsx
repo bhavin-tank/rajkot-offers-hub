@@ -48,7 +48,7 @@ export async function HowToGetSteps({ steps }: { steps: OfferStep[] }) {
   return (
     <section className="rounded-2xl bg-surface p-5 lg:p-6">
       <h2 className="mb-4 text-base font-semibold lg:text-lg">{t("How to get this offer")}</h2>
-      <ol className="flex flex-col gap-3 lg:grid lg:grid-cols-3 lg:gap-4">
+      <ol className="flex flex-col gap-3 lg:gap-4">
         {steps.map((step, i) => (
           <li key={step.text} className="flex items-center gap-3 text-[15px]">
             <span className="flex size-[26px] shrink-0 items-center justify-center rounded-full bg-white text-[13px] font-semibold">
