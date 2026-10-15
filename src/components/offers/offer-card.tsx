@@ -181,8 +181,8 @@ export function OfferCarousel({ offers, desktopColumns = 4 }: { offers: OfferSum
         <OfferCard
           key={offer.slug}
           offer={offer}
-          sizes="(min-width: 1024px) 285px, 260px"
-          className="w-[260px] shrink-0 snap-start lg:w-auto"
+          sizes="(min-width: 1024px) 285px, 85vw"
+          className="w-[85vw] max-w-[340px] shrink-0 snap-start lg:w-auto lg:max-w-none"
         />
       ))}
     </div>
