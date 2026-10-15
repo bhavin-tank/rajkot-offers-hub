@@ -198,8 +198,8 @@ async function OfferContent({ slug }: { slug: string }) {
                 <Navigation size={18} aria-hidden />
                 {t("Directions")}
               </TrackedAnchor>
-              <SaveTextButton slug={offer.slug} variant="outline" />
               <ShareButton title={offer.title} path={path} variant="pill" offerId={offer.id} />
+              <SaveTextButton slug={offer.slug} variant="outline" />
             </div>
           </div>
         </div>
@@ -216,8 +216,8 @@ async function OfferContent({ slug }: { slug: string }) {
                 </IconLink>
                 <p className="min-w-0 flex-1 truncate text-base font-semibold">{offer.title}</p>
                 <div className="flex shrink-0">
-                  <SaveButton slug={offer.slug} size="lg" variant="plain" />
                   <ShareButton title={offer.title} path={path} variant="plain" offerId={offer.id} />
+                  <SaveButton slug={offer.slug} size="lg" variant="plain" />
                 </div>
               </div>
             }
