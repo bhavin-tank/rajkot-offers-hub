@@ -3,12 +3,13 @@ import Image from "next/image";
 import { CategoryIconRow } from "@/components/categories/category-tiles";
 import { Container, Section, SectionHeader } from "@/components/layout/container";
 import { BusinessCta } from "@/components/marketing/promos";
+import { HeroSlider } from "@/components/marketing/hero-slider";
 import { NearMeLink } from "@/components/marketing/near-me-link";
 import { SearchBar } from "@/components/marketing/search-bar";
 import { OfferCarousel, OfferGrid } from "@/components/offers/offer-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/display";
-import { getCategories, getLatestOffers, getTodayOffers } from "@/lib/data";
+import { getCategories, getFeaturedOffers, getHeroSlides, getLatestOffers, getTodayOffers } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { img } from "@/lib/mock/images";
 import { JsonLd, pageMetadata, siteLd } from "@/lib/seo";
@@ -32,10 +33,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const t = await getT();
-  const [categories, today, latest] = await Promise.all([
+  const [categories, today, latest, featured, hero] = await Promise.all([
     getCategories(),
     getTodayOffers(),
     getLatestOffers(),
+    getFeaturedOffers(),
+    getHeroSlides(),
   ]);
 
   return (
@@ -64,6 +67,12 @@ export default async function HomePage() {
         </Container>
       </section>
 
+      {hero.slides.length > 0 && (
+        <Section className="pt-0 lg:pt-0">
+          <HeroSlider slides={hero.slides} autoplayMs={hero.autoplayMs} loop={hero.loop} />
+        </Section>
+      )}
+
       <Section className="pt-0 lg:pt-0">
         <SectionHeader title={t("Category")} href="/categories" />
         <CategoryIconRow categories={categories.filter((c) => c.inHomeRow)} />
@@ -74,7 +83,14 @@ export default async function HomePage() {
         <OfferCarousel offers={today} />
       </Section>
 
-      <Section>
+      {featured.length > 0 && (
+        <Section>
+          <SectionHeader title={t("Featured offers")} href="/offers" />
+          <OfferCarousel offers={featured} />
+        </Section>
+      )}
+
+      <Section tone={featured.length > 0 ? "surface" : "white"}>
         <SectionHeader title={t("New offers")} />
         <OfferGrid offers={latest} />
         <div className="mt-6 flex justify-center lg:mt-10">
@@ -84,7 +100,7 @@ export default async function HomePage() {
         </div>
       </Section>
 
-      <Section tone="surface">
+      <Section tone={featured.length > 0 ? "white" : "surface"}>
         <BusinessCta image={img("photo-1567401893414-76b7b1e5a7a5", 1200)} />
       </Section>
     </>

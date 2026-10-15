@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import type { OfferSummary } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/display";
+import { RatingInline } from "@/components/ui/rating";
 import { formatDistance, formatRupees, formatUntil } from "@/lib/format";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
@@ -83,6 +84,14 @@ export function OfferCard({
             <Clock size={14} aria-hidden />
             {formatUntil(offer.validTo, locale)}
           </span>
+          {offer.rating && (
+            <>
+              <span aria-hidden className="text-line-strong">
+                •
+              </span>
+              <RatingInline rating={offer.rating} />
+            </>
+          )}
         </p>
         {offer.minSpend && (
           <p className="flex items-center gap-1 text-[13px] text-muted">

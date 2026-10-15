@@ -7,16 +7,18 @@ import { ArrowLeft, Globe, MapPin, Phone, Store, Tag } from "lucide-react";
 import { InstagramIcon } from "@/components/icons/brand";
 import { ActionTiles, StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
+import { OutletList } from "@/components/businesses/outlets";
 import { HoursTable, OpenStatusPill } from "@/components/businesses/opening-hours";
 import { Container } from "@/components/layout/container";
 import { OfferCard } from "@/components/offers/offer-card";
 import { MapCard } from "@/components/offers/offer-sections";
+import { ReviewList } from "@/components/offers/reviews";
 import { ShareButton } from "@/components/offers/share-button";
 import { ButtonLink, buttonClass } from "@/components/ui/button";
 import { DetailRow, Divider, EmptyState } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
 import { SectionTabs } from "@/components/ui/section-tabs";
-import { getBusiness, getBusinessOffers, getBusinessSlugs } from "@/lib/data";
+import { getBusiness, getBusinessOffers, getBusinessReviews, getBusinessSlugs } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
 import type { Business, OfferSummary } from "@/types";
@@ -38,10 +40,11 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/businesses
   });
 }
 
-function Avatar({ className }: { className?: string }) {
+/** The shop's logo, or a store icon until it has one. */
+function Avatar({ logo, className }: { logo?: string; className?: string }) {
   return (
-    <span className={`relative flex items-center justify-center rounded-full border-4 border-white bg-surface shadow-card ${className}`}>
-      <Store size={32} strokeWidth={1.6} aria-hidden />
+    <span className={`relative flex items-center justify-center overflow-hidden rounded-full border-4 border-white bg-surface shadow-card ${className}`}>
+      {logo ? <Image src={logo} alt="" fill sizes="96px" className="object-cover" /> : <Store size={32} strokeWidth={1.6} aria-hidden />}
     </span>
   );
 }
@@ -110,7 +113,7 @@ async function OffersTab({ active, expired }: { active: OfferSummary[]; expired:
 }
 
 async function InfoTab({ business }: { business: Business }) {
-  const t = await getT();
+  const [t, reviews] = await Promise.all([getT(), getBusinessReviews(business.id, business.outlets)]);
   return (
     <div className="flex flex-col gap-7 pt-5 lg:pt-8">
       <section>
@@ -124,7 +127,12 @@ async function InfoTab({ business }: { business: Business }) {
         <h2 className="mb-3 text-lg font-semibold">{t("Hours")}</h2>
         <HoursTable hours={business.hours} />
       </section>
-      <MapCard address={business.address} geo={business.geo} layout="split" />
+      {business.outlets.length > 1 ? (
+        <OutletList outlets={business.outlets} />
+      ) : (
+        <MapCard address={business.address} geo={business.geo} layout="split" />
+      )}
+      <ReviewList reviews={reviews.items} total={reviews.total} />
       <section>
         <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">{t("Photos")}</h2>
         <ul className="grid grid-cols-3 gap-2 lg:gap-4">
@@ -177,7 +185,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
       <Container className="pb-28 lg:grid lg:grid-cols-[340px_1fr] lg:items-start lg:gap-12 lg:pb-20">
         {/* Mobile identity block. */}
         <div className="flex flex-col gap-4 lg:hidden">
-          <Avatar className="-mt-10 size-20" />
+          <Avatar logo={business.logo} className="-mt-10 size-20" />
           <div>
             <h1 className="text-[26px] leading-tight font-semibold">{business.name}</h1>
             <p className="mt-1 text-sm text-muted">{subtitle}</p>
@@ -188,7 +196,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
 
         {/* Desktop sidebar. */}
         <aside className="sticky top-6 -mt-12 hidden flex-col gap-5 rounded-2xl border border-line bg-white p-6 shadow-card lg:flex">
-          <Avatar className="-mt-16 size-[88px]" />
+          <Avatar logo={business.logo} className="-mt-16 size-[88px]" />
           <div>
             <h1 className="text-[28px] leading-tight font-semibold">{business.name}</h1>
             <p className="mt-1 text-sm text-muted">{subtitle}</p>

@@ -11,14 +11,16 @@ import { OfferCarousel } from "@/components/offers/offer-card";
 import { OfferCode } from "@/components/offers/offer-code";
 import { OfferGallery } from "@/components/offers/offer-gallery";
 import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
+import { ReviewList } from "@/components/offers/reviews";
 import { SaveButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
 import { TrackedAnchor, TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClass } from "@/components/ui/button";
 import { DetailRow, Divider } from "@/components/ui/display";
+import { RatingInline } from "@/components/ui/rating";
 import { IconLink } from "@/components/ui/icon-button";
-import { getBusiness, getCategory, getOffer, getSimilarOffers } from "@/lib/data";
+import { getBusiness, getCategory, getOffer, getOfferReviews, getSimilarOffers } from "@/lib/data";
 import { formatRange, formatRupees } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
@@ -46,10 +48,11 @@ async function OfferContent({ slug }: { slug: string }) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
   const offer = await getOffer(slug);
   if (!offer) notFound();
-  const [business, category, similar] = await Promise.all([
+  const [business, category, similar, reviews] = await Promise.all([
     getBusiness(offer.businessSlug),
     getCategory(offer.categorySlug),
     getSimilarOffers(offer),
+    getOfferReviews(offer.id),
   ]);
   if (!business) notFound();
 
@@ -75,7 +78,8 @@ async function OfferContent({ slug }: { slug: string }) {
       <h1 className={cn("text-[26px] leading-[1.3] font-semibold lg:text-[32px] lg:leading-tight", expired && "text-muted")}>
         {offer.title}
       </h1>
-      <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} />
+      {offer.rating && <RatingInline rating={offer.rating} className="text-sm text-muted" />}
+      <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} logo={business.logo} />
     </>
   );
 
@@ -163,6 +167,7 @@ async function OfferContent({ slug }: { slug: string }) {
               <HowToGetSteps steps={offer.steps} />
               <TermsAccordion terms={offer.terms} />
               <MapCard address={offer.address} geo={geo} layout="split" offerId={offer.id} />
+              <ReviewList reviews={reviews.items} total={reviews.total} />
               <p className="text-xs leading-relaxed text-faint">
                 {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
               </p>
