@@ -5,9 +5,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Globe, MapPin, Navigation, Phone, Store, Tag } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
-import { ActionTiles, StickyActionBar } from "@/components/businesses/contact-actions";
+import { StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
-import { OutletList } from "@/components/businesses/outlets";
+import { OutletList, OutletSideCard } from "@/components/businesses/outlets";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { HoursTable, OpenStatusPill } from "@/components/businesses/opening-hours";
@@ -17,7 +17,7 @@ import { MapCard } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
 import { ShareButton } from "@/components/offers/share-button";
 import { ButtonLink, buttonClass } from "@/components/ui/button";
-import { DetailRow, Divider, EmptyState } from "@/components/ui/display";
+import { DetailRow, EmptyState } from "@/components/ui/display";
 import { IconLink } from "@/components/ui/icon-button";
 import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getBusinessOffers, getBusinessReviews } from "@/lib/data";
@@ -198,8 +198,9 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
   );
 
   // One pin per outlet that has a location; a shop without outlet locations gets a single pin at its address.
-  const pins: MapOutlet[] = business.outlets.flatMap((o) =>
-    o.geo ? [{ id: o.id, name: business.outlets.length > 1 ? o.name : business.name, address: o.address, lat: o.geo.lat, lng: o.geo.lng, main: o.isMain }] : [],
+  const several = business.outlets.length > 1;
+  const pins: MapOutlet[] = business.outlets.flatMap((o, i) =>
+    o.geo ? [{ id: o.id, name: several ? o.name : business.name, address: o.address, lat: o.geo.lat, lng: o.geo.lng, main: o.isMain, ...(several ? { number: i + 1 } : {}) }] : [],
   );
   if (!pins.length) pins.push({ id: business.id, name: business.name, address: business.address, lat: business.geo.lat, lng: business.geo.lng, main: true });
   if (!pins.some((pin) => pin.main)) pins[0] = { ...pins[0], main: true };
@@ -303,16 +304,21 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
           <section className="overflow-hidden rounded-2xl border border-line bg-white">
             <OutletMap outlets={pins} className="h-[260px]" />
           </section>
-          <section className="flex flex-col gap-5 rounded-2xl border border-line bg-white p-6">
-            <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t("Contact")}</h2>
-            <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true, size: "sm" })}>
-              <Phone size={18} aria-hidden />
-              {business.contactMasked ? t("Call") : t("Call · {phone}", { phone: business.phone })}
-            </ContactLink>
-            <ActionTiles contact={business} />
-            <Divider />
-            <InfoRows business={business} />
-          </section>
+          <OutletSideCard outlets={business.outlets} />
+          {(business.instagram || business.website) && (
+            <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
+              {business.instagram && (
+                <DetailRow icon={InstagramIcon} label="Instagram">
+                  {business.instagram}
+                </DetailRow>
+              )}
+              {business.website && (
+                <DetailRow icon={Globe} label={t("Website")}>
+                  {business.website}
+                </DetailRow>
+              )}
+            </section>
+          )}
           <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
             <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t("Hours")}</h2>
             <HoursTable hours={business.hours} compact />

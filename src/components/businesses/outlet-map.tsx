@@ -13,6 +13,8 @@ export interface MapOutlet {
   lng: number;
   /** The highlighted pin: the shop's main outlet. */
   main: boolean;
+  /** Shown on the pin when the shop has several outlets, matching the outlet list beside the map. */
+  number?: number;
 }
 
 /** A teardrop pin; the shop's main outlet is crimson and larger so it stands out from its other outlets. */
@@ -83,7 +85,7 @@ export function OutletMap({ outlets, className }: { outlets: MapOutlet[]; classN
       let highlighted: import("leaflet").Marker | undefined;
       // The highlighted pin is drawn last so it sits above its neighbours.
       [...outlets].sort((a, b) => Number(a.main) - Number(b.main)).forEach((outlet) => {
-        const number = many ? outlets.indexOf(outlet) + 1 : null;
+        const number = outlet.number ?? null;
         const icon = L.divIcon({
           html: pinHtml(outlet.main, number),
           className: "",

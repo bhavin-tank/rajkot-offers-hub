@@ -1,4 +1,4 @@
-import { Navigation } from "lucide-react";
+import { MapPin, Navigation } from "lucide-react";
 import type { Outlet } from "@/types";
 import { AccordionItem } from "@/components/ui/accordion";
 import { buttonClass } from "@/components/ui/button";
@@ -43,6 +43,53 @@ export async function OutletList({ outlets }: { outlets: Outlet[] }) {
             <AccordionItem variant="card" title={t("Opening hours")}>
               <HoursTable hours={outlet.hours} compact />
             </AccordionItem>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** Compact outlet list for the desktop sidebar: numbered like the map's pins, each with its address and open status. */
+export async function OutletSideCard({ outlets }: { outlets: Outlet[] }) {
+  const t = await getT();
+  const many = outlets.length > 1;
+  return (
+    <section className="rounded-2xl border border-line bg-white p-6">
+      <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{many ? `${t("Outlets")} (${outlets.length})` : t("Address")}</h2>
+      <ul className="mt-4 flex flex-col divide-y divide-line">
+        {outlets.map((outlet, i) => (
+          <li key={outlet.id} className="flex gap-3 py-4 first:pt-0 last:pb-0">
+            {many ? (
+              <span aria-hidden className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">
+                {i + 1}
+              </span>
+            ) : (
+              <MapPin size={20} aria-hidden className="mt-0.5 shrink-0 text-muted" />
+            )}
+            <div className="min-w-0 flex-1">
+              {many && (
+                <p className="text-[15px] font-semibold">
+                  {outlet.name}
+                  {outlet.isMain && !/main/i.test(outlet.name) && <span className="ml-2 text-xs font-medium text-muted">{t("Main outlet")}</span>}
+                </p>
+              )}
+              <p className={many ? "mt-0.5 text-sm leading-relaxed text-muted" : "text-[15px] leading-relaxed font-medium"}>{outlet.address}</p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
+                <OpenStatusPill hours={outlet.hours} />
+                {outlet.geo && (
+                  <a
+                    href={directionsHref(outlet.geo.lat, outlet.geo.lng)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-hover"
+                  >
+                    <Navigation size={15} aria-hidden />
+                    {t("Directions")}
+                  </a>
+                )}
+              </div>
+            </div>
           </li>
         ))}
       </ul>
