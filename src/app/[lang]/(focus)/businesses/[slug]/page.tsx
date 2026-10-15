@@ -221,7 +221,6 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
               <OpenStatusPill hours={business.hours} />
               {business.outlets.length > 1 && <span>{t("{count} outlets", { count: business.outlets.length })}</span>}
             </div>
-            <ActionTiles contact={business} includeCall className="lg:hidden" />
             <div className="hidden gap-3 lg:flex">
               <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ className: "px-6" })}>
                 <Phone size={18} aria-hidden />
@@ -249,6 +248,11 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 <IconLink href="/offers" variant="plain" size="lg" aria-label={t("Go back")}>
                   <ArrowLeft size={22} aria-hidden />
                 </IconLink>
+                {business.logo && (
+                  <span className="relative size-8 shrink-0 overflow-hidden rounded-full bg-surface">
+                    <Image src={business.logo} alt="" fill sizes="32px" className="object-cover" />
+                  </span>
+                )}
                 <p className="min-w-0 flex-1 truncate text-base font-semibold">{business.name}</p>
                 <ShareButton title={business.name} path={path} variant="plain" />
               </div>
