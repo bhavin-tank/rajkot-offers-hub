@@ -7,7 +7,7 @@ import { ArrowLeft, Globe, MapPin, Navigation, Phone, Store, Tag } from "lucide-
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
 import { ContactLink } from "@/components/businesses/contact-link";
-import { OutletList, OutletSideCard } from "@/components/businesses/outlets";
+import { OutletList, OutletSideCards } from "@/components/businesses/outlets";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { HoursTable, OpenStatusPill } from "@/components/businesses/opening-hours";
@@ -304,7 +304,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
           <section className="overflow-hidden rounded-2xl border border-line bg-white">
             <OutletMap outlets={pins} className="h-[260px]" />
           </section>
-          <OutletSideCard outlets={business.outlets} />
+          <OutletSideCards outlets={business.outlets} contact={business} path={path} />
           {(business.instagram || business.website) && (
             <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
               {business.instagram && (
@@ -319,10 +319,6 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
               )}
             </section>
           )}
-          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-6">
-            <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t("Hours")}</h2>
-            <HoursTable hours={business.hours} compact />
-          </section>
         </aside>
       </Container>
 
