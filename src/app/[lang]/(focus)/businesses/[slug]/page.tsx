@@ -222,15 +222,15 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
               {business.outlets.length > 1 && <span>{t("{count} outlets", { count: business.outlets.length })}</span>}
             </div>
             <div className="hidden gap-3 lg:flex">
-              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ className: "px-6" })}>
+              <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ size: "sm" })}>
                 <Phone size={18} aria-hidden />
                 {t("Call")}
               </ContactLink>
-              <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "whatsapp", className: "px-5" })}>
+              <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
                 <WhatsAppIcon size={18} />
                 WhatsApp
               </ContactLink>
-              <a href={directionsHref(business.geo.lat, business.geo.lng)} target="_blank" rel="noreferrer" className={buttonClass({ variant: "outline", className: "px-5" })}>
+              <a href={directionsHref(business.geo.lat, business.geo.lng)} target="_blank" rel="noreferrer" className={buttonClass({ variant: "outline", size: "sm" })}>
                 <Navigation size={18} aria-hidden />
                 {t("Directions")}
               </a>
@@ -291,7 +291,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
         <aside className="sticky top-6 mt-6 hidden max-h-[calc(100dvh-3rem)] flex-col gap-6 overflow-y-auto lg:flex [scrollbar-width:none]">
           <section className="flex flex-col gap-5 rounded-2xl border border-line bg-white p-6">
             <h2 className="text-xs font-semibold tracking-[0.06em] text-muted uppercase">{t("Contact")}</h2>
-            <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true })}>
+            <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={buttonClass({ block: true, size: "sm" })}>
               <Phone size={18} aria-hidden />
               {business.contactMasked ? t("Call") : t("Call · {phone}", { phone: business.phone })}
             </ContactLink>
