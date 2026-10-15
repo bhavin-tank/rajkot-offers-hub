@@ -3,7 +3,6 @@ import { offerIdFromHandle, toOffer, toOfferSummary, TYPE_TO_API } from "@/lib/a
 import type { Page, PromotionCard, PromotionDetail } from "@/lib/api/types";
 import type { Offer, OfferFilters, OfferSummary, Paged, SortKey, ValidityKey } from "@/types";
 import { getBusiness } from "./businesses";
-import { cacheFor, TAGS } from "./cache";
 import { areaName } from "./categories";
 
 export const PAGE_SIZE = 9;
@@ -19,8 +18,6 @@ type FeedQuery = Record<string, string | number | string[] | undefined>;
  * the cache: `daysLeft` reads today's date, which a prerender may only do there.
  */
 async function feed(query: FeedQuery): Promise<{ items: OfferSummary[]; total: number }> {
-  "use cache";
-  cacheFor(TAGS.offers);
   const page = await api<Page<PromotionCard>>("/promotions", { query });
   return { items: page.data.map(toOfferSummary), total: page.meta.total };
 }
@@ -62,16 +59,12 @@ async function promotion(id: string): Promise<PromotionDetail | undefined> {
 }
 
 async function offerById(id: string): Promise<Offer | undefined> {
-  "use cache";
-  cacheFor(TAGS.offers, TAGS.businesses);
   const detail = await promotion(id);
   if (!detail) return undefined;
   return toOffer(detail, await getBusiness(detail.business.slug));
 }
 
 export async function getOfferCard(id: string): Promise<OfferSummary | undefined> {
-  "use cache";
-  cacheFor(TAGS.offers);
   const detail = await promotion(id);
   return detail && toOfferSummary(detail);
 }
@@ -127,8 +120,6 @@ export async function getOffersByHandles(handles: string[]): Promise<OfferSummar
 
 /** Every live offer's handle, for static params and the sitemap. */
 export async function getLiveOffers(): Promise<OfferSummary[]> {
-  "use cache";
-  cacheFor(TAGS.offers);
   const offers: OfferSummary[] = [];
   for (let page = 1; page <= 50; page++) {
     const result = await api<Page<PromotionCard>>("/promotions", { query: { per_page: MAX_PER_PAGE, page, sort: "latest" } });
@@ -144,8 +135,6 @@ export async function getOfferSlugs() {
 
 /** Offers the platform highlights (the featured strip), live ones only. */
 export async function getFeaturedOffers(limit = 8): Promise<OfferSummary[]> {
-  "use cache";
-  cacheFor(TAGS.offers);
   const page = await api<{ data: PromotionCard[] }>("/promotions/featured", { query: { per_page: limit } });
   return page.data.slice(0, limit).map(toOfferSummary);
 }

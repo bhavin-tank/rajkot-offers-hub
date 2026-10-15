@@ -1,6 +1,5 @@
 import { api, ApiError } from "@/lib/api/client";
 import type { BannerFeed } from "@/lib/api/types";
-import { cacheFor, TAGS } from "./cache";
 import { getOfferCard } from "./offers";
 
 export interface HeroSlide {
@@ -21,8 +20,6 @@ export interface HeroSlides {
 
 /** Root category id → slug, to open a banner's category as an offer list. */
 async function rootCategories() {
-  "use cache";
-  cacheFor(TAGS.catalog);
   return (await api<{ data: { id: string; slug: string; name: string }[] }>("/categories")).data;
 }
 
@@ -52,8 +49,6 @@ async function target(link: BannerFeed["items"][number]["link"]): Promise<{ href
 
 /** The home page's slider. Empty when the placement has no live banners. */
 export async function getHeroSlides(): Promise<HeroSlides> {
-  "use cache";
-  cacheFor(TAGS.catalog, TAGS.offers);
   // Pictures are a bonus: a placement the API doesn't know leaves the home page as it was.
   let feed: BannerFeed;
   try {
