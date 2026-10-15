@@ -8,6 +8,8 @@ export interface SectionTab {
   value: string;
   label: ReactNode;
   content: ReactNode;
+  /** Classes for the tab and its section together, e.g. "lg:hidden" or "lg:order-2" to reorder or drop it on one screen size. */
+  className?: string;
 }
 
 interface SectionTabsProps {
@@ -50,14 +52,17 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
       if (scrolling.current) return;
       // A section counts as the one being read once its top is in the upper third of the screen.
       const line = stuckTop() + (bar.current?.offsetHeight ?? 0) + window.innerHeight * 0.3;
-      let current = values[0];
-      for (const value of values) {
-        const section = document.getElementById(value);
-        if (section && section.getBoundingClientRect().top <= line) current = value;
-      }
+      // Sections can be reordered or hidden per screen size, so go by where each one actually is.
+      const shown = values
+        .map((value) => ({ value, node: document.getElementById(value) }))
+        .filter((entry): entry is { value: string; node: HTMLElement } => !!entry.node && entry.node.offsetParent !== null)
+        .map(({ value, node }) => ({ value, top: node.getBoundingClientRect().top }))
+        .sort((a, b) => a.top - b.top);
+      let current = shown[0]?.value ?? values[0];
+      for (const entry of shown) if (entry.top <= line) current = entry.value;
       // A short last section may never reach the bar, so the end of the page counts as reaching it.
       const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
-      setActive(atBottom ? values[values.length - 1] : current);
+      setActive(atBottom ? (shown[shown.length - 1]?.value ?? current) : current);
     }
     update();
     window.addEventListener("scroll", update, { passive: true });
@@ -91,7 +96,7 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
   }
 
   return (
-    <div className={className}>
+    <div className={cn("flex flex-col", className)}>
       {topBar && (
         <div
           inert={!stuck}
@@ -122,6 +127,7 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
               ref={selected ? keepInView : undefined}
               onClick={(event) => go(event, item.value)}
               className={cn(
+                item.className,
                 "-mb-px shrink-0 border-b-2 pt-3 pb-3 text-[15px] whitespace-nowrap transition-colors",
                 selected
                   ? "border-primary font-semibold text-ink"
@@ -137,7 +143,7 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
         <section
           key={item.value}
           id={item.value}
-          className={cn(topBar ? "scroll-mt-28 lg:scroll-mt-14" : "scroll-mt-14", "lg:px-8", i > 0 && "mt-10 border-t border-line lg:mt-14")}
+          className={cn(topBar ? "scroll-mt-28 lg:scroll-mt-14" : "scroll-mt-14", "lg:px-8", item.className, i > 0 && "mt-10 border-t border-line lg:mt-14")}
         >
           {item.content}
         </section>

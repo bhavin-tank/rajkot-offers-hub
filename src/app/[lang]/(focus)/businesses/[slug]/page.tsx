@@ -275,18 +275,21 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 label: t("Offers ({count})", { count: active.length }),
                 content: <OffersTab active={active} expired={expired} />,
               },
-              ...(images.length > 1 ? [{ value: "photos", label: t("Photos"), content: <PhotosTab business={business} images={images} /> }] : []),
+              ...(images.length > 1 ? [{ value: "photos", label: t("Photos"), content: <PhotosTab business={business} images={images} />, className: "lg:order-2" }] : []),
               {
                 value: "outlets",
                 label: business.outlets.length > 1 ? t("Outlets") : t("Outlet"),
                 content: <OutletsTab business={business} />,
+                // On desktop the outlets live in the sidebar beside the map.
+                className: "lg:hidden",
               },
-              { value: "about", label: t("About us"), content: <AboutTab business={business} /> },
+              { value: "about", label: t("About us"), content: <AboutTab business={business} />, className: "lg:order-1" },
               ...(reviews.total
                 ? [
                     {
                       value: "reviews",
                       label: t("Reviews"),
+                      className: "lg:order-3",
                       content: (
                         <div className="pt-5 lg:pt-8">
                           <ReviewList reviews={reviews.items} total={reviews.total} />
