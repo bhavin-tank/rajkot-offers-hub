@@ -156,6 +156,41 @@ index b7324509f69790d1743c29fa4b045b3c743022a4..47856a58a4efe426291dde4079ff0e95
          const pending = this.pending.get(cacheKey);
          if (pending) return pending;
          const { promise, resolve, reject } = createPromiseWithResolvers();
+diff --git a/dist/esm/server/app-render/module-loading/track-module-loading.instance.js b/dist/esm/server/app-render/module-loading/track-module-loading.instance.js
+index c693c6587fc922b31eab1c6323d3f79242a6f5a7..50ccab7d8621fbb56d87db003d4bf7a35149fb5b 100644
+--- a/dist/esm/server/app-render/module-loading/track-module-loading.instance.js
++++ b/dist/esm/server/app-render/module-loading/track-module-loading.instance.js
+@@ -1,4 +1,9 @@
+ import { CacheSignal } from '../cache-signal';
++// Cloudflare Workers: this one signal is shared by every request in the isolate, and its
++// setImmediate cleanup created by one request was cleared by another — Workers throws
++// "Cannot perform I/O on behalf of a different request" and the render's stream breaks.
++// The worker is a single bundle whose imports resolve at once, so nothing is tracked there.
++const skipModuleTracking = globalThis.navigator?.userAgent === 'Cloudflare-Workers';
+ /**
+  * Tracks all in-flight async imports and chunk loads.
+  * Initialized lazily, because we don't want this to error in case it gets pulled into an edge runtime module.
+@@ -10,10 +15,12 @@ function getModuleLoadingSignal() {
+     return _moduleLoadingSignal;
+ }
+ export function trackPendingChunkLoad(promise) {
++    if (skipModuleTracking) return;
+     const moduleLoadingSignal = getModuleLoadingSignal();
+     moduleLoadingSignal.trackRead(promise);
+ }
+ export function trackPendingImport(exportsOrPromise) {
++    if (skipModuleTracking) return;
+     const moduleLoadingSignal = getModuleLoadingSignal();
+     // requiring an async module returns a promise.
+     // if it's sync, there's nothing to track.
+@@ -29,6 +36,7 @@ export function trackPendingImport(exportsOrPromise) {
+  *
+  * So if we see one, we want to extend the duration of `cacheSignal` at least until the import/chunk-load is done.
+  */ export function trackPendingModules(cacheSignal) {
++    if (skipModuleTracking) return;
+     const moduleLoadingSignal = getModuleLoadingSignal();
+     // We can't just use `cacheSignal.trackRead(moduleLoadingSignal.cacheReady())`,
+     // because we might start and finish multiple batches of module loads while waiting for caches,
 diff --git a/dist/esm/server/use-cache/use-cache-wrapper.js b/dist/esm/server/use-cache/use-cache-wrapper.js
 index 7837534f252dcb92ca6d1b131018cbe329c5cdff..eda13f31002f5af9c533926b14d77b25a65dfdb7 100644
 --- a/dist/esm/server/use-cache/use-cache-wrapper.js
@@ -199,6 +234,43 @@ index 601f24fc74ecd3c14988cc55a5a573184188b226..3ec6641ef928e33074c8d6d683ea8387
          const pending = this.pending.get(cacheKey);
          if (pending) return pending;
          const { promise, resolve, reject } = (0, _promisewithresolvers.createPromiseWithResolvers)();
+diff --git a/dist/server/app-render/module-loading/track-module-loading.instance.js b/dist/server/app-render/module-loading/track-module-loading.instance.js
+index a7150c4d3ad9ea01e573a2c01a718a4daade5e9a..98ed4855afc925903f0d916aba42d337edab1d9b 100644
+--- a/dist/server/app-render/module-loading/track-module-loading.instance.js
++++ b/dist/server/app-render/module-loading/track-module-loading.instance.js
+@@ -25,6 +25,11 @@ _export(exports, {
+     }
+ });
+ const _cachesignal = require("../cache-signal");
++// Cloudflare Workers: this one signal is shared by every request in the isolate, and its
++// setImmediate cleanup created by one request was cleared by another — Workers throws
++// "Cannot perform I/O on behalf of a different request" and the render's stream breaks.
++// The worker is a single bundle whose imports resolve at once, so nothing is tracked there.
++const skipModuleTracking = globalThis.navigator?.userAgent === 'Cloudflare-Workers';
+ /**
+  * Tracks all in-flight async imports and chunk loads.
+  * Initialized lazily, because we don't want this to error in case it gets pulled into an edge runtime module.
+@@ -36,10 +41,12 @@ function getModuleLoadingSignal() {
+     return _moduleLoadingSignal;
+ }
+ function trackPendingChunkLoad(promise) {
++    if (skipModuleTracking) return;
+     const moduleLoadingSignal = getModuleLoadingSignal();
+     moduleLoadingSignal.trackRead(promise);
+ }
+ function trackPendingImport(exportsOrPromise) {
++    if (skipModuleTracking) return;
+     const moduleLoadingSignal = getModuleLoadingSignal();
+     // requiring an async module returns a promise.
+     // if it's sync, there's nothing to track.
+@@ -48,6 +55,7 @@ function trackPendingImport(exportsOrPromise) {
+     }
+ }
+ function trackPendingModules(cacheSignal) {
++    if (skipModuleTracking) return;
+     const moduleLoadingSignal = getModuleLoadingSignal();
+     // We can't just use `cacheSignal.trackRead(moduleLoadingSignal.cacheReady())`,
+     // because we might start and finish multiple batches of module loads while waiting for caches,
 diff --git a/dist/server/use-cache/use-cache-wrapper.js b/dist/server/use-cache/use-cache-wrapper.js
 index 801d1f687fecbd774e9601f1dab1526c9d127652..a90db8ea1f2398449108a42bfa70ffceada68d51 100644
 --- a/dist/server/use-cache/use-cache-wrapper.js
