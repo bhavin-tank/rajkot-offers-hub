@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Anek_Gujarati, Inter } from "next/font/google";
 import { notFound } from "next/navigation";
 import { LoginProvider } from "@/components/auth/login-dialog";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { ToastProvider } from "@/components/ui/toast";
 import { hasLocale } from "@/lib/i18n/config";
 import { LocaleProvider } from "@/lib/i18n/client";
@@ -60,6 +61,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
         <LocaleProvider locale={lang}>
           <ToastProvider>
             <LoginProvider>{children}</LoginProvider>
+            <ScrollToTop />
           </ToastProvider>
         </LocaleProvider>
       </body>

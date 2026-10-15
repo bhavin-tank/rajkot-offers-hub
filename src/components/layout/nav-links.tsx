@@ -58,6 +58,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label={t("Main menu")}
+      data-bottom-bar
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="grid h-16 grid-cols-5">
