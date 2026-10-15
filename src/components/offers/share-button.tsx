@@ -69,14 +69,10 @@ export function ShareButton({ title, path, variant = "floating", offerId }: Shar
           <Share2 size={20} aria-hidden />
         </IconButton>
       ) : variant === "pill" ? (
-        <button
-          type="button"
-          onClick={onShare}
-          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-surface px-4 text-sm font-semibold text-ink transition-colors hover:bg-canvas"
-        >
+        <Button variant="outline" size="sm" onClick={onShare}>
           <Share2 size={16} aria-hidden />
           {t("Share")}
-        </button>
+        </Button>
       ) : (
         <Button variant="ghost" size="sm" onClick={onShare} className="px-2">
           <Share2 size={18} aria-hidden />
