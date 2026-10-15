@@ -72,7 +72,7 @@ export function ShareButton({ title, path, variant = "floating", offerId }: Shar
         <button
           type="button"
           onClick={onShare}
-          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-white px-4 text-sm font-medium shadow-card hover:bg-surface"
+          className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-xl bg-surface px-4 text-sm font-semibold text-ink transition-colors hover:bg-canvas"
         >
           <Share2 size={16} aria-hidden />
           {t("Share")}
