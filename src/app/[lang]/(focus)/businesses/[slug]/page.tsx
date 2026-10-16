@@ -22,7 +22,7 @@ import { IconLink } from "@/components/ui/icon-button";
 import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getBusinessOffers, getBusinessReviews } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
-import { directionsHref } from "@/lib/utils";
+import { cn, directionsHref } from "@/lib/utils";
 import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
 import type { Business, OfferSummary, Rating, Review } from "@/types";
 import { RatingInline } from "@/components/ui/rating";
@@ -39,6 +39,9 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/businesses
     image: business.cover,
   });
 }
+
+/** Icon buttons in the phone's sticky header. */
+const headerAction = "inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink transition-colors hover:bg-surface";
 
 /** The shop's Instagram and website, when it has them; address and phone live with the outlets. */
 async function LinkRows({ business }: { business: Business }) {
@@ -226,7 +229,20 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                   </span>
                 )}
                 <p className="min-w-0 flex-1 truncate text-base font-semibold">{business.name}</p>
-                <span className="size-10 shrink-0" aria-hidden />
+                <div className="flex shrink-0 items-center">
+                  <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} className={headerAction}>
+                    <Phone size={20} aria-hidden />
+                    <span className="sr-only">{t("Call")}</span>
+                  </ContactLink>
+                  <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} className={cn(headerAction, "text-whatsapp-ink")}>
+                    <WhatsAppIcon size={20} />
+                    <span className="sr-only">WhatsApp</span>
+                  </ContactLink>
+                  <a href={directionsHref(business.geo.lat, business.geo.lng)} target="_blank" rel="noreferrer" className={headerAction}>
+                    <Navigation size={20} aria-hidden />
+                    <span className="sr-only">{t("Directions")}</span>
+                  </a>
+                </div>
               </div>
             }
             items={[

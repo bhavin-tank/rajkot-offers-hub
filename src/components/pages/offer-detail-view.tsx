@@ -2,24 +2,23 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, MapPin, Navigation, Phone, Store, Tag } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, MapPin, Store, Tag } from "lucide-react";
 import { Link } from "@/components/i18n/link";
-import { WhatsAppIcon } from "@/components/icons/brand";
 import { ShopAvatar } from "@/components/businesses/avatar";
-import { ContactRow, StickyActionBar } from "@/components/businesses/contact-actions";
-import { ContactLink } from "@/components/businesses/contact-link";
+import { StickyActionBar } from "@/components/businesses/contact-actions";
+import { OutletSideCards } from "@/components/businesses/outlets";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { OfferCarousel } from "@/components/offers/offer-card";
 import { OfferCode } from "@/components/offers/offer-code";
-import { BranchCards, BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
+import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
 import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
+import { StoreLink } from "@/components/offers/store-link";
 import { ShareButton } from "@/components/offers/share-button";
-import { TrackedAnchor, TrackOfferView } from "@/components/offers/track";
+import { TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonClass } from "@/components/ui/button";
 import { DetailRow } from "@/components/ui/display";
 import { RatingInline } from "@/components/ui/rating";
 import { IconLink } from "@/components/ui/icon-button";
@@ -28,7 +27,7 @@ import { getBusiness, getCategory, getOffer, getOfferReviews, getSimilarOffers }
 import { formatRange, formatRupees } from "@/lib/format";
 import { getLocale, getT } from "@/lib/i18n/server";
 import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
-import { cn, directionsHref } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { offerPath, shopPath } from "@/lib/paths";
 
 export async function offerMetadata(slug: string): Promise<Metadata> {
@@ -83,8 +82,10 @@ async function OfferContent({ slug }: { slug: string }) {
     : [{ id: business.id, name: business.name, address: offer.address, lat: geo.lat, lng: geo.lng, main: true }];
   if (!pins.some((pin) => pin.main)) pins[0] = { ...pins[0], main: true };
 
-  // On a phone several outlets get a card each (the desktop has the map and its list); one outlet keeps the address card.
-  const cardsOnPhone = offer.branches.length > 1;
+  // The Outlets tab (phone) lists the outlets the offer is valid at, else all of the shop's.
+  const validIds = new Set(offer.branches.map((b) => b.id));
+  const matched = business.outlets.filter((o) => validIds.has(o.id));
+  const outlets = matched.length ? matched : business.outlets;
 
   const crumbs = await breadcrumbLd([
     { name: t("Home"), path: "/" },
@@ -94,10 +95,11 @@ async function OfferContent({ slug }: { slug: string }) {
   ]);
 
   const mobileButtons = (
-    <div className="absolute inset-x-4 top-4 lg:hidden">
+    <div className={cn("absolute inset-x-4 top-4 flex items-center justify-between lg:hidden", expired && "[&>span]:opacity-80")}>
       <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
         <ArrowLeft size={20} aria-hidden />
       </IconLink>
+      {badge}
     </div>
   );
 
@@ -118,7 +120,7 @@ async function OfferContent({ slug }: { slug: string }) {
           {offer.address}
         </DetailRow>
         {offer.validAt.length > 0 && (
-          <DetailRow icon={Store} label={t("Valid at")} className={cardsOnPhone ? "max-lg:hidden" : undefined}>
+          <DetailRow icon={Store} label={t("Valid at")}>
             <ul>
               {offer.validAt.map((branch) => (
                 <li key={branch}>{branch}</li>
@@ -127,11 +129,7 @@ async function OfferContent({ slug }: { slug: string }) {
           </DetailRow>
         )}
       </div>
-      {cardsOnPhone ? (
-        <BranchCards branches={offer.branches} offerId={offer.id} className="lg:hidden" />
-      ) : (
-        <MapCard address={offer.address} geo={geo} offerId={offer.id} className="lg:hidden" />
-      )}
+      <MapCard address={offer.address} geo={geo} offerId={offer.id} className="lg:hidden" />
     </div>
   );
 
@@ -158,16 +156,15 @@ async function OfferContent({ slug }: { slug: string }) {
         </div>
         <div className="overflow-hidden lg:rounded-2xl lg:border lg:border-line lg:bg-white">
           <PhotoMosaic images={images} alt={offer.title} linked={false}>
-            <div className={cn("absolute bottom-4 left-4", expired && "opacity-80")}>{badge}</div>
+            <div className={cn("absolute bottom-4 left-4 hidden lg:block", expired && "opacity-80")}>{badge}</div>
             {mobileButtons}
           </PhotoMosaic>
           <div className="flex flex-col gap-3 px-5 pt-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-8 lg:py-6">
             <div className="flex min-w-0 items-start gap-4 lg:items-center">
-              {/* On a phone the shop card below shows the logo. */}
-              <ShopAvatar logo={business.logo} className="hidden size-20 shrink-0 lg:flex" />
+                            <ShopAvatar logo={business.logo} className="hidden size-20 shrink-0 lg:flex" />
               <div className="min-w-0">
                 <h1 className={cn("text-[22px] leading-snug font-semibold lg:text-[28px] lg:leading-tight", expired && "text-muted")}>{offer.title}</h1>
-                {/* On a phone the shop card below says whose offer it is, so only the rating stays here. */}
+                {/* On a phone only the rating shows here; the header's store icon leads to the shop. */}
                 <p className={cn("mt-1 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted lg:flex lg:text-[15px]", offer.rating ? "flex" : "hidden")}>
                   <Link href={shopPath(business.slug)} className="hidden font-medium text-ink hover:underline lg:inline">
                     {business.name}
@@ -186,11 +183,6 @@ async function OfferContent({ slug }: { slug: string }) {
 
       <Container className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
         <div className="mt-6 flex min-w-0 flex-col gap-6 lg:gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
-          {/* On a phone the shop comes before the tabs; on desktop it is a card in the side column. */}
-          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-4 lg:hidden">
-            <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} logo={business.logo} />
-            <ContactRow contact={{ ...business, geo }} disabled={expired} offerId={offer.id} />
-          </section>
           <SectionTabs
             label={t("Page sections")}
             topBar={
@@ -198,13 +190,27 @@ async function OfferContent({ slug }: { slug: string }) {
                 <IconLink href="/offers" variant="plain" size="lg" aria-label={t("Go back")}>
                   <ArrowLeft size={22} aria-hidden />
                 </IconLink>
-                <p className="min-w-0 flex-1 truncate text-base font-semibold">{offer.title}</p>
-                <span className="size-10 shrink-0" aria-hidden />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-base leading-tight font-semibold">{offer.title}</p>
+                  <p className="truncate text-xs leading-tight text-muted">{business.name}</p>
+                </div>
+                <StoreLink href={shopPath(business.slug)} name={business.name} outlets={business.outlets.map(({ id, name, address, isMain }) => ({ id, name, address, isMain }))} />
               </div>
             }
             items={[
               { value: "details", label: t("Details"), content: details },
               { value: "how", label: t("How to get it"), content: <HowToGetSteps steps={offer.steps} /> },
+              {
+                value: "outlets",
+                label: t(outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: outlets.length }),
+                content: (
+                  <div className="flex flex-col gap-4">
+                    <OutletSideCards outlets={outlets} contact={business} path={shopPath(business.slug)} storeHref={shopPath(business.slug)} />
+                  </div>
+                ),
+                // On desktop the map and address sit in the side column.
+                className: "lg:hidden",
+              },
               ...(offer.terms.length
                 ? [{ value: "terms", label: t("Terms"), content: <TermsAccordion terms={offer.terms} /> }]
                 : []),
@@ -258,36 +264,14 @@ async function OfferContent({ slug }: { slug: string }) {
         </section>
       )}
 
-      {/* Desktop: the offer's actions float at the bottom centre while the page scrolls. */}
+      {/* Desktop: save and share float at the bottom centre while the page scrolls. */}
       <div className="fixed bottom-6 left-1/2 z-40 hidden -translate-x-1/2 items-center gap-3 rounded-2xl border border-line bg-white p-3 shadow-float lg:flex">
-        {expired ? (
-          <>
-            <Button size="sm" disabled>
-              {t("Offer expired")}
-            </Button>
-          </>
-        ) : (
-          <>
-            <ContactLink business={business.slug} kind="call" number={business.phone} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ size: "sm" })}>
-              <Phone size={18} aria-hidden />
-              {t("Call")}
-            </ContactLink>
-            <ContactLink business={business.slug} kind="whatsapp" number={business.whatsapp} masked={business.contactMasked} offerId={offer.id} className={buttonClass({ variant: "whatsapp", size: "sm" })}>
-              <WhatsAppIcon size={18} />
-              WhatsApp
-            </ContactLink>
-          </>
-        )}
-        <TrackedAnchor href={directionsHref(geo.lat, geo.lng)} target="_blank" rel="noreferrer" offerId={offer.id} event="directions" className={buttonClass({ variant: "outline", size: "sm" })}>
-          <Navigation size={18} aria-hidden />
-          {t("Directions")}
-        </TrackedAnchor>
         <ShareButton title={offer.title} path={path} variant="pill" offerId={offer.id} />
         <SaveTextButton slug={offer.slug} variant="outline" />
       </div>
 
       {/* Room for the mobile action bar. */}
-      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-48" : "h-28")} />
+      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-56" : "h-28")} />
       <StickyActionBar
         lead={
           <>

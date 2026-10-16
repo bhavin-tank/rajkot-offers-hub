@@ -91,7 +91,8 @@ export function SectionTabs({ items, label, topBar, className }: SectionTabsProp
       scrolling.current = false;
     }, 800);
     setActive(value);
-    const top = section.getBoundingClientRect().top + window.scrollY - stuckTop() - (bar.current?.offsetHeight ?? 0);
+    // Stop a little short of the bar so a card's top border is not hidden under it.
+    const top = section.getBoundingClientRect().top + window.scrollY - stuckTop() - (bar.current?.offsetHeight ?? 0) - 16;
     window.scrollTo({ top, behavior: "smooth" });
   }
 

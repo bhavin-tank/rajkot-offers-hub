@@ -28,7 +28,7 @@ export function OfferCode({
 }: {
   offerId: string;
   mode: RedemptionMode;
-  /** For the phone's bottom bar: one slim row until the code is shown, and a scrollable card after. */
+  /** For the phone's bottom bar: a tighter card that scrolls once the code is shown. */
   compact?: boolean;
   className?: string;
 }) {
@@ -80,12 +80,12 @@ export function OfferCode({
           )}
         </>
       ) : (
-        <div className={cn("flex flex-col gap-3", compact && "flex-row items-center")}>
+        <div className="flex flex-col gap-3">
           <p className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
             <Ticket size={18} className="shrink-0 text-primary" aria-hidden />
             {claim ? t("This offer needs a personal code. Log in to claim yours.") : t("This offer has a code to show at the store.")}
           </p>
-          <Button type="button" onClick={get} disabled={pending} block={!compact} className={compact ? "shrink-0" : undefined}>
+          <Button type="button" onClick={get} disabled={pending} block>
             {claim ? t("Claim my code") : t("Show code")}
           </Button>
         </div>
