@@ -15,6 +15,7 @@ import { OfferCode } from "@/components/offers/offer-code";
 import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
 import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
+import { StoreLink } from "@/components/offers/store-link";
 import { ShareButton } from "@/components/offers/share-button";
 import { TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
@@ -160,11 +161,10 @@ async function OfferContent({ slug }: { slug: string }) {
           </PhotoMosaic>
           <div className="flex flex-col gap-3 px-5 pt-5 lg:flex-row lg:items-center lg:justify-between lg:gap-8 lg:px-8 lg:py-6">
             <div className="flex min-w-0 items-start gap-4 lg:items-center">
-              {/* On a phone the shop card below shows the logo. */}
-              <ShopAvatar logo={business.logo} className="hidden size-20 shrink-0 lg:flex" />
+                            <ShopAvatar logo={business.logo} className="hidden size-20 shrink-0 lg:flex" />
               <div className="min-w-0">
                 <h1 className={cn("text-[22px] leading-snug font-semibold lg:text-[28px] lg:leading-tight", expired && "text-muted")}>{offer.title}</h1>
-                {/* On a phone the shop card below says whose offer it is, so only the rating stays here. */}
+                {/* On a phone only the rating shows here; the header's store icon leads to the shop. */}
                 <p className={cn("mt-1 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted lg:flex lg:text-[15px]", offer.rating ? "flex" : "hidden")}>
                   <Link href={shopPath(business.slug)} className="hidden font-medium text-ink hover:underline lg:inline">
                     {business.name}
@@ -183,10 +183,6 @@ async function OfferContent({ slug }: { slug: string }) {
 
       <Container className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
         <div className="mt-6 flex min-w-0 flex-col gap-6 lg:gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
-          {/* On a phone the shop comes before the tabs; on desktop it is a card in the side column. */}
-          <section className="flex flex-col gap-4 rounded-2xl border border-line bg-white p-4 lg:hidden">
-            <BusinessRow slug={business.slug} name={business.name} area={offer.areaName} logo={business.logo} />
-          </section>
           <SectionTabs
             label={t("Page sections")}
             topBar={
@@ -198,9 +194,7 @@ async function OfferContent({ slug }: { slug: string }) {
                   <p className="truncate text-base leading-tight font-semibold">{offer.title}</p>
                   <p className="truncate text-xs leading-tight text-muted">{business.name}</p>
                 </div>
-                <IconLink href={shopPath(business.slug)} variant="plain" size="lg" aria-label={t("View store")}>
-                  <Store size={22} aria-hidden />
-                </IconLink>
+                <StoreLink href={shopPath(business.slug)} name={business.name} outlets={business.outlets.map(({ id, name, address, isMain }) => ({ id, name, address, isMain }))} />
               </div>
             }
             items={[
