@@ -8,29 +8,33 @@ import { getBusiness, getOffersByHandles } from "@/lib/data";
 import type { Business, OfferSummary } from "@/types";
 
 /**
- * Saved offers and shops. They live on the visitor's account (the API), so saving needs a login.
+ * Saved offers and shops, and the shops a visitor follows. They live on the visitor's account (the API), so
+ * saving or following needs a login. A save is a private bookmark; a follow asks for news of the shop's new offers.
  */
 
-export type SaveKind = "offer" | "shop";
+export type SaveKind = "offer" | "shop" | "follow";
 
-/** The signed-in visitor's saves: offer handles ("<slug>-<id>") and shop slugs, newest first. */
-export type SavesResult = { status: "guest" } | { status: "error" } | { status: "member"; offers: string[]; shops: string[] };
+/** The signed-in visitor's saves: offer handles ("<slug>-<id>"), shop slugs and followed shop slugs, newest first. */
+export type SavesResult =
+  | { status: "guest" }
+  | { status: "error" }
+  | { status: "member"; offers: string[]; shops: string[]; follows: string[] };
 
 const MAX_CARDS = 60;
 const SHOP_SLUG = /^[a-z0-9][a-z0-9-]{0,120}$/i;
 
 /** Every page of a saved list (a few hundred at most). */
-async function listAll<T>(path: string, token: string): Promise<T[]> {
+async function listAll<T>(path: string, token: string, query: Record<string, string> = {}): Promise<T[]> {
   const items: T[] = [];
   for (let page = 1; page <= 5; page++) {
-    const result = await api<Page<T>>(path, { query: { per_page: 100, page }, token, client: null });
+    const result = await api<Page<T>>(path, { query: { ...query, per_page: 100, page }, token, client: null });
     items.push(...result.data);
     if (page >= result.meta.last_page) break;
   }
   return items;
 }
 
-/** The API's save URL for an offer (by handle) or a shop (by slug); the save routes take the shop's id, not its slug. */
+/** The API's save URL for an offer (by handle), or the save/follow URL for a shop (by slug); those routes take the shop's id, not its slug. */
 async function savePath(kind: SaveKind, key: string) {
   if (kind === "offer") {
     const id = offerIdFromHandle(key);
@@ -38,18 +42,19 @@ async function savePath(kind: SaveKind, key: string) {
   }
   if (!SHOP_SLUG.test(key)) return null;
   const business = await getBusiness(key).catch(() => undefined);
-  return business ? `/businesses/${business.id}/save` : null;
+  return business ? `/businesses/${business.id}/${kind === "follow" ? "follow" : "save"}` : null;
 }
 
 /** The visitor's saves, or "guest" when nobody is signed in. */
 export async function loadSavesAction(): Promise<SavesResult> {
   try {
     const result = await withSession(async (token) => {
-      const [promotions, businesses] = await Promise.all([
+      const [promotions, businesses, followed] = await Promise.all([
         listAll<PromotionCard>("/saved-promotions", token),
         listAll<{ slug: string }>("/saves", token),
+        listAll<{ slug: string }>("/me/interactions", token, { filter: "follows" }),
       ]);
-      return { offers: promotions.map(offerHandle), shops: businesses.map((b) => b.slug) };
+      return { offers: promotions.map(offerHandle), shops: businesses.map((b) => b.slug), follows: followed.map((b) => b.slug) };
     });
     return result === "signed-out" ? { status: "guest" } : { status: "member", ...result };
   } catch (error) {
@@ -58,7 +63,7 @@ export async function loadSavesAction(): Promise<SavesResult> {
   }
 }
 
-/** Saves or unsaves one offer (by handle) or shop (by slug). "signed-out" means the session ended and the visitor has to log in again. */
+/** Saves or unsaves one offer (by handle) or shop (by slug), or follows or unfollows a shop. "signed-out" means the session ended and the visitor has to log in again. */
 export async function setSavedAction(kind: SaveKind, key: string, saved: boolean): Promise<"ok" | "signed-out" | "error"> {
   const path = typeof key === "string" ? await savePath(kind, key) : null;
   if (!path) return "error";
@@ -66,7 +71,7 @@ export async function setSavedAction(kind: SaveKind, key: string, saved: boolean
     const result = await withSession((token) => api(path, { method: saved ? "POST" : "DELETE", token, client: null }));
     return result === "signed-out" ? "signed-out" : "ok";
   } catch (error) {
-    // Unsaving something that is no longer saved, or no longer there, is already what was asked for.
+    // Unsaving (or unfollowing) something that is no longer there is already what was asked for.
     if (!saved && error instanceof ApiError && error.status === 404) return "ok";
     console.error("[save]", error);
     return "error";

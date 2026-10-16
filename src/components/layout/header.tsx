@@ -1,5 +1,5 @@
 import { LanguageToggle } from "@/components/i18n/language-toggle";
-import { ArrowLeft, CircleUserRound, Heart } from "lucide-react";
+import { ArrowLeft, Bookmark, CircleUserRound } from "lucide-react";
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { IconLink } from "@/components/ui/icon-button";
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Container } from "./container";
 import { Logo } from "./logo";
 import { LocationPicker } from "./location-picker";
+import { NotificationBell } from "./notification-bell";
 import { HeaderNav } from "./nav-links";
 
 /** City pill that opens the Rajkot area list. */
@@ -28,8 +29,9 @@ export async function DesktopHeader({ className }: { className?: string }) {
         <div className="flex items-center justify-end gap-2 xl:gap-3">
           <LocationPill />
           <LanguageToggle />
+          <NotificationBell />
           <IconLink href="/saved" variant="plain" size="lg" aria-label={t("Saved offers")}>
-            <Heart size={20} aria-hidden />
+            <Bookmark size={20} aria-hidden />
           </IconLink>
           <IconLink href="/account" variant="plain" size="lg" aria-label={t("My account")}>
             <CircleUserRound size={20} aria-hidden />
@@ -50,6 +52,7 @@ export function MobileHeader() {
       <div className="flex h-14 items-center justify-between px-5">
         <Logo priority />
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <LanguageToggle />
           <LocationPill />
         </div>

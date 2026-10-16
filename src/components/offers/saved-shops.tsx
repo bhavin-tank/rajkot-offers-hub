@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Bell, Bookmark } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ShopAvatar } from "@/components/businesses/avatar";
 import { Link } from "@/components/i18n/link";
@@ -8,16 +8,17 @@ import { ButtonLink } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/display";
 import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
-import { useSavedShops } from "@/hooks/use-saved";
+import { useSaved } from "@/hooks/use-saved";
 import { savedShopCards, type SavedShop } from "@/lib/actions/saves";
 import { useT } from "@/lib/i18n/client";
 import { shopPath } from "@/lib/paths";
 
-/** Saved shops, newest first. Cards are fetched for the shops saved on the account. */
-export function SavedShops() {
+/** Saved shops, or the shops followed (`kind="follow"`), newest first. Cards are fetched for the shops on the account. */
+export function SavedShops({ kind = "shop" }: { kind?: "shop" | "follow" }) {
   const t = useT();
   const toast = useToast();
-  const { saved, ready, remove, restore } = useSavedShops();
+  const following = kind === "follow";
+  const { saved, ready, remove, restore } = useSaved(kind);
   const [shops, setShops] = useState<SavedShop[] | null>(null);
   const key = saved.join("|");
 
@@ -37,9 +38,9 @@ export function SavedShops() {
   if (!list.length) {
     return (
       <EmptyState
-        icon={Heart}
-        title={t("No saved shops yet")}
-        hint={t("Tap ♡ on a shop you like to see it here.")}
+        icon={following ? Bell : Bookmark}
+        title={following ? t("You are not following any shop yet") : t("No saved shops yet")}
+        hint={following ? t("Follow a shop to see its new offers first and get told about them.") : t("Tap Save on a shop you like to see it here.")}
         action={<ButtonLink href="/offers">{t("Browse offers")}</ButtonLink>}
       />
     );
@@ -49,7 +50,7 @@ export function SavedShops() {
     const index = saved.indexOf(slug);
     const change = remove(slug);
     void change?.done.then((ok) => ok || toast(t("Could not save. Please try again.")));
-    toast(t("Shop removed"), { actionLabel: t("Undo"), onAction: () => void restore(slug, index) });
+    toast(following ? t("Unfollowed") : t("Shop removed"), { actionLabel: t("Undo"), onAction: () => void restore(slug, index) });
   }
 
   return (
@@ -63,8 +64,8 @@ export function SavedShops() {
               <span className="block truncate text-sm text-muted">{t("{category} • {area}, Rajkot", { category: shop.categoryName, area: shop.areaName })}</span>
             </span>
           </Link>
-          <IconButton variant="soft" size="lg" aria-label={t("Remove from saved")} onClick={() => onRemove(shop.slug)}>
-            <Heart size={20} aria-hidden className="fill-primary text-primary" />
+          <IconButton variant="soft" size="lg" aria-label={following ? t("Unfollow") : t("Remove from saved")} onClick={() => onRemove(shop.slug)}>
+            {following ? <Bell size={20} aria-hidden className="fill-primary text-primary" /> : <Bookmark size={20} aria-hidden className="fill-primary text-primary" />}
           </IconButton>
         </li>
       ))}

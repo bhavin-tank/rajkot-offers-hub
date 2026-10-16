@@ -45,7 +45,7 @@ async function known(): Promise<Known> {
 }
 
 /** Top-level pages; any other first segment is an area. */
-const PAGES = new Set(["offers", "categories", "contact", "how-it-works", "saved", "submit-offer", "login", "account", "businesses", "privacy", "terms"]);
+const PAGES = new Set(["offers", "categories", "contact", "how-it-works", "saved", "notifications", "submit-offer", "login", "account", "businesses", "privacy", "terms"]);
 
 /**
  * Whether `path` (without locale prefix) names an offer, category or area that

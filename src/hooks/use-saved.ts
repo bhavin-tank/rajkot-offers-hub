@@ -3,13 +3,13 @@ import { loadSavesAction, setSavedAction, type SaveKind } from "@/lib/actions/sa
 import { signedInHint } from "@/lib/auth/hint";
 
 /**
- * Saved offers and shops, one store for every component on the page.
+ * Saved offers and shops and followed shops, one store for every component on the page.
  *
- * Saves live on the visitor's account (the API), so a guest has none: the heart opens the login popup, and the
- * lists are loaded once the visitor is seen signed in.
+ * They live on the visitor's account (the API), so a guest has none: the heart or Follow button opens the login
+ * popup, and the lists are loaded once the visitor is seen signed in.
  */
 
-type Lists = { offers: string[]; shops: string[] };
+type Lists = { offers: string[]; shops: string[]; follows: string[] };
 interface State extends Lists {
   /** False until we know whether the visitor has an account to read saves from, so a saved page never flashes "nothing saved". */
   ready: boolean;
@@ -17,10 +17,10 @@ interface State extends Lists {
   member: boolean;
 }
 
-const FIELD: Record<SaveKind, "offers" | "shops"> = { offer: "offers", shop: "shops" };
+const FIELD: Record<SaveKind, keyof Lists> = { offer: "offers", shop: "shops", follow: "follows" };
 const EMPTY: string[] = [];
-const SERVER_STATE: State = { offers: EMPTY, shops: EMPTY, ready: false, member: false };
-const GUEST: State = { offers: EMPTY, shops: EMPTY, ready: true, member: false };
+const SERVER_STATE: State = { offers: EMPTY, shops: EMPTY, follows: EMPTY, ready: false, member: false };
+const GUEST: State = { offers: EMPTY, shops: EMPTY, follows: EMPTY, ready: true, member: false };
 
 const listeners = new Set<() => void>();
 let state: State | null = null;
@@ -33,7 +33,7 @@ function emit(next: State) {
 
 function snapshot(): State {
   // A signed-in visitor's saves are not known until the account answers.
-  state ??= signedInHint() ? { offers: EMPTY, shops: EMPTY, ready: false, member: false } : GUEST;
+  state ??= signedInHint() ? { ...SERVER_STATE } : GUEST;
   return state;
 }
 
@@ -42,7 +42,7 @@ export function loadSaves(): Promise<boolean> {
   loading ??= loadSavesAction().then((result) => {
     loading = null;
     if (result.status === "member") {
-      emit({ offers: result.offers, shops: result.shops, ready: true, member: true });
+      emit({ offers: result.offers, shops: result.shops, follows: result.follows, ready: true, member: true });
       return true;
     }
     emit(GUEST);
@@ -125,4 +125,5 @@ function useSavedList(kind: SaveKind) {
 
 export const useSavedOffers = () => useSavedList("offer");
 export const useSavedShops = () => useSavedList("shop");
+export const useFollowedShops = () => useSavedList("follow");
 export const useSaved = (kind: SaveKind) => useSavedList(kind);
