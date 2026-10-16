@@ -16,8 +16,8 @@ import type { RedemptionMode } from "@/types";
 type Shown = Extract<CodeResult, { ok: true }>;
 
 /**
- * The code for an offer that has one: a shop-wide code anyone can see ("Show code"), or a
- * personal one-time code a logged-in shopper claims ("Claim my code") with a QR the shop scans.
+ * The code for an offer that has one: a shop-wide code anyone can see, or a personal one-time code
+ * a logged-in shopper claims with a QR the shop scans. Either way the button reads "Claim my code".
  * Walk-in offers have neither.
  */
 export function OfferCode({
@@ -57,11 +57,14 @@ export function OfferCode({
     else login.prompt(fetchCode);
   }
 
+  // In the phone's bottom bar the button stands alone; the card and its text come once there is a code to show.
+  const bare = compact && !shown && !error;
+
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary-soft/40 p-4",
-        compact && "max-h-[55dvh] overflow-y-auto p-3",
+        !bare && "flex flex-col gap-3 rounded-2xl border border-dashed border-primary/40 bg-primary-soft/40 p-4",
+        compact && !bare && "max-h-[55dvh] overflow-y-auto p-3",
         className,
       )}
     >
@@ -81,12 +84,14 @@ export function OfferCode({
         </>
       ) : (
         <div className="flex flex-col gap-3">
-          <p className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
-            <Ticket size={18} className="shrink-0 text-primary" aria-hidden />
-            {claim ? t("This offer needs a personal code. Log in to claim yours.") : t("This offer has a code to show at the store.")}
-          </p>
+          {!compact && (
+            <p className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
+              <Ticket size={18} className="shrink-0 text-primary" aria-hidden />
+              {claim ? t("This offer needs a personal code. Log in to claim yours.") : t("This offer has a code to show at the store.")}
+            </p>
+          )}
           <Button type="button" onClick={get} disabled={pending} block>
-            {claim ? t("Claim my code") : t("Show code")}
+            {t("Claim my code")}
           </Button>
         </div>
       )}

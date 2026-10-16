@@ -86,7 +86,7 @@ export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSumm
 
 const STEPS: Record<PromotionDetail["redemption_mode"], string[]> = {
   walk_in: ["Visit the store", "Show this offer", "Get the discount on your bill"],
-  shared_code: ["Tap “Show code” to see the offer code", "Show the code at the store", "Get the discount on your bill"],
+  shared_code: ["Tap “Claim my code” to see the offer code", "Show the code at the store", "Get the discount on your bill"],
   unique_claim: ["Claim your personal code here", "Show the code at the store", "Get the discount on your bill"],
 };
 
