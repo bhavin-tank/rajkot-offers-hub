@@ -1,5 +1,6 @@
-import { ChevronDown, MapPin, Navigation, Phone } from "lucide-react";
+import { ArrowRight, ChevronDown, MapPin, Navigation, Phone } from "lucide-react";
 import type { OpeningHours, Outlet } from "@/types";
+import { Link } from "@/components/i18n/link";
 import { WhatsAppIcon } from "@/components/icons/brand";
 import { ShareButton } from "@/components/offers/share-button";
 import { buttonClass } from "@/components/ui/button";
@@ -22,8 +23,9 @@ interface SideContact {
 /**
  * Desktop sidebar: one card per outlet, numbered like the map's pins. Each has its address, whether it is open,
  * four icon buttons (call, WhatsApp, directions, share) and its weekly hours folded away until opened.
+ * With `storeHref` (pages that are not the shop's own) each card ends with a link to the shop's page (labelled "View outlet").
  */
-export async function OutletSideCards({ outlets, contact, path }: { outlets: Outlet[]; contact: SideContact; path: string }) {
+export async function OutletSideCards({ outlets, contact, path, storeHref }: { outlets: Outlet[]; contact: SideContact; path: string; storeHref?: string }) {
   const t = await getT();
   const many = outlets.length > 1;
   const iconClass = (variant: "primary" | "outline" | "whatsapp") => buttonClass({ variant, size: "sm", block: true, className: "px-0" });
@@ -82,6 +84,12 @@ export async function OutletSideCards({ outlets, contact, path }: { outlets: Out
                 <HoursTable hours={hours} compact />
               </div>
             </details>
+            {storeHref && (
+              <Link href={storeHref} className="flex items-center justify-between border-t border-line px-6 py-4 text-sm font-semibold text-primary hover:bg-surface">
+                {t("View outlet")}
+                <ArrowRight size={16} aria-hidden />
+              </Link>
+            )}
           </section>
         );
       })}

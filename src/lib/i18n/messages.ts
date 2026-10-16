@@ -147,6 +147,7 @@ export const gu = {
   "On bills of {amount} or more": "{amount} કે વધુના બિલ પર",
   "Undo": "પાછું લાવો",
   "Validity": "માન્યતા",
+  "View outlet": "આઉટલેટ જુઓ",
   "View store": "દુકાન જુઓ",
   "Website": "વેબસાઇટ",
   "{area}, Rajkot": "{area}, રાજકોટ",

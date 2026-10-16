@@ -205,7 +205,7 @@ async function OfferContent({ slug }: { slug: string }) {
                 label: t(outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: outlets.length }),
                 content: (
                   <div className="flex flex-col gap-4">
-                    <OutletSideCards outlets={outlets} contact={business} path={shopPath(business.slug)} />
+                    <OutletSideCards outlets={outlets} contact={business} path={shopPath(business.slug)} storeHref={shopPath(business.slug)} />
                   </div>
                 ),
                 // On desktop the map and address sit in the side column.
