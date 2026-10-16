@@ -45,7 +45,8 @@ export function OfferCard({
       <div className={cn("relative aspect-[16/9] overflow-hidden bg-surface sm:aspect-[4/3]", expired && "opacity-65 grayscale")}>
         <Image
           src={offer.images[0]}
-          alt=""
+          // The card's link names the offer; the photo is not inside it, so it describes itself for image search.
+          alt={`${offer.title}, ${offer.businessName}`}
           fill
           sizes={sizes}
           priority={priority}

@@ -42,8 +42,24 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [DEFAULT_SHARE_IMAGE],
     },
     twitter: { card: "summary_large_image", images: [DEFAULT_SHARE_IMAGE] },
-    // Search Console ownership check; set the token in the deployment's environment.
-    verification: { google: process.env.GOOGLE_SITE_VERIFICATION },
+    // Allow large image previews and full snippets (Search, Discover) on every indexable page.
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+    },
+    // Tells location-aware engines (Bing in particular) which city the site is about.
+    other: {
+      "geo.region": "IN-GJ",
+      "geo.placename": site.city,
+      "geo.position": `${site.geo.lat};${site.geo.lng}`,
+      ICBM: `${site.geo.lat}, ${site.geo.lng}`,
+    },
+    // Search Console / Bing Webmaster ownership checks; set the tokens in the deployment's environment.
+    verification: {
+      google: process.env.GOOGLE_SITE_VERIFICATION,
+      other: process.env.BING_SITE_VERIFICATION ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION } : undefined,
+    },
   };
 }
 
@@ -56,7 +72,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   if (!hasLocale(lang)) notFound();
 
   return (
-    <html lang={lang} className={cn(inter.variable, lang === "gu" && anek.variable)}>
+    <html lang={lang === "gu" ? "gu-IN" : "en-IN"} className={cn(inter.variable, lang === "gu" && anek.variable)}>
       <body className="flex min-h-dvh flex-col">
         <LocaleProvider locale={lang}>
           <ToastProvider>

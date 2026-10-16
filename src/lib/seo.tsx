@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { localizePath, type Locale } from "@/lib/i18n/config";
+import { languageSwitchEnabled, localizePath, type Locale } from "@/lib/i18n/config";
 import { getLocale } from "@/lib/i18n/server";
 import { absoluteUrl, site } from "@/lib/site";
-import type { Business, Offer } from "@/types";
+import type { Business, Offer, Rating } from "@/types";
 import { offerPath, shopPath } from "@/lib/paths";
 
 /**
@@ -26,6 +26,19 @@ interface PageSeo {
   absoluteTitle?: boolean;
 }
 
+/** Titles beyond ~60 characters are cut off in search results; the brand suffix is the first thing to give up. */
+const TITLE_BUDGET = 60;
+
+/** Descriptions are cut off in search results at about 160 characters; cut at a word instead of mid-word. */
+const DESCRIPTION_BUDGET = 160;
+
+export function clip(text: string, max = DESCRIPTION_BUDGET) {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), max / 2)).replace(/[\s,;:.\-–—]+$/, "")}…`;
+}
+
 /**
  * Title, description, canonical URL and share tags for a page. Pages pass the
  * clean path, so filtered and sorted variants ("?sort=ending", "?page=2") point
@@ -35,20 +48,29 @@ export async function pageMetadata({ title, description, path, image, noindex, a
   const locale = await getLocale();
   const url = localizePath(locale, path);
   const images = [image ?? DEFAULT_SHARE_IMAGE];
+  const summary = clip(description);
+  // A long title keeps its own words and drops "· Rajkot Offers Hub" rather than being cut mid-title.
+  const bare = absoluteTitle || title.length + site.name.length + 3 > TITLE_BUDGET;
   return {
-    title: absoluteTitle ? { absolute: title } : title,
-    description,
-    alternates: { canonical: url },
+    title: bare ? { absolute: title } : title,
+    description: summary,
+    alternates: {
+      canonical: url,
+      // The Gujarati site is switched off, so /gu URLs only redirect; they join the cluster when it comes back.
+      ...(languageSwitchEnabled
+        ? { languages: { "en-IN": localizePath("en", path), "gu-IN": localizePath("gu", path), "x-default": localizePath("en", path) } }
+        : {}),
+    },
     openGraph: {
       title,
-      description,
+      description: summary,
       url,
       siteName: site.name,
       locale: locale === "gu" ? "gu_IN" : "en_IN",
       type: "website",
       images,
     },
-    twitter: { card: "summary_large_image", title, description, images },
+    twitter: { card: "summary_large_image", title, description: summary, images },
     ...(noindex && { robots: { index: false, follow: true } }),
   };
 }
@@ -78,6 +100,15 @@ export function siteLd(description: string) {
         url: site.url,
         logo: absoluteUrl("/icon.png"),
         email: site.email,
+        telephone: site.phone,
+        contactPoint: {
+          "@type": "ContactPoint",
+          contactType: "customer support",
+          telephone: site.phone,
+          email: site.email,
+          areaServed: site.country,
+          availableLanguage: ["English", "Gujarati"],
+        },
         sameAs: [`https://instagram.com/${site.instagram.replace(/^@/, "")}`],
         areaServed: cityLd(),
       },
@@ -163,8 +194,16 @@ function businessRef(business: Business, locale: Locale) {
   return `${absoluteUrl(localizePath(locale, shopPath(business.slug)))}#business`;
 }
 
+function ratingLd(rating: Rating | undefined) {
+  return rating ? { "@type": "AggregateRating", ratingValue: rating.avg, reviewCount: rating.count, bestRating: 5, worstRating: 1 } : undefined;
+}
+
 /** A shop's profile as a LocalBusiness: address, map pin, hours and contact. */
-export async function localBusinessLd(business: Business, offers: Pick<Offer, "urlSlug" | "title" | "businessSlug">[] = []) {
+export async function localBusinessLd(
+  business: Business,
+  offers: Pick<Offer, "urlSlug" | "title" | "businessSlug">[] = [],
+  rating?: Rating,
+) {
   const locale = await getLocale();
   const url = absoluteUrl(localizePath(locale, shopPath(business.slug)));
   const links = [
@@ -180,7 +219,9 @@ export async function localBusinessLd(business: Business, offers: Pick<Offer, "u
     description: business.about,
     url,
     image: [...new Set([business.cover, ...business.photos])],
+    logo: business.logo,
     telephone: realPhone(business.phone),
+    aggregateRating: ratingLd(rating),
     address: addressLd(business),
     geo: { "@type": "GeoCoordinates", latitude: business.geo.lat, longitude: business.geo.lng },
     hasMap: `https://www.google.com/maps/search/?api=1&query=${business.geo.lat},${business.geo.lng}`,
@@ -194,26 +235,74 @@ export async function localBusinessLd(business: Business, offers: Pick<Offer, "u
   };
 }
 
-/** One offer, sold by the business that runs it. */
-export async function offerLd(offer: Offer, business: Business) {
+/**
+ * The API fills a missing offer description with "Valid at <shop> on the dates shown.",
+ * which says nothing the page does not already. Anything else is the shop's own words.
+ */
+export function ownDescription(offer: Pick<Offer, "title" | "offerText">) {
+  const text = offer.offerText.trim();
+  return text && text !== offer.title && !/^valid at .+ on the dates shown\.?$/i.test(text) ? text : undefined;
+}
+
+/** One offer, made by the business that runs it. `description` is the sentence search results show for the page. */
+export async function offerLd(offer: Offer, business: Business, description: string) {
   const locale = await getLocale();
   return {
     "@context": "https://schema.org",
     "@type": "Offer",
     name: offer.title,
-    description: offer.offerText,
+    description: ownDescription(offer) ?? description,
     url: absoluteUrl(localizePath(locale, offerPath(offer))),
     image: offer.images,
     category: offer.subcategory,
     validFrom: offer.validFrom,
     validThrough: offer.validTo,
+    availabilityStarts: offer.validFrom,
+    availabilityEnds: offer.validTo,
     availability: offer.isExpired ? "https://schema.org/Discontinued" : "https://schema.org/InStoreOnly",
     areaServed: cityLd(),
-    offeredBy: {
+    eligibleRegion: cityLd(),
+    aggregateRating: ratingLd(offer.rating),
+    seller: {
       "@type": BUSINESS_TYPES[business.categorySlug] ?? "LocalBusiness",
       "@id": businessRef(business, locale),
       name: business.name,
       address: addressLd(business),
+    },
+  };
+}
+
+/** A page that lists things (offers, categories): a CollectionPage whose main entity is the list. */
+export async function collectionLd({
+  name,
+  description,
+  path,
+  items,
+}: {
+  name: string;
+  description: string;
+  path: string;
+  items: { name: string; path: string; image?: string }[];
+}) {
+  const locale = await getLocale();
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name,
+    description,
+    url: absoluteUrl(localizePath(locale, path)),
+    isPartOf: { "@id": `${site.url}/#website` },
+    about: cityLd(),
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: item.name,
+        url: absoluteUrl(localizePath(locale, item.path)),
+        image: item.image,
+      })),
     },
   };
 }

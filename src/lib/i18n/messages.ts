@@ -289,7 +289,8 @@ export const gu = {
   "Choose your area": "તમારો વિસ્તાર પસંદ કરો",
   "All Rajkot": "આખું રાજકોટ",
   "Offers in {area}": "{area}ની ઓફર્સ",
-  "All live offers in {area}: search by category and offer type.": "{area}ની બધી ચાલુ ઓફર્સ: કેટેગરી અને ઓફરના પ્રકાર પ્રમાણે શોધો.",
+  "Live offers in {area}, Rajkot: food, fashion, beauty and more. Search by category and offer type, then see timings, terms and directions.":
+    "{area}, રાજકોટની ચાલુ ઓફર્સ: ફૂડ, ફેશન, બ્યુટી અને વધુ. કેટેગરી અને ઓફરના પ્રકાર પ્રમાણે શોધો, સમય, શરતો અને દિશા જુઓ.",
   "{count} live offer in {area}": "{area}માં {count} ચાલુ ઓફર",
   "{count} live offers in {area}": "{area}માં {count} ચાલુ ઓફર્સ",
   "Page sections": "પેજ વિભાગો",
@@ -298,7 +299,10 @@ export const gu = {
   "Offers in {area}, Rajkot": "{area}, રાજકોટની ઓફર્સ",
   "{category} offers in Rajkot": "રાજકોટમાં {category} ઓફર્સ",
   "{category} offers in {area}, Rajkot": "{area}, રાજકોટમાં {category} ઓફર્સ",
-  "Live {category} offers in {area}, Rajkot. {description}": "{area}, રાજકોટમાં ચાલુ {category} ઓફર્સ. {description}",
+  "Live {category} offers in {area}, Rajkot: discounts and deals from nearby shops, with timings, terms and directions.":
+    "{area}, રાજકોટમાં ચાલુ {category} ઓફર્સ: નજીકની દુકાનોના ડિસ્કાઉન્ટ અને ડીલ્સ, સમય, શરતો અને દિશા સાથે.",
+  "Live {category} offers in Rajkot: discounts and deals from local shops, with timings, terms and directions.":
+    "રાજકોટમાં ચાલુ {category} ઓફર્સ: સ્થાનિક દુકાનોના ડિસ્કાઉન્ટ અને ડીલ્સ, સમય, શરતો અને દિશા સાથે.",
   "Offer categories in Rajkot": "રાજકોટની ઓફર કેટેગરી",
   "{offer} at {business}, {area}": "{business}, {area}: {offer}",
   "{offer} at {business}, {area}, Rajkot. Valid {dates}. See timings, terms and directions.":

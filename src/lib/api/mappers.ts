@@ -76,6 +76,7 @@ export function toOfferSummary(card: PromotionCard | PromotionDetail): OfferSumm
     images: [cover || logo || FALLBACK_IMAGE],
     ...(logo ? { imageIsLogo: true } : {}),
     validTo,
+    createdAt: day(card.created_at ?? card.starts_at),
     isExpired: isPast(card),
     daysLeft: daysBetween(toIsoDay(new Date()), validTo),
     ...(card.distance_km != null ? { distanceKm: card.distance_km } : {}),

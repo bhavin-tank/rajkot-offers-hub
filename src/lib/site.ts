@@ -14,6 +14,8 @@ export const site = {
   location: "Rajkot, Gujarat",
   /** For structured data: the city the site serves. */
   region: "Gujarat",
+  /** Centre of Rajkot, for the geo meta tags. */
+  geo: { lat: 22.3039, lng: 70.8022 },
   country: "IN",
   /** Shop owners list and manage offers in the business app. Store links come from the environment. */
   ownerApp: {
