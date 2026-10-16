@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Heart } from "lucide-react";
+import { Bookmark, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { savedOfferCards } from "@/lib/actions/saves";
 import type { OfferSummary } from "@/types";
@@ -44,9 +44,9 @@ export function SavedOffers() {
   if (!list.length) {
     return (
       <EmptyState
-        icon={Heart}
+        icon={Bookmark}
         title={t("No saved offers yet")}
-        hint={t("Tap ♡ on an offer you like to see it here.")}
+        hint={t("Tap Save on an offer you like to see it here.")}
         action={<ButtonLink href="/offers">{t("Browse offers")}</ButtonLink>}
       />
     );

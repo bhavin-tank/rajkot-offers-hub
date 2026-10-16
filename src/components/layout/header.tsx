@@ -1,5 +1,5 @@
 import { LanguageToggle } from "@/components/i18n/language-toggle";
-import { ArrowLeft, CircleUserRound, Heart } from "lucide-react";
+import { ArrowLeft, Bookmark, CircleUserRound } from "lucide-react";
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { IconLink } from "@/components/ui/icon-button";
@@ -31,7 +31,7 @@ export async function DesktopHeader({ className }: { className?: string }) {
           <LanguageToggle />
           <NotificationBell />
           <IconLink href="/saved" variant="plain" size="lg" aria-label={t("Saved offers")}>
-            <Heart size={20} aria-hidden />
+            <Bookmark size={20} aria-hidden />
           </IconLink>
           <IconLink href="/account" variant="plain" size="lg" aria-label={t("My account")}>
             <CircleUserRound size={20} aria-hidden />

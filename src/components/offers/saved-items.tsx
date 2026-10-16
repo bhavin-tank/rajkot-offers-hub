@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { useLogin } from "@/components/auth/login-dialog";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/display";
@@ -21,7 +21,7 @@ export function SavedItems() {
   if (offers.ready && !offers.member) {
     return (
       <EmptyState
-        icon={Heart}
+        icon={Bookmark}
         title={t("Log in to see what you saved")}
         hint={t("Your saved offers and shops are kept on your account.")}
         action={<Button onClick={() => login.prompt(() => void loadSaves())}>{t("Log in")}</Button>}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Heart } from "lucide-react";
+import { Bell, Bookmark } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ShopAvatar } from "@/components/businesses/avatar";
 import { Link } from "@/components/i18n/link";
@@ -38,9 +38,9 @@ export function SavedShops({ kind = "shop" }: { kind?: "shop" | "follow" }) {
   if (!list.length) {
     return (
       <EmptyState
-        icon={following ? Bell : Heart}
+        icon={following ? Bell : Bookmark}
         title={following ? t("You are not following any shop yet") : t("No saved shops yet")}
-        hint={following ? t("Follow a shop to see its new offers first and get told about them.") : t("Tap ♡ on a shop you like to see it here.")}
+        hint={following ? t("Follow a shop to see its new offers first and get told about them.") : t("Tap Save on a shop you like to see it here.")}
         action={<ButtonLink href="/offers">{t("Browse offers")}</ButtonLink>}
       />
     );
@@ -65,7 +65,7 @@ export function SavedShops({ kind = "shop" }: { kind?: "shop" | "follow" }) {
             </span>
           </Link>
           <IconButton variant="soft" size="lg" aria-label={following ? t("Unfollow") : t("Remove from saved")} onClick={() => onRemove(shop.slug)}>
-            {following ? <Bell size={20} aria-hidden className="fill-primary text-primary" /> : <Heart size={20} aria-hidden className="fill-primary text-primary" />}
+            {following ? <Bell size={20} aria-hidden className="fill-primary text-primary" /> : <Bookmark size={20} aria-hidden className="fill-primary text-primary" />}
           </IconButton>
         </li>
       ))}

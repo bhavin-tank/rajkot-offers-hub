@@ -1,6 +1,6 @@
 "use client";
 
-import { Heart } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { useLogin } from "@/components/auth/login-dialog";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
@@ -45,9 +45,9 @@ export function useToggleSave(slug: string, kind: SaveKind) {
   return { saved, onToggle };
 }
 
-function HeartIcon({ saved, size }: { saved: boolean; size: number }) {
+function SaveIcon({ saved, size }: { saved: boolean; size: number }) {
   return (
-    <Heart
+    <Bookmark
       size={size}
       aria-hidden
       className={cn(saved && "fill-primary text-primary")}
@@ -55,7 +55,7 @@ function HeartIcon({ saved, size }: { saved: boolean; size: number }) {
   );
 }
 
-/** Round heart button: over an image ("floating") or on a plain bar ("plain"). */
+/** Round bookmark button: over an image ("floating") or on a plain bar ("plain"). */
 export function SaveButton({
   slug,
   kind = "offer",
@@ -80,7 +80,7 @@ export function SaveButton({
       onClick={onToggle}
       className={className}
     >
-      <HeartIcon saved={saved} size={size === "lg" ? 20 : 18} />
+      <SaveIcon saved={saved} size={size === "lg" ? 20 : 18} />
     </IconButton>
   );
 }
@@ -91,19 +91,25 @@ export function SaveTextButton({ slug, kind = "offer", variant = "ghost" }: { sl
   const { saved, onToggle } = useToggleSave(slug, kind);
   return (
     <Button variant={variant} size="sm" aria-pressed={saved} onClick={onToggle} className={variant === "ghost" ? "px-2" : undefined}>
-      <HeartIcon saved={saved} size={18} />
+      <SaveIcon saved={saved} size={18} />
       {saved ? t("Saved") : t("Save")}
     </Button>
   );
 }
 
-/** Full-width heart button with a label, for the mobile bottom bar. */
-export function SaveBarButton({ slug, kind = "offer" }: { slug: string; kind?: SaveKind }) {
+/** Full-width bookmark button with a label, for the mobile bottom bar (`outline` when it sits beside a primary action). */
+export function SaveBarButton({ slug, kind = "offer", variant = "primary" }: { slug: string; kind?: SaveKind; variant?: "primary" | "outline" }) {
   const t = useT();
   const { saved, onToggle } = useToggleSave(slug, kind);
+  const outline = variant === "outline";
   return (
-    <Button aria-pressed={saved} onClick={onToggle} className="flex-1">
-      <Heart size={18} aria-hidden className={cn(saved && "fill-white")} />
+    <Button
+      variant={outline ? "outline" : "primary"}
+      aria-pressed={saved}
+      onClick={onToggle}
+      className={cn("min-w-0 flex-1", outline && "border-primary px-2 text-primary hover:bg-primary-soft")}
+    >
+      <Bookmark size={18} aria-hidden className={cn(saved && (outline ? "fill-primary" : "fill-white"))} />
       {saved ? t("Saved") : t("Save")}
     </Button>
   );
