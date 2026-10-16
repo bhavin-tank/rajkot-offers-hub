@@ -7,7 +7,17 @@ export type CategoryIcon =
   | "sofa"
   | "wrench"
   | "gift"
-  | "ticket";
+  | "ticket"
+  | "graduation-cap"
+  | "car"
+  | "coffee"
+  | "shopping-bag"
+  | "pizza"
+  | "heart-pulse"
+  | "gem"
+  | "candy"
+  | "plane"
+  | "shopping-basket";
 
 export interface Category {
   slug: string;
