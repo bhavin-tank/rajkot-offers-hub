@@ -12,7 +12,7 @@ import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { OfferCarousel } from "@/components/offers/offer-card";
 import { OfferCode } from "@/components/offers/offer-code";
-import { BusinessRow, HowToGetSteps, MapCard, TermsAccordion } from "@/components/offers/offer-sections";
+import { BusinessRow, HowToGetSteps, TermsAccordion } from "@/components/offers/offer-sections";
 import { ReviewList } from "@/components/offers/reviews";
 import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
 import { StoreLink } from "@/components/offers/store-link";
@@ -116,7 +116,7 @@ async function OfferContent({ slug }: { slug: string }) {
         <DetailRow icon={Clock} label={t("Timings")}>
           {offer.timings}
         </DetailRow>
-        <DetailRow icon={MapPin} label={t("Address")}>
+        <DetailRow icon={MapPin} label={t("Address")} className="max-lg:hidden">
           {offer.address}
         </DetailRow>
         {offer.validAt.length > 0 && (
@@ -129,7 +129,6 @@ async function OfferContent({ slug }: { slug: string }) {
           </DetailRow>
         )}
       </div>
-      <MapCard address={offer.address} geo={geo} offerId={offer.id} className="lg:hidden" />
     </div>
   );
 
@@ -175,6 +174,9 @@ async function OfferContent({ slug }: { slug: string }) {
                   <span className="hidden lg:inline">{t("{area}, Rajkot", { area: offer.areaName })}</span>
                   {offer.rating && <RatingInline rating={offer.rating} className="text-sm text-muted" />}
                 </p>
+                <p className="mt-2 text-xs leading-relaxed text-faint lg:text-[13px]">
+                  {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
+                </p>
               </div>
             </div>
           </div>
@@ -182,7 +184,7 @@ async function OfferContent({ slug }: { slug: string }) {
       </Container>
 
       <Container className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
-        <div className="mt-6 flex min-w-0 flex-col gap-6 lg:gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
+        <div className="mt-3 flex min-w-0 flex-col gap-6 lg:mt-6 lg:gap-8 lg:rounded-2xl lg:border lg:border-line lg:bg-white lg:pb-8">
           <SectionTabs
             label={t("Page sections")}
             topBar={
@@ -200,6 +202,9 @@ async function OfferContent({ slug }: { slug: string }) {
             items={[
               { value: "details", label: t("Details"), content: details },
               { value: "how", label: t("How to get it"), content: <HowToGetSteps steps={offer.steps} /> },
+              ...(offer.terms.length
+                ? [{ value: "terms", label: t("Terms"), content: <TermsAccordion terms={offer.terms} /> }]
+                : []),
               {
                 value: "outlets",
                 label: t(outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: outlets.length }),
@@ -211,9 +216,6 @@ async function OfferContent({ slug }: { slug: string }) {
                 // On desktop the map and address sit in the side column.
                 className: "lg:hidden",
               },
-              ...(offer.terms.length
-                ? [{ value: "terms", label: t("Terms"), content: <TermsAccordion terms={offer.terms} /> }]
-                : []),
               ...(reviews.total
                 ? [
                     {
@@ -227,9 +229,6 @@ async function OfferContent({ slug }: { slug: string }) {
                 : []),
             ]}
           />
-          <p className="text-xs leading-relaxed text-faint lg:px-8">
-            {t("Offer details are provided by the business. Please confirm with the store before you buy.")}
-          </p>
         </div>
 
         {/* Desktop side cards; on a phone the same information sits in the tabs. */}
@@ -271,7 +270,7 @@ async function OfferContent({ slug }: { slug: string }) {
       </div>
 
       {/* Room for the mobile action bar. */}
-      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-56" : "h-28")} />
+      <div aria-hidden className={cn("lg:hidden", hasCode ? "h-40" : "h-28")} />
       <StickyActionBar
         lead={
           <>
