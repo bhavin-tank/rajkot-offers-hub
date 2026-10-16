@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Globe, Navigation, Phone, Tag } from "lucide-react";
+import { Globe, Navigation, Phone, Tag } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/icons/brand";
 import { ShopAvatar } from "@/components/businesses/avatar";
 import { ContactRow, StickyActionBar } from "@/components/businesses/contact-actions";
@@ -19,7 +19,7 @@ import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
 import { ShareButton } from "@/components/offers/share-button";
 import { ButtonLink, buttonClass } from "@/components/ui/button";
 import { DetailRow, EmptyState } from "@/components/ui/display";
-import { IconLink } from "@/components/ui/icon-button";
+import { BackLink } from "@/components/layout/back-link";
 import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getBusinessOffers, getBusinessReviews } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
@@ -175,9 +175,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
   const rating = overallRating(business, reviews);
   const mobileButtons = (
     <div className="absolute inset-x-4 top-4 lg:hidden">
-      <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
-        <ArrowLeft size={20} aria-hidden />
-      </IconLink>
+      <BackLink fallbackHref="/offers" variant="floating" />
     </div>
   );
 
@@ -223,9 +221,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
             label={t("Page sections")}
             topBar={
               <div className="flex h-full items-center justify-between gap-1 border-b border-line px-2">
-                <IconLink href="/offers" variant="plain" size="lg" aria-label={t("Go back")}>
-                  <ArrowLeft size={22} aria-hidden />
-                </IconLink>
+                <BackLink fallbackHref="/offers" />
                 {business.logo && (
                   <span className="relative size-8 shrink-0 overflow-hidden rounded-full bg-surface">
                     <Image src={business.logo} alt="" fill sizes="32px" className="object-cover" />

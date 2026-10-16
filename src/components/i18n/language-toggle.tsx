@@ -39,7 +39,7 @@ function Toggle({ className }: { className?: string }) {
       onClick={(event) => {
         event.preventDefault();
         document.cookie = `${LOCALE_COOKIE}=${target}; path=/; max-age=${ONE_YEAR}; samesite=lax`;
-        router.push(`${href}${window.location.search}${window.location.hash}`);
+        router.replace(`${href}${window.location.search}${window.location.hash}`);
       }}
       lang={target}
       hrefLang={target}

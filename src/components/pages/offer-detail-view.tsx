@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { DetailSkeleton } from "@/components/layout/page-skeleton";
 import { notFound } from "next/navigation";
-import { ArrowLeft, CalendarDays, Clock, MapPin, Store, Tag } from "lucide-react";
+import { CalendarDays, Clock, MapPin, Store, Tag } from "lucide-react";
 import { Link } from "@/components/i18n/link";
 import { ShopAvatar } from "@/components/businesses/avatar";
 import { StickyActionBar } from "@/components/businesses/contact-actions";
@@ -21,7 +21,7 @@ import { TrackOfferView } from "@/components/offers/track";
 import { Badge } from "@/components/ui/badge";
 import { DetailRow } from "@/components/ui/display";
 import { RatingInline } from "@/components/ui/rating";
-import { IconLink } from "@/components/ui/icon-button";
+import { BackLink } from "@/components/layout/back-link";
 import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getCategory, getOffer, getOfferReviews, getSimilarOffers } from "@/lib/data";
 import { formatRange, formatRupees } from "@/lib/format";
@@ -96,9 +96,7 @@ async function OfferContent({ slug }: { slug: string }) {
 
   const mobileButtons = (
     <div className={cn("absolute inset-x-4 top-4 flex items-center justify-between lg:hidden", expired && "[&>span]:opacity-80")}>
-      <IconLink href="/offers" variant="floating" size="lg" aria-label={t("Go back")}>
-        <ArrowLeft size={20} aria-hidden />
-      </IconLink>
+      <BackLink fallbackHref="/offers" variant="floating" />
       {badge}
     </div>
   );
@@ -189,9 +187,7 @@ async function OfferContent({ slug }: { slug: string }) {
             label={t("Page sections")}
             topBar={
               <div className="flex h-full items-center justify-between gap-1 border-b border-line px-2">
-                <IconLink href="/offers" variant="plain" size="lg" aria-label={t("Go back")}>
-                  <ArrowLeft size={22} aria-hidden />
-                </IconLink>
+                <BackLink fallbackHref="/offers" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-base leading-tight font-semibold">{offer.title}</p>
                   <p className="truncate text-xs leading-tight text-muted">{business.name}</p>
