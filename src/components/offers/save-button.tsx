@@ -10,8 +10,8 @@ import type { SaveKind } from "@/lib/actions/saves";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
-/** `slug` is an offer's handle or a shop's slug, depending on `kind`. A guest is asked to log in first, then it is saved. */
-function useToggleSave(slug: string, kind: SaveKind) {
+/** `slug` is an offer's handle or a shop's slug, depending on `kind`. A guest is asked to log in first, then it is saved (or followed). */
+export function useToggleSave(slug: string, kind: SaveKind) {
   const { isSaved, toggle } = useSaved(kind);
   const login = useLogin();
   const toast = useToast();
@@ -22,7 +22,8 @@ function useToggleSave(slug: string, kind: SaveKind) {
   const apply = (want?: boolean) => {
     const change = toggle(slug, want);
     if (!change) return false;
-    toast(change.saved ? t(kind === "shop" ? "Shop saved" : "Offer saved") : t("Removed from saved"));
+    if (kind === "follow") toast(change.saved ? t("Following. We'll tell you about this shop's new offers.") : t("Unfollowed"));
+    else toast(change.saved ? t(kind === "shop" ? "Shop saved" : "Offer saved") : t("Removed from saved"));
     // The change goes to the API and can fail.
     void change.done.then((ok) => ok || toast(t("Could not save. Please try again.")));
     return true;

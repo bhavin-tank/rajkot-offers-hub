@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { Container } from "./container";
 import { Logo } from "./logo";
 import { LocationPicker } from "./location-picker";
+import { NotificationBell } from "./notification-bell";
 import { HeaderNav } from "./nav-links";
 
 /** City pill that opens the Rajkot area list. */
@@ -28,6 +29,7 @@ export async function DesktopHeader({ className }: { className?: string }) {
         <div className="flex items-center justify-end gap-2 xl:gap-3">
           <LocationPill />
           <LanguageToggle />
+          <NotificationBell />
           <IconLink href="/saved" variant="plain" size="lg" aria-label={t("Saved offers")}>
             <Heart size={20} aria-hidden />
           </IconLink>
@@ -50,6 +52,7 @@ export function MobileHeader() {
       <div className="flex h-14 items-center justify-between px-5">
         <Logo priority />
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <LanguageToggle />
           <LocationPill />
         </div>

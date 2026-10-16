@@ -12,6 +12,7 @@ import { OutletSideCards } from "@/components/businesses/outlets";
 import { OutletMap, type MapOutlet } from "@/components/businesses/outlet-map";
 import { PhotoMosaic } from "@/components/businesses/photo-mosaic";
 import { Container } from "@/components/layout/container";
+import { FollowButton } from "@/components/offers/follow-button";
 import { OfferCard } from "@/components/offers/offer-card";
 import { ReviewList } from "@/components/offers/reviews";
 import { SaveBarButton, SaveTextButton } from "@/components/offers/save-button";
@@ -208,6 +209,8 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
                 <p className="mt-1 text-sm text-muted lg:text-[15px]">{subtitle}</p>
               </div>
             </div>
+            {/* Follow: new offers from this shop come first and are announced. On desktop it sits at the right of the header. */}
+            <FollowButton slug={business.slug} className="self-start lg:self-center" />
             {/* On a phone the contact buttons sit under the name; on desktop they float at the bottom. */}
             <ContactRow contact={business} className="lg:hidden" />
           </div>

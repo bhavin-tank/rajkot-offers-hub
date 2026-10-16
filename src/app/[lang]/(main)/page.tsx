@@ -6,6 +6,7 @@ import { BusinessCta } from "@/components/marketing/promos";
 import { HeroSlider } from "@/components/marketing/hero-slider";
 import { NearMeLink } from "@/components/marketing/near-me-link";
 import { SearchBar } from "@/components/marketing/search-bar";
+import { FollowedOffers } from "@/components/offers/followed-offers";
 import { OfferCarousel, OfferGrid } from "@/components/offers/offer-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/display";
@@ -73,6 +74,8 @@ export default async function HomePage() {
           <HeroSlider slides={hero.slides} autoplayMs={hero.autoplayMs} loop={hero.loop} />
         </Section>
       )}
+
+      <FollowedOffers framed />
 
       <Section className="pt-0 lg:pt-0">
         <SectionHeader title={t("Category")} />

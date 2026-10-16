@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Container, PageTitle } from "@/components/layout/container";
 import { SearchBar } from "@/components/marketing/search-bar";
+import { FollowedOffers } from "@/components/offers/followed-offers";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
 import { OffersSkeleton } from "@/components/offers/offers-skeleton";
 import { getArea, getCategories, getCategory, getNear, getOffers } from "@/lib/data";
@@ -79,6 +80,8 @@ export async function OffersView({
 
   return (
     <Container className="pt-6 pb-10 lg:pt-12 lg:pb-20">
+      {/* Shops the visitor follows come first, on the all-Rajkot list. */}
+      {!areaSlug && !categorySlug && <FollowedOffers className="mb-8 lg:mb-12" />}
       <Suspense fallback={<OffersSkeleton />}>
         <OffersContent area={area} category={category} searchParams={searchParams} />
       </Suspense>
