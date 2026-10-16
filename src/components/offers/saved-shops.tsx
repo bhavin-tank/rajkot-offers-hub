@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ShopAvatar } from "@/components/businesses/avatar";
 import { Link } from "@/components/i18n/link";
 import { ButtonLink } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/display";
+import { EmptyState, Skeleton } from "@/components/ui/display";
 import { IconButton } from "@/components/ui/icon-button";
 import { useToast } from "@/components/ui/toast";
 import { useSaved } from "@/hooks/use-saved";
@@ -30,7 +30,22 @@ export function SavedShops({ kind = "shop" }: { kind?: "shop" | "follow" }) {
     };
   }, [key]);
 
-  if (!ready || (saved.length > 0 && shops === null)) return <div aria-hidden className="h-24 animate-pulse rounded-2xl bg-skeleton" />;
+  if (!ready || (saved.length > 0 && shops === null)) {
+    return (
+      <div aria-hidden className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex items-center gap-3 rounded-2xl border border-line bg-white p-4">
+            <Skeleton className="size-14 shrink-0 rounded-full" />
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+              <Skeleton className="h-4 w-3/5" />
+              <Skeleton className="h-3.5 w-4/5" />
+            </div>
+            <Skeleton className="size-10 shrink-0 rounded-full" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const bySlug = new Map((shops ?? []).map((shop) => [shop.slug, shop]));
   const list = saved.map((slug) => bySlug.get(slug)).filter((shop): shop is SavedShop => Boolean(shop));

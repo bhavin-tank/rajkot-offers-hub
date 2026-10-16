@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import { Link } from "@/components/i18n/link";
 import { Container } from "@/components/layout/container";
+import { LoginFormSkeleton } from "@/components/layout/page-skeleton";
 import { getSession, safeNext } from "@/lib/auth/session";
 import { getT } from "@/lib/i18n/server";
 
@@ -28,7 +29,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/[lang]/log
       <div className="w-full max-w-md rounded-2xl border border-line bg-white p-6 shadow-form lg:p-8">
         <h1 className="text-2xl font-bold">{t("Log in to Rajkot Offers Hub")}</h1>
         <p className="mt-1 mb-6 text-sm text-muted">{t("Use your mobile number. The first time, we send you a code on WhatsApp.")}</p>
-        <Suspense fallback={<div className="h-40" />}>
+        <Suspense fallback={<LoginFormSkeleton />}>
           <Login searchParams={searchParams} />
         </Suspense>
         <p className="mt-6 text-xs leading-relaxed text-muted">

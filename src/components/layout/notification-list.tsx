@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useLogin } from "@/components/auth/login-dialog";
 import { Link } from "@/components/i18n/link";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/display";
+import { EmptyState, Skeleton } from "@/components/ui/display";
 import { setUnread } from "@/hooks/use-unread";
 import { loadNotificationsAction, markReadAction, type NotificationsResult, type SiteNotification } from "@/lib/actions/notifications";
 import { useLocale, useT } from "@/lib/i18n/client";
@@ -40,7 +40,15 @@ export function NotificationList() {
 
   useEffect(load, []);
 
-  if (!result) return <div aria-hidden className="h-24 animate-pulse rounded-2xl bg-skeleton" />;
+  if (!result) {
+    return (
+      <div aria-hidden className="flex flex-col gap-3">
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} className="h-24 rounded-2xl" />
+        ))}
+      </div>
+    );
+  }
 
   if (result.status === "guest") {
     return (
