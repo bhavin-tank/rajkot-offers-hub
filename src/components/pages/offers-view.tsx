@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { Container, PageTitle } from "@/components/layout/container";
 import { SearchBar } from "@/components/marketing/search-bar";
+import { AreaLinks } from "@/components/offers/area-links";
 import { FollowedOffers } from "@/components/offers/followed-offers";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
 import { OffersSkeleton } from "@/components/offers/offers-skeleton";
@@ -172,6 +173,9 @@ async function OffersContent({
         scope={{ label: t("Category"), options: categoryOptions }}
         withSearch
       />
+      <Suspense fallback={null}>
+        <AreaLinks area={area} category={category} />
+      </Suspense>
     </>
   );
 }

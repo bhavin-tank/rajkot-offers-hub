@@ -192,7 +192,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
 
   return (
     <div className="lg:bg-surface lg:pt-6 lg:pb-16">
-      <JsonLd data={await localBusinessLd(business, active, rating)} />
+      <JsonLd data={await localBusinessLd(business, active, rating, reviews.items)} />
       <JsonLd data={crumbs} />
       <Container className="px-0 lg:px-5">
         <div className="overflow-hidden lg:rounded-2xl lg:border lg:border-line lg:bg-white">

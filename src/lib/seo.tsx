@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { languageSwitchEnabled, localizePath, type Locale } from "@/lib/i18n/config";
 import { getLocale } from "@/lib/i18n/server";
 import { absoluteUrl, site } from "@/lib/site";
-import type { Business, Offer, Rating } from "@/types";
+import type { Business, Offer, OpeningHours, Rating, Review } from "@/types";
 import { offerPath, shopPath } from "@/lib/paths";
 
 /**
@@ -198,23 +198,50 @@ function ratingLd(rating: Rating | undefined) {
   return rating ? { "@type": "AggregateRating", ratingValue: rating.avg, reviewCount: rating.count, bestRating: 5, worstRating: 1 } : undefined;
 }
 
-/** A shop's profile as a LocalBusiness: address, map pin, hours and contact. */
+function hoursLd(hours: OpeningHours[]) {
+  return hours
+    .filter((h) => h.opens && h.closes)
+    .map((h) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: DAYS[h.day], opens: h.opens, closes: h.closes }));
+}
+
+function mapLd(geo: { lat: number; lng: number }) {
+  return `https://www.google.com/maps/search/?api=1&query=${geo.lat},${geo.lng}`;
+}
+
+function reviewLd(review: Review) {
+  return {
+    "@type": "Review",
+    name: review.title || undefined,
+    reviewBody: review.body,
+    datePublished: review.date,
+    author: { "@type": "Person", name: review.author },
+    reviewRating: { "@type": "Rating", ratingValue: review.rating, bestRating: 5, worstRating: 1 },
+  };
+}
+
+/**
+ * A shop's profile as a LocalBusiness: address, map pin, hours, ratings and recent reviews.
+ * A shop with several outlets also gets one LocalBusiness per other outlet, tied to the shop
+ * by `parentOrganization`, so each branch can be found by its own address and area.
+ */
 export async function localBusinessLd(
   business: Business,
   offers: Pick<Offer, "urlSlug" | "title" | "businessSlug">[] = [],
   rating?: Rating,
+  reviews: Review[] = [],
 ) {
   const locale = await getLocale();
   const url = absoluteUrl(localizePath(locale, shopPath(business.slug)));
+  const type = BUSINESS_TYPES[business.categorySlug] ?? "LocalBusiness";
+  const id = businessRef(business, locale);
   const links = [
     business.instagram && `https://instagram.com/${business.instagram.replace(/^@/, "")}`,
     business.website && (business.website.startsWith("http") ? business.website : `https://${business.website}`),
   ].filter(Boolean);
 
-  return {
-    "@context": "https://schema.org",
-    "@type": BUSINESS_TYPES[business.categorySlug] ?? "LocalBusiness",
-    "@id": businessRef(business, locale),
+  const main = {
+    "@type": type,
+    "@id": id,
     name: business.name,
     description: business.about,
     url,
@@ -222,17 +249,42 @@ export async function localBusinessLd(
     logo: business.logo,
     telephone: realPhone(business.phone),
     aggregateRating: ratingLd(rating),
+    review: reviews.length ? reviews.slice(0, 5).map(reviewLd) : undefined,
     address: addressLd(business),
     geo: { "@type": "GeoCoordinates", latitude: business.geo.lat, longitude: business.geo.lng },
-    hasMap: `https://www.google.com/maps/search/?api=1&query=${business.geo.lat},${business.geo.lng}`,
-    openingHoursSpecification: business.hours
-      .filter((h) => h.opens && h.closes)
-      .map((h) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: DAYS[h.day], opens: h.opens, closes: h.closes })),
+    hasMap: mapLd(business.geo),
+    openingHoursSpecification: hoursLd(business.hours),
+    areaServed: cityLd(),
     sameAs: links.length ? links : undefined,
     makesOffer: offers.length
       ? offers.map((o) => ({ "@type": "Offer", name: o.title, url: absoluteUrl(localizePath(locale, offerPath(o))) }))
       : undefined,
   };
+
+  // The main outlet is the shop itself above; each other outlet is a branch with its own place and hours.
+  const branches = business.outlets
+    .filter((o) => !o.isMain)
+    .map((o) => ({
+      "@type": type,
+      "@id": `${url}#outlet-${o.id}`,
+      name: `${business.name}, ${o.name}`,
+      url,
+      parentOrganization: { "@id": id },
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: o.address,
+        addressLocality: `${o.areaName}, ${site.city}`,
+        addressRegion: site.region,
+        addressCountry: site.country,
+      },
+      geo: o.geo ? { "@type": "GeoCoordinates", latitude: o.geo.lat, longitude: o.geo.lng } : undefined,
+      hasMap: o.geo ? mapLd(o.geo) : undefined,
+      openingHoursSpecification: hoursLd(o.hours),
+      aggregateRating: ratingLd(o.rating),
+      areaServed: cityLd(),
+    }));
+
+  return { "@context": "https://schema.org", "@graph": [main, ...branches] };
 }
 
 /**

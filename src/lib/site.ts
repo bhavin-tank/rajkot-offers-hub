@@ -4,7 +4,7 @@ export const site = {
   name: "Rajkot Offers Hub",
   city: "Rajkot",
   tagline: "Local offers in Rajkot, all in one place.",
-  /** The canonical address; rajkotoffers.in redirects here at the host. */
+  /** The canonical address. */
   url: "https://rajkotoffershub.com",
   instagram: "@rajkotoffershub",
   email: "hello@rajkotoffershub.com",

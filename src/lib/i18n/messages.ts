@@ -299,6 +299,9 @@ export const gu = {
   "Offers in {area}, Rajkot": "{area}, રાજકોટની ઓફર્સ",
   "{category} offers in Rajkot": "રાજકોટમાં {category} ઓફર્સ",
   "{category} offers in {area}, Rajkot": "{area}, રાજકોટમાં {category} ઓફર્સ",
+  "Offers in other areas of Rajkot": "રાજકોટના બીજા વિસ્તારોની ઓફર્સ",
+  "Offers by area in Rajkot": "રાજકોટમાં વિસ્તાર પ્રમાણે ઓફર્સ",
+  "{category} offers by area": "વિસ્તાર પ્રમાણે {category} ઓફર્સ",
   "Live {category} offers in {area}, Rajkot: discounts and deals from nearby shops, with timings, terms and directions.":
     "{area}, રાજકોટમાં ચાલુ {category} ઓફર્સ: નજીકની દુકાનોના ડિસ્કાઉન્ટ અને ડીલ્સ, સમય, શરતો અને દિશા સાથે.",
   "Live {category} offers in Rajkot: discounts and deals from local shops, with timings, terms and directions.":
