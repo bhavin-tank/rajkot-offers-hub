@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { savedOfferCards } from "@/lib/actions/saves";
 import type { OfferSummary } from "@/types";
 import { Button, ButtonLink } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/display";
+import { EmptyState, Skeleton } from "@/components/ui/display";
 import { Tabs } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/toast";
 import { useSavedOffers } from "@/hooks/use-saved";
@@ -34,7 +34,20 @@ export function SavedOffers() {
     };
   }, [key]);
 
-  if (!ready || (saved.length > 0 && offers === null)) return <OfferGridSkeleton count={3} />;
+  if (!ready || (saved.length > 0 && offers === null)) {
+    // The Live / Expired chips and the grid, as they stand once the cards are in.
+    return (
+      <>
+        <div aria-hidden className="flex gap-2">
+          <Skeleton className="h-[34px] w-24 rounded-full" />
+          <Skeleton className="h-[34px] w-28 rounded-full" />
+        </div>
+        <div className="pt-4 lg:pt-6">
+          <OfferGridSkeleton count={3} />
+        </div>
+      </>
+    );
+  }
 
   const bySlug = new Map((offers ?? []).map((o) => [o.slug, o]));
   const list = saved.map((slug) => bySlug.get(slug)).filter((o): o is OfferSummary => Boolean(o));

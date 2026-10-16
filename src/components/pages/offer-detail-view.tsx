@@ -284,7 +284,7 @@ async function OfferContent({ slug }: { slug: string }) {
 
 export function OfferDetailView({ slug }: { slug: string }) {
   return (
-    <Suspense fallback={<DetailSkeleton />}>
+    <Suspense fallback={<DetailSkeleton kind="offer" />}>
       <OfferContent slug={slug} />
     </Suspense>
   );

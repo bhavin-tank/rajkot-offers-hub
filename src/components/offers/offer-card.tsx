@@ -107,14 +107,22 @@ export function OfferCard({
   );
 }
 
-export function OfferCardSkeleton() {
+/** Same box as `OfferCard` (photo, two-line title, shop, details), so the list does not move once the offers arrive. */
+export function OfferCardSkeleton({ className }: { className?: string }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-white">
+    <div aria-hidden className={cn("overflow-hidden rounded-2xl border border-line bg-white", className)}>
       <Skeleton className="aspect-[16/9] rounded-none sm:aspect-[4/3]" />
-      <div className="flex flex-col gap-2.5 p-4">
-        <Skeleton className="h-4 w-4/5" />
-        <Skeleton className="h-3.5 w-2/5" />
-        <Skeleton className="h-3 w-3/5" />
+      <div className="flex flex-col gap-1.5 px-4 pt-4 pb-[18px]">
+        <div className="flex h-[46px] flex-col justify-center gap-2">
+          <Skeleton className="h-3.5 w-full" />
+          <Skeleton className="h-3.5 w-3/5" />
+        </div>
+        <div className="flex h-5 items-center">
+          <Skeleton className="h-3.5 w-2/5" />
+        </div>
+        <div className="mt-1.5 flex h-5 items-center">
+          <Skeleton className="h-3 w-3/4" />
+        </div>
       </div>
     </div>
   );
@@ -184,6 +192,25 @@ export function OfferCarousel({ offers, desktopColumns = 4 }: { offers: OfferSum
           sizes="(min-width: 1024px) 285px, 85vw"
           className="w-[85vw] max-w-[340px] shrink-0 snap-start lg:w-auto lg:max-w-none"
         />
+      ))}
+    </div>
+  );
+}
+
+/** Placeholder for `OfferCarousel`: a row that scrolls on a phone, a grid on desktop. */
+export function OfferCarouselSkeleton({ desktopColumns = 4 }: { desktopColumns?: 3 | 4 }) {
+  return (
+    <div
+      className={cn(
+        "no-scrollbar -mx-5 flex gap-3 overflow-hidden px-5 pb-1",
+        "lg:mx-0 lg:grid lg:gap-6 lg:overflow-visible lg:px-0",
+        desktopColumns === 4
+          ? "lg:grid-cols-4 lg:[&>*:nth-child(n+5)]:hidden"
+          : "lg:grid-cols-3 lg:[&>*:nth-child(n+4)]:hidden",
+      )}
+    >
+      {Array.from({ length: desktopColumns + 1 }, (_, i) => (
+        <OfferCardSkeleton key={i} className="w-[85vw] max-w-[340px] shrink-0 lg:w-auto lg:max-w-none" />
       ))}
     </div>
   );

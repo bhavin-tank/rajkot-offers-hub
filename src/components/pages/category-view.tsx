@@ -7,9 +7,10 @@ import { MobileTopBar } from "@/components/layout/header";
 import { BottomNav } from "@/components/layout/nav-links";
 import { OfferCarousel } from "@/components/offers/offer-card";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
-import { OffersSkeleton } from "@/components/offers/offers-skeleton";
+import { OfferListSkeleton } from "@/components/offers/offers-skeleton";
 import { offersMetadata } from "@/components/pages/offers-view";
 import { ChipLink } from "@/components/ui/chip";
+import { Skeleton } from "@/components/ui/display";
 import { ButtonLink } from "@/components/ui/button";
 import { getCategories, getCategory, getNear, getOffers } from "@/lib/data";
 import { parseFilters } from "@/lib/filters";
@@ -41,7 +42,7 @@ async function CategoryContent({ slug, area, searchParams }: { slug: string; are
           items={[{ href: "/", label: t("Home") }, { href: "/categories", label: t("Categories") }, { label: category.name }]}
         />
         <CategoryBanner variant="hero" title={category.name} description={category.description} image={category.image} />
-        <Suspense fallback={<OffersSkeleton />}>
+        <Suspense fallback={<OfferListSkeleton />}>
           <CategoryOffers slug={category.slug} area={area} subcategories={category.subcategories} searchParams={searchParams} />
         </Suspense>
       </Container>
@@ -129,17 +130,33 @@ async function EmptyCategorySuggestions({ slug, filters }: { slug: string; filte
   );
 }
 
+/** The category page before its name is known: the phone's top bar, breadcrumb, banner and the list. */
+function CategoryPageSkeleton() {
+  return (
+    <div aria-busy="true" className="min-h-dvh bg-surface lg:min-h-0">
+      <div className="border-b border-line bg-white lg:hidden">
+        <div className="grid h-14 grid-cols-[40px_1fr_40px] items-center px-2">
+          <Skeleton className="size-10 rounded-full" />
+          <Skeleton className="ml-1 h-5 w-40" />
+        </div>
+      </div>
+      <Container className="flex flex-col gap-5 pt-4 pb-24 lg:gap-8 lg:pt-8 lg:pb-20">
+        <div className="hidden lg:block">
+          <Skeleton className="h-5 w-64" />
+        </div>
+        <Skeleton className="h-40 rounded-2xl lg:h-[280px]" />
+        <OfferListSkeleton />
+      </Container>
+      <BottomNav />
+    </div>
+  );
+}
+
 /** One category's offers for all of Rajkot, or for one area when `area` comes from the URL. */
 export async function CategoryView({ slug, area: areaSlug, searchParams }: { slug: string; area?: string; searchParams: SearchParams }) {
   const area = await resolveArea(areaSlug);
   return (
-    <Suspense
-      fallback={
-        <Container className="pt-6 pb-24 lg:pt-12">
-          <OffersSkeleton />
-        </Container>
-      }
-    >
+    <Suspense fallback={<CategoryPageSkeleton />}>
       <CategoryContent slug={slug} area={area} searchParams={searchParams} />
     </Suspense>
   );

@@ -6,6 +6,25 @@ export function Skeleton({ className, ...props }: ComponentProps<"div">) {
   return <div aria-hidden className={cn("animate-pulse rounded-lg bg-skeleton", className)} {...props} />;
 }
 
+/** A line of text `height` tall, drawn as a shorter bar in the middle of it. */
+export function TextLineSkeleton({ height, bar = 14, className }: { height: number; bar?: number; className?: string }) {
+  return (
+    <div className="flex items-center" style={{ height }}>
+      <Skeleton className={className} style={{ height: bar }} />
+    </div>
+  );
+}
+
+/** `PageTitle`: a 28px (40px on desktop) heading with an optional line under it. */
+export function PageTitleSkeleton({ subtitle = true, center }: { subtitle?: boolean; center?: boolean }) {
+  return (
+    <div className={cn(center && "flex flex-col items-center")}>
+      <Skeleton className="h-[35px] w-48 lg:h-12 lg:w-72" />
+      {subtitle && <Skeleton className="mt-1.5 h-[22px] w-64 max-w-full lg:mt-2 lg:h-[26px] lg:w-96" />}
+    </div>
+  );
+}
+
 export function Divider({ className }: { className?: string }) {
   return <hr className={cn("border-0 border-t border-line", className)} />;
 }

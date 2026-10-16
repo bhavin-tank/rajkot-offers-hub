@@ -323,7 +323,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
 
 export default function BusinessPage({ params }: PageProps<"/[lang]/businesses/[slug]">) {
   return (
-    <Suspense fallback={<DetailSkeleton />}>
+    <Suspense fallback={<DetailSkeleton kind="shop" />}>
       <BusinessContent params={params} />
     </Suspense>
   );

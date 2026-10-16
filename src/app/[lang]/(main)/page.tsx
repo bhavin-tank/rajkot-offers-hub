@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { Suspense } from "react";
 import { CategoryIconRow } from "@/components/categories/category-tiles";
 import { Container, Section, SectionHeader } from "@/components/layout/container";
+import { HomeSectionsSkeleton } from "@/components/layout/page-skeleton";
 import { BusinessCta } from "@/components/marketing/promos";
 import { HeroSlider } from "@/components/marketing/hero-slider";
 import { NearMeLink } from "@/components/marketing/near-me-link";
@@ -34,15 +36,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const t = await getT();
-  const [categories, today, latest, featured, hero] = await Promise.all([
-    getCategories(),
-    getTodayOffers(),
-    getLatestOffers(),
-    getFeaturedOffers(),
-    getHeroSlides(),
-  ]);
-  const homeCategories = categories.filter((c) => c.inHomeRow);
-
   return (
     <>
       <JsonLd data={siteLd(t("Fresh offers from Rajkot's shops, cafés and salons, all in one place."))} />
@@ -69,6 +62,27 @@ export default async function HomePage() {
         </Container>
       </section>
 
+      {/* The offers come from the API, so they stream in after the introduction. */}
+      <Suspense fallback={<HomeSectionsSkeleton />}>
+        <HomeSections />
+      </Suspense>
+    </>
+  );
+}
+
+async function HomeSections() {
+  const t = await getT();
+  const [categories, today, latest, featured, hero] = await Promise.all([
+    getCategories(),
+    getTodayOffers(),
+    getLatestOffers(),
+    getFeaturedOffers(),
+    getHeroSlides(),
+  ]);
+  const homeCategories = categories.filter((c) => c.inHomeRow);
+
+  return (
+    <>
       {hero.slides.length > 0 && (
         <Section className="pt-0 lg:pt-0">
           <HeroSlider slides={hero.slides} autoplayMs={hero.autoplayMs} loop={hero.loop} />

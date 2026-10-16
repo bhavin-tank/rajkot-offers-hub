@@ -82,7 +82,7 @@ export async function OffersView({
     <Container className="pt-6 pb-10 lg:pt-12 lg:pb-20">
       {/* Shops the visitor follows come first, on the all-Rajkot list. */}
       {!areaSlug && !categorySlug && <FollowedOffers className="mb-8 lg:mb-12" />}
-      <Suspense fallback={<OffersSkeleton />}>
+      <Suspense fallback={<OffersSkeleton subtitle={Boolean(areaSlug || categorySlug)} />}>
         <OffersContent area={area} category={category} searchParams={searchParams} />
       </Suspense>
     </Container>

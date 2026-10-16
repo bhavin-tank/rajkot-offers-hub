@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { ChangeMpinForm, DeleteAccountForm, NameForm } from "@/components/auth/account-forms";
 import { MyCodes } from "@/components/auth/my-codes";
 import { Container } from "@/components/layout/container";
+import { AccountSkeleton } from "@/components/layout/page-skeleton";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/lib/actions/auth";
 import { accessToken, getSession } from "@/lib/auth/session";
@@ -63,7 +64,7 @@ export default async function AccountPage() {
   return (
     <Container className="max-w-3xl py-8 lg:py-14">
       <h1 className="mb-6 text-[28px] font-bold lg:text-4xl">{t("My account")}</h1>
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-2xl bg-skeleton" />}>
+      <Suspense fallback={<AccountSkeleton />}>
         <Account />
       </Suspense>
     </Container>
