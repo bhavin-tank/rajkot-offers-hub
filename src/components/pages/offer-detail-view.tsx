@@ -25,10 +25,23 @@ import { BackLink } from "@/components/layout/back-link";
 import { SectionTabs } from "@/components/ui/section-tabs";
 import { getBusiness, getCategory, getOffer, getOfferReviews, getSimilarOffers } from "@/lib/data";
 import { formatRange, formatRupees } from "@/lib/format";
+import type { Locale } from "@/lib/i18n/config";
 import { getLocale, getT } from "@/lib/i18n/server";
+import type { T } from "@/lib/i18n/translate";
 import { breadcrumbLd, JsonLd, offerLd, pageMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 import { offerPath, shopPath } from "@/lib/paths";
+import type { Offer } from "@/types";
+
+/** The sentence search results show under the offer: what it is, where, and until when. */
+function offerSummary(t: T, locale: Locale, offer: Offer) {
+  return t("{offer} at {business}, {area}, Rajkot. Valid {dates}. See timings, terms and directions.", {
+    offer: offer.title,
+    business: offer.businessName,
+    area: offer.areaName,
+    dates: formatRange(offer.validFrom, offer.validTo, locale),
+  });
+}
 
 export async function offerMetadata(slug: string): Promise<Metadata> {
   const [t, locale, offer] = await Promise.all([getT(), getLocale(), getOffer(slug)]);
@@ -36,11 +49,7 @@ export async function offerMetadata(slug: string): Promise<Metadata> {
   const vars = { offer: offer.title, business: offer.businessName, area: offer.areaName };
   return pageMetadata({
     title: t("{offer} at {business}, {area}", vars),
-    description: t("{offer} at {business}, {area}, Rajkot. Valid {dates}. See timings, terms and directions.", {
-      ...vars,
-      offer: offer.offerText,
-      dates: formatRange(offer.validFrom, offer.validTo, locale),
-    }),
+    description: offerSummary(t, locale, offer),
     path: offerPath(offer),
     image: offer.images[0],
     // An ended offer stays reachable for old links but should not show up in search.
@@ -132,7 +141,7 @@ async function OfferContent({ slug }: { slug: string }) {
 
   return (
     <div className="lg:bg-surface lg:pt-6 lg:pb-16">
-      <JsonLd data={await offerLd(offer, business)} />
+      <JsonLd data={await offerLd(offer, business, offerSummary(t, locale, offer))} />
       {!expired && <TrackOfferView offerId={offer.id} />}
       <JsonLd data={crumbs} />
       {expired && (

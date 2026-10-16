@@ -119,6 +119,7 @@ export type OfferSummary = Pick<
   | "areaName"
   | "images"
   | "validTo"
+  | "createdAt"
   | "isExpired"
   | "daysLeft"
   | "distanceKm"

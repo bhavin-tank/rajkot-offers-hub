@@ -21,7 +21,8 @@ import { ButtonLink, buttonClass } from "@/components/ui/button";
 import { DetailRow, EmptyState } from "@/components/ui/display";
 import { BackLink } from "@/components/layout/back-link";
 import { SectionTabs } from "@/components/ui/section-tabs";
-import { getBusiness, getBusinessOffers, getBusinessReviews } from "@/lib/data";
+import { offersPath } from "@/lib/areas";
+import { getBusiness, getBusinessOffers, getBusinessReviews, getCategory } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { cn, directionsHref } from "@/lib/utils";
 import { breadcrumbLd, JsonLd, localBusinessLd, pageMetadata } from "@/lib/seo";
@@ -158,16 +159,18 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
   const t = await getT();
   const business = await getBusiness((await params).slug);
   if (!business) notFound();
-  const [{ active, expired }, reviews] = await Promise.all([
+  const [{ active, expired }, reviews, category] = await Promise.all([
     getBusinessOffers(business.slug),
     getBusinessReviews(business.id, business.outlets),
+    // A shop's own category can sit below the offer categories ("Footwear Stores" under "Footwear"); only those have a list page.
+    getCategory(business.categorySlug),
   ]);
   const path = shopPath(business.slug);
   const subtitle = t("{category} • {area}, Rajkot", { category: business.categoryName, area: business.areaName });
 
   const crumbs = await breadcrumbLd([
     { name: t("Home"), path: "/" },
-    { name: business.categoryName, path: `/offers/${business.categorySlug}` },
+    ...(category ? [{ name: category.shortName, path: offersPath(undefined, category.slug) }] : []),
     { name: business.name, path },
   ]);
 
@@ -189,7 +192,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
 
   return (
     <div className="lg:bg-surface lg:pt-6 lg:pb-16">
-      <JsonLd data={await localBusinessLd(business, active)} />
+      <JsonLd data={await localBusinessLd(business, active, rating, reviews.items)} />
       <JsonLd data={crumbs} />
       <Container className="px-0 lg:px-5">
         <div className="overflow-hidden lg:rounded-2xl lg:border lg:border-line lg:bg-white">

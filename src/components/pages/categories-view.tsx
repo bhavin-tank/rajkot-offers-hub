@@ -7,9 +7,10 @@ import {
 } from "@/components/categories/category-tiles";
 import { Container, PageTitle } from "@/components/layout/container";
 import { getAreas, getCategories } from "@/lib/data";
+import { offersPath } from "@/lib/areas";
 import { formatOfferCount } from "@/lib/format";
 import { getT } from "@/lib/i18n/server";
-import { pageMetadata } from "@/lib/seo";
+import { collectionLd, JsonLd, pageMetadata } from "@/lib/seo";
 import { resolveArea } from "./resolve-area";
 
 export async function categoriesMetadata(): Promise<Metadata> {
@@ -30,9 +31,19 @@ export async function CategoriesView({ area: areaSlug }: { area?: string }) {
   const featured = categories.find((c) => c.featured);
   const grid = categories.filter((c) => !c.featured);
 
+  const description = t("Find Rajkot's offers by category: food, fashion, beauty and more.");
+
   return (
     <Container className="flex flex-col gap-8 pt-6 pb-10 lg:gap-14 lg:pt-12 lg:pb-20">
-      <PageTitle title={t("Category")} subtitle={t("What are you looking for? Pick a category")} />
+      <JsonLd
+        data={await collectionLd({
+          name: t("Offer categories in Rajkot"),
+          description,
+          path: "/categories",
+          items: categories.map((c) => ({ name: c.name, path: offersPath(undefined, c.slug), image: c.image })),
+        })}
+      />
+      <PageTitle title={t("Offer categories in Rajkot")} subtitle={t("What are you looking for? Pick a category")} />
 
       {featured && (
         <CategoryBanner
