@@ -32,6 +32,46 @@
   --shadow-form: 0 2px 12px rgb(0 0 0 / 0.04);
   --shadow-ring: 0 0 0 3px rgb(225 22 84 / 0.14);
   --shadow-ring-danger: 0 0 0 3px rgb(220 38 38 / 0.1);
+
+  /* Follow button, until followed: the bell rings every few seconds and a soft ring pulses around the button. */
+  --animate-bell-ring: bell-ring 3s ease-in-out infinite;
+  --animate-follow-pulse: follow-pulse 2.4s ease-out infinite;
+
+  @keyframes bell-ring {
+    0%,
+    55%,
+    100% {
+      transform: rotate(0);
+    }
+    59% {
+      transform: rotate(18deg);
+    }
+    63% {
+      transform: rotate(-16deg);
+    }
+    67% {
+      transform: rotate(12deg);
+    }
+    71% {
+      transform: rotate(-8deg);
+    }
+    75% {
+      transform: rotate(4deg);
+    }
+    80% {
+      transform: rotate(0);
+    }
+  }
+
+  @keyframes follow-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgb(225 22 84 / 0.45);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 10px rgb(225 22 84 / 0);
+    }
+  }
 }
 
 @layer base {
