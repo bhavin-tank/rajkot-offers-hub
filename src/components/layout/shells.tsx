@@ -3,6 +3,7 @@ import { Footer } from "./footer";
 import { DesktopHeader, MobileHeader } from "./header";
 import { BottomNav } from "./nav-links";
 import { ScrollShadow } from "./scroll-shadow";
+import { loyaltyEnabled } from "@/lib/rewards/enabled";
 
 /** Browsing pages: full header, footer and the mobile tab bar. */
 export function MainShell({ children }: { children: ReactNode }) {
@@ -13,7 +14,7 @@ export function MainShell({ children }: { children: ReactNode }) {
       <MobileHeader />
       <main className="flex-1 bg-surface">{children}</main>
       <Footer className="pb-16 lg:pb-0" />
-      <BottomNav />
+      <BottomNav rewards={loyaltyEnabled()} />
     </>
   );
 }

@@ -38,14 +38,15 @@ interface ApiNotification {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PER_PAGE = 30;
 
-/** Only an offer opens from a notification; the site sends "/offers/<anything>-<id>" to the offer's own address. */
-function hrefOf(action: ApiNotification["action"]) {
+/** An offer opens its page ("/offers/<anything>-<id>" goes to the offer's own address); points, rewards and tasks open Rewards. */
+function hrefOf(action: ApiNotification["action"], type: string | null) {
+  if (type?.startsWith("loyalty.")) return "/rewards";
   const id = action?.arguments?.id;
   return action?.type === "screen" && action.resource === "promotion" && typeof id === "string" && UUID.test(id) ? `/offers/offer-${id}` : null;
 }
 
 function toNotification(n: ApiNotification): SiteNotification {
-  return { id: n.id, type: n.type, title: n.title ?? "", body: n.body ?? "", href: hrefOf(n.action), read: Boolean(n.read_at), createdAt: n.created_at };
+  return { id: n.id, type: n.type, title: n.title ?? "", body: n.body ?? "", href: hrefOf(n.action, n.type), read: Boolean(n.read_at), createdAt: n.created_at };
 }
 
 /** The latest notifications and the unread count, or "guest" when nobody is signed in. */

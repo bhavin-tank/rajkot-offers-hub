@@ -22,6 +22,13 @@ platform; `PLATFORM_HOSTS` must map `rajkot-offers=api.rajkotoffers.test` when s
 `APP_ENV=local` the API returns login codes in its response, and this site shows them on the login
 screen in development builds.
 
+**Rewards (points, scratch cards, reward codes, invites):** the API runs them per platform behind its
+`loyalty` feature (and `referrals` for invites), on `redesign/platforms` until it is released. The
+site shows them only with `LOYALTY_ENABLED=true` (set it in `.env.local`, or in `.env.production`
+once the production platform has the feature on); without it there is no Rewards tab or page and
+Saved keeps its place in the bottom bar. To try it locally run the API's migrations and
+`php artisan db:seed --class=LoyaltyDemoSeeder` and `--class=ReferralDemoSeeder`.
+
 ## Deploy (Cloudflare Workers)
 
 The site runs on Cloudflare Workers through [OpenNext](https://opennext.js.org/cloudflare)

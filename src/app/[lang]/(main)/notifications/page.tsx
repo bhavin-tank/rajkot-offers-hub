@@ -15,7 +15,7 @@ export default async function NotificationsPage() {
   const t = await getT();
   return (
     <Container className="flex flex-col gap-6 pt-6 pb-10 lg:gap-8 lg:pt-12 lg:pb-20">
-      <PageTitle title={t("Notifications")} subtitle={t("New offers from the shops you follow.")} />
+      <PageTitle title={t("Notifications")} subtitle={t("New offers from your shops, and your points and rewards.")} />
       <NotificationList />
     </Container>
   );

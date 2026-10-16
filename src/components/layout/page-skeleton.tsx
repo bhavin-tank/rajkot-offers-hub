@@ -238,20 +238,16 @@ export function HomeSectionsSkeleton() {
   );
 }
 
-/** The signed-in parts of the account page: details, codes, MPIN, log out and delete. */
-export function AccountSkeleton() {
+/** The signed-in parts of the account page: profile, points, grouped rows and the account group. */
+export function AccountSkeleton({ rewards }: { rewards?: boolean }) {
   return (
     <div aria-busy="true" className="flex flex-col gap-6">
-      <Skeleton className="h-[184px] rounded-2xl lg:h-[192px]" />
-      <Skeleton className="h-[100px] rounded-2xl lg:h-[108px]" />
-      <Skeleton className="h-[404px] rounded-2xl sm:h-[220px] lg:h-[228px]" />
-      <div className="flex gap-3">
-        <Skeleton className="h-12 w-24 rounded-xl" />
-        <Skeleton className="h-12 w-52 rounded-xl" />
-      </div>
-      <div className="border-t border-line pt-6">
-        <Skeleton className="h-12 w-44 rounded-xl" />
-      </div>
+      <Skeleton className="h-[90px] rounded-2xl" />
+      {rewards && <Skeleton className="h-[148px] rounded-2xl" />}
+      <Skeleton className="h-[266px] rounded-2xl" />
+      <Skeleton className="h-[103px] rounded-2xl" />
+      <Skeleton className="h-[103px] rounded-2xl" />
+      <Skeleton className="h-[224px] rounded-2xl" />
     </div>
   );
 }

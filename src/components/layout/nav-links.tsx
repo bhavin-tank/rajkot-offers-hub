@@ -2,7 +2,8 @@
 
 import { Link } from "@/components/i18n/link";
 import { useParams, usePathname } from "next/navigation";
-import { Bookmark, CircleUserRound, House, LayoutGrid, Tag } from "lucide-react";
+import { Bookmark, CircleUserRound, Gift, House, LayoutGrid, Tag } from "lucide-react";
+import { usePoints } from "@/hooks/use-points";
 import { stripArea } from "@/lib/areas";
 import { splitLocale } from "@/lib/i18n/config";
 import { useT } from "@/lib/i18n/client";
@@ -50,8 +51,24 @@ const bottomNav = [
   { href: "/account", label: "Account", icon: CircleUserRound },
 ] as const satisfies readonly { href: string; label: MessageKey; icon: unknown }[];
 
+/** With the rewards programme on, Rewards takes Saved's place (Saved is on the account page). */
+const bottomNavWithRewards = [
+  bottomNav[0],
+  bottomNav[1],
+  bottomNav[2],
+  { href: "/rewards", label: "Rewards", icon: Gift },
+  bottomNav[4],
+] as const satisfies readonly { href: string; label: MessageKey; icon: unknown }[];
+
+/** A dot on the Rewards tab while there is a scratch card to scratch. */
+function ScratchDot() {
+  const points = usePoints();
+  if (points.status !== "ready" || points.cards === 0) return null;
+  return <span aria-hidden className="absolute top-2 left-1/2 ml-1.5 size-2.5 rounded-full border-2 border-white bg-primary" />;
+}
+
 /** Mobile tab bar, fixed to the bottom of the screen. */
-export function BottomNav() {
+export function BottomNav({ rewards }: { rewards?: boolean }) {
   const pathname = usePathname();
   const { area } = useParams<{ area?: string }>();
   const t = useT();
@@ -62,7 +79,7 @@ export function BottomNav() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="grid h-16 grid-cols-5">
-        {bottomNav.map(({ href, label, icon: Icon }) => {
+        {(rewards ? bottomNavWithRewards : bottomNav).map(({ href, label, icon: Icon }) => {
           const active = isActive(pathname, href, area);
           return (
             <li key={href}>
@@ -70,12 +87,13 @@ export function BottomNav() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex h-full flex-col items-center justify-center gap-1 text-[11px]",
+                  "relative flex h-full flex-col items-center justify-center gap-1 text-[11px]",
                   active ? "font-semibold text-primary" : "font-medium text-muted",
                 )}
               >
                 <Icon size={22} strokeWidth={1.75} aria-hidden />
                 {t(label)}
+                {href === "/rewards" && <ScratchDot />}
               </Link>
             </li>
           );

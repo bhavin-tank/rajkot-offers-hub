@@ -66,7 +66,9 @@ function search(query: Query = {}) {
 
 export async function api<T>(path: string, { query, method = "GET", body, token, client }: ApiRequest = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  // A FormData body (a file upload) sets its own multipart Content-Type.
+  const upload = typeof FormData !== "undefined" && body instanceof FormData;
+  if (body !== undefined && !upload) headers["Content-Type"] = "application/json";
   if (token) headers.Authorization = `Bearer ${token}`;
   if (process.env.RAJKOT_API_PLATFORM) headers["X-Platform"] = process.env.RAJKOT_API_PLATFORM;
   if (client && process.env.API_FRONTEND_KEY) {
@@ -77,7 +79,7 @@ export async function api<T>(path: string, { query, method = "GET", body, token,
   const response = await fetch(`${apiBaseUrl()}${path}${search(query)}`, {
     method,
     headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? undefined : upload ? (body as FormData) : JSON.stringify(body),
     // Guest reads are shared by every visitor, so they are cached for a minute (the API caches too).
     // Anything personal, or that changes data, is never cached.
     ...(method === "GET" && !token && !client ? { next: { revalidate: GUEST_REVALIDATE_SECONDS } } : { cache: "no-store" as const }),

@@ -88,10 +88,10 @@ export function ChangeMpinForm() {
 }
 
 /** "Delete my account", behind a second confirmation. */
-export function DeleteAccountForm() {
+export function DeleteAccountForm({ startConfirming, onCancel }: { startConfirming?: boolean; onCancel?: () => void }) {
   const t = useT();
   const { run, pending, shown } = useSubmit();
-  const [confirming, setConfirming] = useState(false);
+  const [confirming, setConfirming] = useState(Boolean(startConfirming));
   if (!confirming) {
     return (
       <Button type="button" variant="ghost" className="self-start px-0 text-danger hover:text-danger" onClick={() => setConfirming(true)}>
@@ -108,7 +108,7 @@ export function DeleteAccountForm() {
         <Button type="button" className="bg-danger hover:bg-danger/90" disabled={pending} onClick={() => run(deleteAccountAction, "Saved")}>
           {t("Yes, delete my account")}
         </Button>
-        <Button type="button" variant="outline" disabled={pending} onClick={() => setConfirming(false)}>
+        <Button type="button" variant="outline" disabled={pending} onClick={() => (onCancel ? onCancel() : setConfirming(false))}>
           {t("Cancel")}
         </Button>
       </div>
