@@ -282,20 +282,45 @@ export function toArea(area: AreaCount): Area & { offerCount: number } {
 
 const FALLBACK_IMAGE = img("photo-1441986300917-64674bd600d8", 800);
 
-const ART: { match: RegExp; icon: CategoryIcon; image: string }[] = [
-  { match: /restaurant|cafe|bakery|food|sweets|farsan/, icon: "utensils", image: img("photo-1504674900247-0877df9cc836", 600) },
-  { match: /apparel|wear|footwear|bag|jewel|watch/, icon: "shirt", image: img("photo-1441986300917-64674bd600d8", 600) },
-  { match: /salon|spa|beauty|health|wellness/, icon: "scissors", image: img("photo-1560066984-138dadb4c035", 600) },
-  { match: /electronic|mobile|appliance/, icon: "smartphone", image: img("photo-1505740420928-5e560c06d30e", 600) },
-  { match: /fitness|gym|yoga|sport/, icon: "dumbbell", image: img("photo-1534438327276-14e5300c3a48", 600) },
-  { match: /home|living|grocery|daily/, icon: "sofa", image: img("photo-1555041469-a586c61ea9bc", 600) },
-  { match: /entertainment|cinema|gaming/, icon: "ticket", image: img("photo-1489599849927-2ee91cede3ba", 600) },
-  { match: /service|automobile|education|coaching|travel/, icon: "wrench", image: img("photo-1581578731548-c64695cc6952", 600) },
-  { match: /gift|toy|book/, icon: "gift", image: img("photo-1513885535751-8b9238bd345a", 600) },
+const ART: { match: RegExp; image: string }[] = [
+  { match: /restaurant|cafe|bakery|food|sweets|farsan/, image: img("photo-1504674900247-0877df9cc836", 600) },
+  { match: /apparel|wear|footwear|bag|jewel|watch/, image: img("photo-1441986300917-64674bd600d8", 600) },
+  { match: /salon|spa|beauty|health|wellness/, image: img("photo-1560066984-138dadb4c035", 600) },
+  { match: /electronic|mobile|appliance/, image: img("photo-1505740420928-5e560c06d30e", 600) },
+  { match: /fitness|gym|yoga|sport/, image: img("photo-1534438327276-14e5300c3a48", 600) },
+  { match: /home|living|grocery|daily/, image: img("photo-1555041469-a586c61ea9bc", 600) },
+  { match: /entertainment|cinema|gaming/, image: img("photo-1489599849927-2ee91cede3ba", 600) },
+  { match: /service|automobile|education|coaching|travel/, image: img("photo-1581578731548-c64695cc6952", 600) },
+  { match: /gift|toy|book/, image: img("photo-1513885535751-8b9238bd345a", 600) },
+];
+
+// One icon per kind of shop, most specific first ("fast-food" before "food", "home-services" before "home").
+const ICONS: { match: RegExp; icon: CategoryIcon }[] = [
+  { match: /fast-food|street-food/, icon: "pizza" },
+  { match: /cafe|bakery/, icon: "coffee" },
+  { match: /sweets|farsan/, icon: "candy" },
+  { match: /restaurant|dining|food/, icon: "utensils" },
+  { match: /footwear|bag/, icon: "shopping-bag" },
+  { match: /jewel|watch/, icon: "gem" },
+  { match: /apparel|wear|boutique|fashion/, icon: "shirt" },
+  { match: /salon|spa|beauty/, icon: "scissors" },
+  { match: /health|wellness/, icon: "heart-pulse" },
+  { match: /electronic|mobile|appliance/, icon: "smartphone" },
+  { match: /fitness|gym|yoga|sport/, icon: "dumbbell" },
+  { match: /service/, icon: "wrench" },
+  { match: /grocery|daily/, icon: "shopping-basket" },
+  { match: /home|living/, icon: "sofa" },
+  { match: /entertainment|cinema|gaming/, icon: "ticket" },
+  { match: /automobile|car-|vehicle/, icon: "car" },
+  { match: /education|coaching/, icon: "graduation-cap" },
+  { match: /travel|stay|hotel/, icon: "plane" },
+  { match: /gift|toy|book/, icon: "gift" },
 ];
 
 function art(slug: string) {
-  return ART.find((a) => a.match.test(slug)) ?? { icon: "gift" as const, image: FALLBACK_IMAGE };
+  const image = ART.find((a) => a.match.test(slug))?.image ?? FALLBACK_IMAGE;
+  const icon = ICONS.find((i) => i.match.test(slug))?.icon ?? "gift";
+  return { icon, image };
 }
 
 /** A category chip → the site's `Category` (+ count). The first `homeRow` categories with offers show on the home page. */
