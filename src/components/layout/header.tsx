@@ -1,11 +1,12 @@
 import { LanguageToggle } from "@/components/i18n/language-toggle";
-import { ArrowLeft, Bookmark, CircleUserRound } from "lucide-react";
+import { Bookmark, CircleUserRound } from "lucide-react";
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/ui/button";
 import { IconLink } from "@/components/ui/icon-button";
 import { getAreasWithCounts, getCategorySlugs } from "@/lib/data";
 import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
+import { BackLink } from "./back-link";
 import { Container } from "./container";
 import { Logo } from "./logo";
 import { LocationPicker } from "./location-picker";
@@ -62,7 +63,7 @@ export function MobileHeader() {
 }
 
 /** Mobile top bar with back arrow and a left-aligned title. */
-export async function MobileTopBar({
+export function MobileTopBar({
   title,
   backHref,
   action,
@@ -71,13 +72,10 @@ export async function MobileTopBar({
   backHref: string;
   action?: ReactNode;
 }) {
-  const t = await getT();
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-white transition-shadow [html[data-scrolled]_&]:shadow-header lg:hidden">
       <div className="grid h-14 grid-cols-[40px_1fr_40px] items-center px-2">
-        <IconLink href={backHref} variant="plain" size="lg" aria-label={t("Go back")}>
-          <ArrowLeft size={22} aria-hidden />
-        </IconLink>
+        <BackLink fallbackHref={backHref} />
         <h1 className="truncate pl-1 text-base font-semibold">{title}</h1>
         <div className="flex justify-end">{action}</div>
       </div>

@@ -125,7 +125,7 @@ function Picker({ areas, total, categorySlugs }: LocationPickerProps) {
           onLocated={() => {
             nearChanged();
             setOpen(false);
-            router.push(nearestHref(), { scroll: false });
+            router.replace(nearestHref(), { scroll: false });
           }}
           onCleared={() => {
             nearChanged();
