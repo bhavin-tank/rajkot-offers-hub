@@ -50,7 +50,7 @@ export default async function ContactPage() {
     <>
       <Container className="pt-8 pb-8 lg:pt-20 lg:pb-12">
         <Eyebrow>{t("Contact")}</Eyebrow>
-        <h1 className="mt-2 text-[32px] leading-tight font-bold lg:text-[52px]">{t("Contact us")}</h1>
+        <h1 className="mt-2 text-[28px] leading-tight font-bold lg:text-[52px]">{t("Contact us")}</h1>
         <p className="mt-3 text-base text-muted lg:text-lg">{t("Questions, suggestions or offer details: let us know.")}</p>
       </Container>
 
@@ -85,7 +85,7 @@ export default async function ContactPage() {
 
         <div className="flex flex-col gap-4">
           <div className="rounded-2xl border border-line bg-white p-5 lg:p-8">
-            <h2 className="text-lg font-semibold">{t("The quickest way to reach us")}</h2>
+            <h2 className="text-base lg:text-lg font-semibold">{t("The quickest way to reach us")}</h2>
             <p className="mt-2 text-sm text-muted">{t("Message us on WhatsApp with your question or the offer you want to tell us about. We reply on working days.")}</p>
             <ButtonAnchor href={whatsappHref(site.whatsapp)} target="_blank" rel="noreferrer" variant="whatsappSolid" className="mt-4">
               <WhatsAppIcon size={18} />

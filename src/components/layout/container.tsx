@@ -60,8 +60,8 @@ export async function SectionHeader({ title, href, linkLabel, className, as: Tag
 export function PageTitle({ title, subtitle, className }: { title: string; subtitle?: ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <h1 className="text-[28px] leading-[1.25] font-bold lg:text-[40px] lg:leading-[1.2]">{title}</h1>
-      {subtitle && <p className="mt-1.5 text-[15px] text-muted lg:mt-2 lg:text-[17px]">{subtitle}</p>}
+      <h1 className="text-2xl leading-[1.25] font-bold lg:text-[40px] lg:leading-[1.2]">{title}</h1>
+      {subtitle && <p className="mt-1.5 text-sm text-muted lg:mt-2 lg:text-[17px]">{subtitle}</p>}
     </div>
   );
 }

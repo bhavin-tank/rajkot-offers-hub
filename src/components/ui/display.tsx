@@ -50,8 +50,8 @@ export function EmptyState({ icon: Icon, title, hint, action, size = "lg", class
       >
         <Icon size={size === "lg" ? 30 : 26} strokeWidth={1.6} aria-hidden />
       </div>
-      <h2 className="text-xl font-semibold">{title}</h2>
-      {hint && <p className="mt-2 max-w-xs text-[15px] leading-relaxed text-muted">{hint}</p>}
+      <h2 className="text-lg lg:text-xl font-semibold">{title}</h2>
+      {hint && <p className="mt-2 max-w-xs text-sm lg:text-[15px] leading-relaxed text-muted">{hint}</p>}
       {action && <div className="mt-6">{action}</div>}
     </div>
   );
@@ -73,7 +73,7 @@ export function DetailRow({ icon: Icon, label, children, className }: DetailRowP
       </span>
       <div className="min-w-0">
         <div className="text-xs text-muted">{label}</div>
-        <div className="mt-0.5 text-[15px] leading-normal font-medium break-words">{children}</div>
+        <div className="mt-0.5 text-sm lg:text-[15px] leading-normal font-medium break-words">{children}</div>
       </div>
     </div>
   );

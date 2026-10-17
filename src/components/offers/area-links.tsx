@@ -34,7 +34,7 @@ export async function AreaLinks({ area, category }: { area?: Area; category?: Ca
 
   return (
     <section aria-labelledby="area-links" className="mt-10 border-t border-line pt-8 lg:mt-14 lg:pt-10">
-      <h2 id="area-links" className="mb-4 text-lg font-semibold lg:text-xl">
+      <h2 id="area-links" className="mb-4 text-base font-semibold lg:text-xl">
         {heading}
       </h2>
       <ul className="flex flex-wrap gap-2 lg:gap-3">

@@ -28,7 +28,7 @@ export async function BusinessRow({
         {logo ? <Image src={logo} alt="" fill sizes="44px" className="object-cover" /> : <Store size={20} aria-hidden />}
       </span>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[15px] font-semibold">{name}</p>
+        <p className="truncate text-sm lg:text-[15px] font-semibold">{name}</p>
         <p className="truncate text-[13px] text-muted">{t("{area}, Rajkot", { area })}</p>
       </div>
       <Link
@@ -50,7 +50,7 @@ export async function HowToGetSteps({ steps }: { steps: OfferStep[] }) {
       <h2 className="mb-4 text-base font-semibold lg:text-lg">{t("How to get this offer")}</h2>
       <ol className="flex flex-col gap-3 lg:gap-4">
         {steps.map((step, i) => (
-          <li key={step.text} className="flex items-center gap-3 text-[15px]">
+          <li key={step.text} className="flex items-center gap-3 text-sm lg:text-[15px]">
             <span className="flex size-[26px] shrink-0 items-center justify-center rounded-full bg-white text-[13px] font-semibold">
               {i + 1}
             </span>

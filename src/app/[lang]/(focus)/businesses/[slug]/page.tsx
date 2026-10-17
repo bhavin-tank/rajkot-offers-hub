@@ -117,7 +117,7 @@ async function PhotosTab({ business, images }: { business: Business; images: str
   const t = await getT();
   return (
     <div>
-      <h2 className="mb-3 text-lg font-semibold lg:text-[22px]">{t("Photos")}</h2>
+      <h2 className="mb-3 text-base font-semibold lg:text-[22px]">{t("Photos")}</h2>
       <ul className="grid grid-cols-3 gap-2 lg:gap-4">
         {images.map((src) => (
           <li key={src} className="relative aspect-square overflow-hidden rounded-xl bg-surface lg:aspect-[4/3]">
@@ -134,7 +134,7 @@ async function OutletsTab({ business, path }: { business: Business; path: string
   const t = await getT();
   return (
     <div className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold">{t(business.outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: business.outlets.length })}</h2>
+      <h2 className="text-base lg:text-lg font-semibold">{t(business.outlets.length > 1 ? "Outlets ({count})" : "Outlet ({count})", { count: business.outlets.length })}</h2>
       <OutletSideCards outlets={business.outlets} contact={business} path={path} />
     </div>
   );
@@ -145,8 +145,8 @@ async function AboutTab({ business }: { business: Business }) {
   return (
     <div className="flex flex-col gap-7">
       <section>
-        <h2 className="mb-2 text-lg font-semibold lg:text-[22px]">{t("About us")}</h2>
-        <p className="max-w-[640px] text-[15px] leading-relaxed text-muted lg:text-base">{business.about}</p>
+        <h2 className="mb-2 text-base font-semibold lg:text-[22px]">{t("About us")}</h2>
+        <p className="max-w-[640px] text-sm leading-relaxed text-muted lg:text-base">{business.about}</p>
       </section>
       <div className="lg:hidden">
         <LinkRows business={business} />
@@ -204,7 +204,7 @@ async function BusinessContent({ params }: Pick<PageProps<"/[lang]/businesses/[s
               <ShopAvatar logo={business.logo} className="size-16 shrink-0 lg:size-20" />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <h1 className="text-[26px] leading-tight font-semibold lg:text-[30px]">{business.name}</h1>
+                  <h1 className="text-2xl leading-tight font-semibold lg:text-[30px]">{business.name}</h1>
                   {rating && <RatingInline rating={rating} className="text-sm text-muted" />}
                 </div>
                 <p className="mt-1 text-sm text-muted lg:text-[15px]">{subtitle}</p>

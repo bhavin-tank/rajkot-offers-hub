@@ -40,7 +40,7 @@ export function EarnTab({ tasks, referral, onChanged }: { tasks: LoyaltyTask[]; 
                 <Icon size={20} aria-hidden />
               </span>
               <div>
-                <p className="text-[15px] font-medium">
+                <p className="text-sm lg:text-[15px] font-medium">
                   {i + 1}. {t(title)}
                 </p>
                 <p className="text-[13px] text-muted">{t(hint)}</p>
@@ -60,7 +60,7 @@ export function EarnTab({ tasks, referral, onChanged }: { tasks: LoyaltyTask[]; 
               return (
                 <li key={item.id} className="flex items-center gap-3 p-4">
                   <div className="min-w-0 flex-1">
-                    <p className="text-[15px] font-medium">{item.title}</p>
+                    <p className="text-sm lg:text-[15px] font-medium">{item.title}</p>
                     {item.description && <p className="text-[13px] text-muted">{item.description}</p>}
                     {item.status === "rejected" && item.reject_reason && <p className="mt-1 text-[13px] text-danger">{item.reject_reason}</p>}
                   </div>
@@ -123,9 +123,9 @@ function TaskSheet({ task, onClose, onDone }: { task: LoyaltyTask | null; onClos
     <Sheet open={Boolean(task)} onClose={onClose} title={task?.title ?? ""}>
       {task && (
         <form id="task-form" action={submit} className="flex flex-col gap-4">
-          {task.description && <p className="text-[15px] text-muted">{task.description}</p>}
+          {task.description && <p className="text-sm lg:text-[15px] text-muted">{task.description}</p>}
           {task.target_url && (
-            <a href={task.target_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[15px] font-semibold text-primary">
+            <a href={task.target_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm lg:text-[15px] font-semibold text-primary">
               <Link2 size={16} aria-hidden />
               {task.target_handle ?? t("Open the page")}
             </a>

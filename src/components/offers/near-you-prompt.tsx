@@ -49,7 +49,7 @@ export function NearYouPrompt() {
         <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-primary">
           <LocateFixed size={20} aria-hidden />
         </span>
-        <p className="text-[15px] leading-snug">{t("See the offers closest to you, nearest first.")}</p>
+        <p className="text-sm lg:text-[15px] leading-snug">{t("See the offers closest to you, nearest first.")}</p>
       </div>
       <Button onClick={locate} disabled={busy} className="w-full lg:w-auto">
         {locating ? t("Finding you…") : t("Offers near me")}

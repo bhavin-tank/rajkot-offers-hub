@@ -93,7 +93,7 @@ export function SavedOffers() {
           ))}
         </Grid>
       ) : (
-        <p className="py-10 text-center text-[15px] text-muted">{empty}</p>
+        <p className="py-10 text-center text-sm lg:text-[15px] text-muted">{empty}</p>
       )}
     </div>
   );
@@ -125,7 +125,7 @@ export function SavedOffers() {
                   ))}
                 </Grid>
               ) : (
-                <p className="py-10 text-center text-[15px] text-muted">{t("No expired offers saved.")}</p>
+                <p className="py-10 text-center text-sm lg:text-[15px] text-muted">{t("No expired offers saved.")}</p>
               )}
             </div>
           ),

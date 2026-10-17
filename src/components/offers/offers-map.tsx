@@ -113,7 +113,7 @@ export function OffersMap({ pins, total, fill, className }: { pins: OfferPin[]; 
           <div className="absolute right-3 bottom-3 left-3 z-[1000] rounded-2xl border border-line bg-white p-3 shadow-card lg:right-auto lg:w-[380px]">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <Link href={shopPath(pin.businessSlug)} className="block truncate text-[15px] font-semibold hover:underline">
+                <Link href={shopPath(pin.businessSlug)} className="block truncate text-sm lg:text-[15px] font-semibold hover:underline">
                   {pin.businessName}
                 </Link>
                 <p className="truncate text-[13px] text-muted">

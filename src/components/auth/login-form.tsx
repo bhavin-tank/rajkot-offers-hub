@@ -88,7 +88,7 @@ export function LoginForm({ next, onDone }: { next: string | null; /** In a popu
       {step === "set" && (
         <>
           <div>
-            <h2 className="text-lg font-semibold">{t("Set your MPIN")}</h2>
+            <h2 className="text-base lg:text-lg font-semibold">{t("Set your MPIN")}</h2>
             <p className="mt-1 text-sm text-muted">{t("Create a 6-digit MPIN. You will use it to log in from now on.")}</p>
           </div>
           <Field id="mpin" label={t("New MPIN")}>
