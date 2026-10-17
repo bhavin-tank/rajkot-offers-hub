@@ -131,7 +131,23 @@ export function ScratchSheet({
   const showPrize = cleared && prize;
 
   return (
-    <Sheet open={Boolean(card)} onClose={close} title={t("Scratch card")}>
+    <Sheet
+      open={Boolean(card)}
+      onClose={close}
+      title={t("Scratch card")}
+      footer={
+        card &&
+        (cleared ? (
+          <Button block onClick={close}>
+            {t("Done")}
+          </Button>
+        ) : (
+          <Button variant="outline" block onClick={reveal} disabled={phase === "drawing"}>
+            {t("Reveal for me")}
+          </Button>
+        ))
+      }
+    >
       {card && (
         <div className="flex flex-col items-center gap-4 pb-1 text-center">
           <div>
@@ -171,16 +187,6 @@ export function ScratchSheet({
           {showPrize && prize.kind === "reward" && prize.redemption && <RewardPrize redemption={prize.redemption} />}
           {showPrize && prize.kind === "points" && <p className="text-sm text-muted">{t("Added to your points.")}</p>}
 
-          {!cleared && (
-            <Button variant="outline" block onClick={reveal} disabled={phase === "drawing"}>
-              {t("Reveal for me")}
-            </Button>
-          )}
-          {cleared && (
-            <Button block onClick={close}>
-              {t("Done")}
-            </Button>
-          )}
           {card.expires_at && !cleared && (
             <p className="text-xs text-muted">{t("Use it by {date}.", { date: formatShortDate(card.expires_at.slice(0, 10), locale) })}</p>
           )}

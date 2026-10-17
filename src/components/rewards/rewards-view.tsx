@@ -396,6 +396,24 @@ function RedemptionSheet({ redemption, onClose, onGivenBack }: { redemption: Loy
         onClose();
       }}
       title={redemption?.reward.title ?? ""}
+      footer={
+        usable &&
+        (sure ? (
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={() => setSure(false)} disabled={pending}>
+              {t("Keep it")}
+            </Button>
+            <Button className="flex-1" onClick={giveBack} disabled={pending}>
+              {t("Yes, give it back")}
+            </Button>
+          </div>
+        ) : (
+          <Button variant="ghost" block onClick={() => setSure(true)}>
+            <RotateCcw size={16} aria-hidden />
+            {t("Give code back for my points")}
+          </Button>
+        ))
+      }
     >
       {redemption && (
         <div className="flex flex-col items-center gap-3 pb-1 text-center">
@@ -406,21 +424,6 @@ function RedemptionSheet({ redemption, onClose, onGivenBack }: { redemption: Loy
               <p className="text-sm text-muted">{t("Show this to the cashier. It works once.")}</p>
               {redemption.expires_at && <p className="text-[13px] font-medium">{t("Use it by {date}.", { date: formatShortDate(day(redemption.expires_at), locale) })}</p>}
               {redemption.reward.terms && <p className="text-xs text-muted">{redemption.reward.terms}</p>}
-              {sure ? (
-                <div className="mt-2 flex w-full gap-3">
-                  <Button variant="outline" className="flex-1" onClick={() => setSure(false)} disabled={pending}>
-                    {t("Keep it")}
-                  </Button>
-                  <Button className="flex-1" onClick={giveBack} disabled={pending}>
-                    {t("Yes, give it back")}
-                  </Button>
-                </div>
-              ) : (
-                <Button variant="ghost" className="mt-1" onClick={() => setSure(true)}>
-                  <RotateCcw size={16} aria-hidden />
-                  {t("Give code back for my points")}
-                </Button>
-              )}
             </>
           ) : (
             <p className="text-sm text-muted">{t("This code has been used or has expired.")}</p>

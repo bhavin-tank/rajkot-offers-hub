@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { Input, Textarea } from "@/components/ui/input";
-import { Sheet } from "@/components/ui/sheet";
+import { Sheet, SheetFooter } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/toast";
 import { applyReferralAction, saveSocialHandleAction, submitTaskAction } from "@/lib/actions/rewards";
 import type { LoyaltyReferral, LoyaltyTask } from "@/lib/api/types";
@@ -122,7 +122,7 @@ function TaskSheet({ task, onClose, onDone }: { task: LoyaltyTask | null; onClos
   return (
     <Sheet open={Boolean(task)} onClose={onClose} title={task?.title ?? ""}>
       {task && (
-        <form action={submit} className="flex flex-col gap-4">
+        <form id="task-form" action={submit} className="flex flex-col gap-4">
           {task.description && <p className="text-[15px] text-muted">{task.description}</p>}
           {task.target_url && (
             <a href={task.target_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[15px] font-semibold text-primary">
@@ -146,9 +146,11 @@ function TaskSheet({ task, onClose, onDone }: { task: LoyaltyTask | null; onClos
               {error}
             </p>
           )}
-          <Button type="submit" block disabled={pending}>
-            {pending ? t("Sending…") : t("Send for checking")}
-          </Button>
+          <SheetFooter>
+            <Button type="submit" form="task-form" block disabled={pending}>
+              {pending ? t("Sending…") : t("Send for checking")}
+            </Button>
+          </SheetFooter>
         </form>
       )}
     </Sheet>
