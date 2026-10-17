@@ -108,7 +108,7 @@ export function ChipMenu({ label, options, value, className }: ChipMenuProps) {
         aria-haspopup={open === "popover" ? "listbox" : "dialog"}
         aria-expanded={open !== null}
         onClick={toggle}
-        className={chipClass({ selected: Boolean(value), size: "md" }, "lg:h-[38px] lg:px-[18px] lg:text-sm")}
+        className={chipClass({ selected: Boolean(value), size: "md" }, "h-8 px-3 lg:h-[38px] lg:px-[18px] lg:text-sm")}
       >
         {value ? `${label} · ${value}` : label}
         <ChevronDown size={14} className={cn("transition-transform", open === "popover" && "rotate-180")} aria-hidden />

@@ -43,11 +43,11 @@ export async function SectionHeader({ title, href, linkLabel, className, as: Tag
   const t = await getT();
   return (
     <div className={cn("mb-4 flex items-baseline justify-between gap-4 lg:mb-7", className)}>
-      <Tag className="text-xl leading-[1.3] font-semibold lg:text-[28px]">{title}</Tag>
+      <Tag className="text-lg leading-[1.3] font-semibold lg:text-[28px]">{title}</Tag>
       {href && (
         <Link
           href={href}
-          className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline lg:text-[15px]"
+          className="inline-flex shrink-0 items-center gap-1 text-[13px] font-semibold text-primary hover:underline lg:text-[15px]"
         >
           {linkLabel ?? t("See all")}
           <ArrowRight size={16} aria-hidden />
