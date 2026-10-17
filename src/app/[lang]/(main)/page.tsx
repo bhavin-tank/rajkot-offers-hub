@@ -17,6 +17,9 @@ import { getT } from "@/lib/i18n/server";
 import { img } from "@/lib/mock/images";
 import { JsonLd, pageMetadata, siteLd } from "@/lib/seo";
 import { site } from "@/lib/site";
+import { StatusRow } from "@/components/zalak/status-row";
+import { ZalakShelf } from "@/components/zalak/zalak-shelf";
+import { getStatusFeed, getZalakFeed } from "@/lib/zalak/data";
 
 const heroImages = [
   img("photo-1441986300917-64674bd600d8", 900),
@@ -72,12 +75,15 @@ export default async function HomePage() {
 
 async function HomeSections() {
   const t = await getT();
-  const [categories, today, latest, featured, hero] = await Promise.all([
+  const [categories, today, latest, featured, hero, statuses, reels] = await Promise.all([
     getCategories(),
     getTodayOffers(),
     getLatestOffers(),
     getFeaturedOffers(),
     getHeroSlides(),
+    // Never let the new feeds take the home page down with them.
+    getStatusFeed().catch(() => []),
+    getZalakFeed().catch(() => []),
   ]);
   const homeCategories = categories.filter((c) => c.inHomeRow);
 
@@ -89,12 +95,26 @@ async function HomeSections() {
         </Section>
       )}
 
+      {statuses.length > 0 && (
+        <Section className="pt-0 lg:pt-0">
+          <SectionHeader title={t("Status")} />
+          <StatusRow stories={statuses} />
+        </Section>
+      )}
+
       <FollowedOffers framed />
 
       <Section className="pt-0 lg:pt-0">
         <SectionHeader title={t("Category")} />
         <CategoryIconRow categories={homeCategories} />
       </Section>
+
+      {reels.length > 0 && (
+        <Section className="pt-0 lg:pt-0">
+          <SectionHeader title={t("Zalak")} href="/zalak" />
+          <ZalakShelf stories={reels} />
+        </Section>
+      )}
 
       <Section tone="surface">
         <SectionHeader title={t("Today's offers")} href="/offers?sort=ending" />

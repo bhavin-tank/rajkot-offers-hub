@@ -206,6 +206,18 @@ export function HomeSectionsSkeleton() {
     <div aria-busy="true">
       <Section className="pt-0 lg:pt-0">
         <SectionHeaderSkeleton />
+        <ul className="flex gap-4 overflow-hidden lg:gap-6" aria-hidden>
+          {Array.from({ length: 8 }, (_, i) => (
+            <li key={i} className="flex w-[68px] shrink-0 flex-col items-center gap-1.5 lg:w-20">
+              <Skeleton className="size-[68px] rounded-full lg:size-20" />
+              <Skeleton className="h-2.5 w-12" />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section className="pt-0 lg:pt-0">
+        <SectionHeaderSkeleton />
         <ul className="grid grid-cols-4 gap-x-3 gap-y-5 lg:grid-cols-8 lg:gap-6" aria-hidden>
           {Array.from({ length: 16 }, (_, i) => (
             <li key={i} className="flex flex-col items-center gap-2">
@@ -213,6 +225,17 @@ export function HomeSectionsSkeleton() {
               <div className="flex h-[15px] items-center lg:h-[18px]">
                 <Skeleton className="h-2.5 w-12 lg:w-14" />
               </div>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section className="pt-0 lg:pt-0">
+        <SectionHeaderSkeleton link />
+        <ul className="flex gap-3 overflow-hidden lg:grid lg:grid-cols-6 lg:gap-5" aria-hidden>
+          {Array.from({ length: 6 }, (_, i) => (
+            <li key={i} className="w-[138px] shrink-0 lg:w-auto">
+              <Skeleton className="aspect-[9/16] rounded-2xl" />
             </li>
           ))}
         </ul>
