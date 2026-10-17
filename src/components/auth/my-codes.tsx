@@ -1,6 +1,9 @@
+import { Ticket } from "lucide-react";
 import { Link } from "@/components/i18n/link";
 import { Qr } from "@/components/offers/offer-code";
 import { Badge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/display";
 import { api } from "@/lib/api/client";
 import type { Page, PromotionClaim } from "@/lib/api/types";
 import { formatShortDate } from "@/lib/format";
@@ -20,10 +23,16 @@ export async function MyCodes({ token }: { token: string }) {
   const [t, locale] = await Promise.all([getT(), getLocale()]);
   const { data: claims } = await api<Page<PromotionClaim>>("/promotion-claims", { token, query: { per_page: 30 } });
   return (
-    <section id="codes" className="scroll-mt-24 rounded-2xl border border-line bg-white p-5 lg:p-6">
-      <h2 className="mb-4 text-base font-semibold">{t("My codes")}</h2>
+    <section className="rounded-2xl border border-line bg-white p-5 lg:p-6">
       {claims.length === 0 ? (
-        <p className="text-sm text-muted">{t("Codes you claim on offers show up here.")}</p>
+        <EmptyState
+          icon={Ticket}
+          size="md"
+          title={t("No offer codes yet")}
+          hint={t("Codes you claim on offers show up here.")}
+          action={<ButtonLink href="/offers">{t("Browse offers")}</ButtonLink>}
+          className="py-8"
+        />
       ) : (
         <ul className="flex flex-col divide-y divide-line">
           {claims.map((claim) => (

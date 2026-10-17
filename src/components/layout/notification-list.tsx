@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell } from "lucide-react";
+import { Bell, Gift } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLogin } from "@/components/auth/login-dialog";
 import { Link } from "@/components/i18n/link";
@@ -108,6 +108,9 @@ export function NotificationList() {
           const content = (
             <>
               <span aria-hidden className={cn("mt-1.5 size-2.5 shrink-0 rounded-full", n.read ? "bg-transparent" : "bg-primary")} />
+              <span aria-hidden className={cn("flex size-9 shrink-0 items-center justify-center rounded-xl", n.type?.startsWith("loyalty.") ? "bg-primary-soft text-primary" : "bg-surface text-muted")}>
+                {n.type?.startsWith("loyalty.") ? <Gift size={18} /> : <Bell size={18} />}
+              </span>
               <span className="min-w-0 flex-1">
                 <span className={cn("block text-[15px]", n.read ? "font-medium" : "font-semibold")}>{title(n)}</span>
                 {n.body && <span className="mt-0.5 block text-sm text-muted">{n.body}</span>}

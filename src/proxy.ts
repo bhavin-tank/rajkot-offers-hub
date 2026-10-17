@@ -6,7 +6,7 @@ import { renewSession } from "@/lib/auth/proxy-session";
 import { hasUnknownSlug, shopRoute } from "@/lib/known-paths";
 
 /** Pages that read the signed-in user; the session is renewed before they render. */
-const SESSION_PAGES = new Set(["/login", "/account"]);
+const SESSION_PAGES = new Set(["/login", "/account", "/account/codes", "/rewards"]);
 
 /**
  * Locale routing. English pages live at "/en/..." internally but are

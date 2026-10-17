@@ -70,7 +70,7 @@ export function Tabs({ items, defaultValue, className, listClassName, panelClass
                   ),
                 variant === "segmented" &&
                   cn(
-                    "h-11 flex-1 rounded-full px-6 text-[15px] lg:flex-none",
+                    "h-11 flex-1 rounded-full px-2 text-sm whitespace-nowrap sm:px-6 sm:text-[15px] lg:flex-none",
                     selected ? "bg-white font-semibold text-ink shadow-card" : "font-medium text-muted hover:text-ink",
                   ),
                 variant === "chips" &&

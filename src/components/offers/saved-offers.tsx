@@ -72,38 +72,39 @@ export function SavedOffers() {
     toast(t("Offer removed"), { actionLabel: t("Undo"), onAction: () => void restore(slug, index) });
   }
 
+  const soon = active.filter((o) => o.daysLeft <= ENDING_SOON_DAYS);
+  const liveGrid = (offers: OfferSummary[], empty: string) => (
+    <div className="pt-4 lg:pt-6">
+      {offers.length ? (
+        <Grid>
+          {offers.map((offer) => (
+            <OfferCard
+              key={offer.slug}
+              offer={offer}
+              footer={
+                offer.daysLeft <= ENDING_SOON_DAYS && (
+                  <p className="flex items-center gap-1.5 text-[13px] font-medium text-warning">
+                    <Clock size={14} aria-hidden />
+                    {formatEndsIn(offer.daysLeft, locale)}
+                  </p>
+                )
+              }
+            />
+          ))}
+        </Grid>
+      ) : (
+        <p className="py-10 text-center text-[15px] text-muted">{empty}</p>
+      )}
+    </div>
+  );
+
   return (
     <Tabs
       variant="chips"
+      listClassName="no-scrollbar overflow-x-auto"
       items={[
-        {
-          value: "active",
-          label: t("Live ({count})", { count: active.length }),
-          content: (
-            <div className="pt-4 lg:pt-6">
-              {active.length ? (
-                <Grid>
-                  {active.map((offer) => (
-                    <OfferCard
-                      key={offer.slug}
-                      offer={offer}
-                      footer={
-                        offer.daysLeft <= ENDING_SOON_DAYS && (
-                          <p className="flex items-center gap-1.5 text-[13px] font-medium text-warning">
-                            <Clock size={14} aria-hidden />
-                            {formatEndsIn(offer.daysLeft, locale)}
-                          </p>
-                        )
-                      }
-                    />
-                  ))}
-                </Grid>
-              ) : (
-                <p className="py-10 text-center text-[15px] text-muted">{t("No live offers saved.")}</p>
-              )}
-            </div>
-          ),
-        },
+        { value: "active", label: t("Live ({count})", { count: active.length }), content: liveGrid(active, t("No live offers saved.")) },
+        ...(soon.length ? [{ value: "soon", label: t("Ending soon ({count})", { count: soon.length }), content: liveGrid(soon, t("No live offers saved.")) }] : []),
         {
           value: "expired",
           label: t("Expired ({count})", { count: expired.length }),

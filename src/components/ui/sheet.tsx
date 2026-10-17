@@ -1,10 +1,23 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useRef, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { IconButton } from "./icon-button";
+
+/** The sheet's sticky footer element, so a form inside the body can put its action button there. */
+const FooterContext = createContext<HTMLElement | null>(null);
+
+/**
+ * Action buttons for the sheet this is in. They sit in the sticky footer at the bottom, outside the scrolling body.
+ * A submit button in here must name its form (`form="…"`), because it is no longer inside it in the page.
+ */
+export function SheetFooter({ children }: { children: ReactNode }) {
+  const footer = useContext(FooterContext);
+  return footer ? createPortal(children, footer) : <>{children}</>;
+}
 
 interface SheetProps {
   open: boolean;
@@ -37,6 +50,7 @@ export function SheetClose({ onClose }: { onClose: () => void }) {
 export function Sheet({ open, onClose, title, children, footer, className }: SheetProps) {
   const t = useT();
   const ref = useRef<HTMLDialogElement>(null);
+  const [footerEl, setFooterEl] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -60,15 +74,22 @@ export function Sheet({ open, onClose, title, children, footer, className }: She
       )}
     >
       <SheetClose onClose={onClose} />
-      <div className="flex max-h-[85dvh] flex-col rounded-t-3xl bg-white lg:rounded-2xl">
+      <div className="flex max-h-[85dvh] min-h-[60dvh] flex-col rounded-t-3xl bg-white lg:min-h-0 lg:rounded-2xl">
         <div className="flex items-center justify-between border-b border-line px-5 py-4 lg:px-6 lg:pt-5">
           <h2 className="text-lg font-semibold">{title}</h2>
           <IconButton variant="soft" size="sm" aria-label={t("Close")} onClick={onClose} className="hidden lg:inline-flex">
             <X size={18} />
           </IconButton>
         </div>
-        <div className="overflow-y-auto px-5 py-4 lg:px-6 lg:pb-5">{children}</div>
-        {footer && <div className="border-t border-line px-5 py-4 lg:px-6">{footer}</div>}
+        <FooterContext value={footerEl}>
+          <div className="flex-1 overflow-y-auto px-5 py-4 lg:px-6 lg:pb-5">{children}</div>
+        </FooterContext>
+        <div
+          ref={setFooterEl}
+          className="shrink-0 border-t border-line px-5 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] empty:hidden lg:px-6"
+        >
+          {footer}
+        </div>
       </div>
     </dialog>
   );

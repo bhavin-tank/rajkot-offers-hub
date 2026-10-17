@@ -220,3 +220,112 @@ export interface BannerFeed {
     };
   }[];
 }
+
+/** The loyalty programme (`/loyalty/*`, only on a platform with the feature on). */
+export type LoyaltyScope = "platform" | "global";
+
+export interface LoyaltyWallet {
+  scope: LoyaltyScope;
+  name: string;
+  point_label: string;
+  balance: number;
+  lifetime_earned: number;
+  lifetime_redeemed: number;
+}
+
+export interface LoyaltyTransaction {
+  id: string;
+  wallet: LoyaltyScope;
+  type: "earn" | "redeem" | "adjust" | "expire" | "reverse";
+  /** Signed. */
+  points: number;
+  balance_after: number;
+  expires_at: string | null;
+  business: { id: string; name: string; slug: string } | null;
+  created_at: string;
+}
+
+export interface LoyaltyCode {
+  code: string;
+  qr_payload: string | null;
+  platform: string;
+}
+
+export interface LoyaltyReward {
+  id: string;
+  title: string;
+  description: string | null;
+  value_label: string | null;
+  terms: string | null;
+  kind: "discount" | "free_item" | "voucher";
+  points_cost: number;
+  wallet: LoyaltyScope;
+  stock_left: number | null;
+  per_user_limit: number | null;
+  claim_validity_hours: number;
+  ends_at: string | null;
+  /** Null when every partner outlet honours the reward. */
+  redeem_at: { business_id: string; business_name: string; branch_id: string | null; branch_name: string | null }[] | null;
+  redeemed_by_me: number;
+  can_afford: boolean;
+  can_redeem: boolean;
+}
+
+export interface LoyaltyRedemption {
+  id: string;
+  code: string;
+  qr_payload: string | null;
+  status: "issued" | "fulfilled" | "cancelled" | "expired";
+  points_spent: number;
+  wallet: LoyaltyScope;
+  issued_at: string;
+  expires_at: string | null;
+  fulfilled_at: string | null;
+  cancelled_at: string | null;
+  reward: { id: string; title: string; value_label: string | null; terms: string | null; kind: LoyaltyReward["kind"] };
+}
+
+export interface LoyaltyScratchCard {
+  id: string;
+  status: "issued" | "scratched" | "expired";
+  campaign: { id: string; title: string; description: string | null };
+  issued_at: string;
+  expires_at: string | null;
+  scratched_at: string | null;
+  /** Null until the card is scratched. */
+  prize: { kind: "points" | "reward" | "nothing"; label: string; points: number | null; redemption: LoyaltyRedemption | null } | null;
+}
+
+export interface LoyaltyTask {
+  id: string;
+  type: "follow" | "join_channel" | "post_story" | "tag_us" | "custom";
+  provider: string | null;
+  title: string;
+  description: string | null;
+  target_url: string | null;
+  target_handle: string | null;
+  proof_required: boolean;
+  needs_profile: boolean;
+  has_profile: boolean;
+  points: number;
+  ends_at: string | null;
+  status: "submitted" | "approved" | "rejected" | null;
+  reject_reason: string | null;
+  earned_count: number;
+  can_submit: boolean;
+}
+
+export interface LoyaltyReferral {
+  code: string;
+  invite_url: string | null;
+  deep_link: string | null;
+  enabled: boolean;
+  headline_points: number;
+  steps: { task_id: string; title: string; points: number }[];
+  max_referrals: number | null;
+  referrals_left: number | null;
+  apply_window_days: number;
+  friends: { awaiting_verification: number; active: number; flagged: number; rejected: number; completed: number };
+  earned_points: number;
+  invited_by: { id: string; status: string; invited_by: string; applied_at: string; activated_at: string | null } | null;
+}

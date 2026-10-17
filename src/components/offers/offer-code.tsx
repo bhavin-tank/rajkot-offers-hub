@@ -77,7 +77,7 @@ export function OfferCode({
             <p className="text-xs text-muted">{t("Use it by {date}.", { date: formatShortDate(shown.expiresAt.slice(0, 10), locale) })}</p>
           )}
           {claim && (
-            <Link href="/account#codes" className="text-sm font-medium text-primary hover:underline">
+            <Link href="/account/codes" className="text-sm font-medium text-primary hover:underline">
               {t("See all my codes")}
             </Link>
           )}
