@@ -66,30 +66,30 @@ Work on this plan can start before these are done, against the local API for sta
 
 ### Stage A: foundation
 
-- [ ] `src/lib/api/client.ts`: accept extra `headers` and a `cache: "no-store"` option; per-viewer calls pass the
+- [x] `src/lib/api/client.ts`: accept extra `headers` and a `cache: "no-store"` option; per-viewer calls pass the
       device key and never use the 60 s guest cache.
-- [ ] `src/lib/api/visitor.ts` (or a new `device-key.ts`): read or create the `ro_device` cookie (UUID, httpOnly,
-      1 year) in server actions and route handlers; pages only read it. Signed-in calls use the token, and send
+- [x] `src/lib/api/device.ts` and `src/proxy.ts`: the proxy hands out the `ro_dk` cookie (UUID, httpOnly, 1 year) on a first
+      visit; server code only reads it. Signed-in calls use the token, and send
       the key as well (the API records it against the account).
-- [ ] `src/lib/api/types.ts`: `StatusTrayRing`, `StatusPost`, `ReelCard`, `VideoInfo`, `ContentLink`, page and meta types.
-- [ ] `src/lib/api/mappers.ts`: API to `ZalakStory` (ring to a story whose clips are its posts; reel to a one-clip
+- [x] `src/lib/api/types.ts`: `StatusTrayRing`, `StatusPost`, `ReelCard`, `VideoInfo`, `ContentLink`, page and meta types.
+- [x] `src/lib/zalak/api.ts` (instead of `mappers.ts`): fetch and map API to `ZalakStory` (ring to a story whose clips are its posts; reel to a one-clip
       story); link to the offer, catalog item or shop path (`offerPath`, `shopPath`).
-- [ ] `src/lib/zalak/types.ts`: add `id`s for the API item per clip (needed for seen and like), `likes`, `isLiked`,
+- [x] `src/lib/zalak/types.ts`: add `id`s for the API item per clip (needed for seen and like), `likes`, `isLiked`,
       `isSaved`, `isSeen`, `following`, `link`, `hls`/`poster`/`duration`; remove `areaName` and `distanceKm`.
-- [ ] `src/lib/zalak/enabled.ts`: feature probe (a 404 from the tray or the feed means off); `ZALAK_MOCK` flag.
+- [x] Feature probe: a 404 from the API reads as "off" (empty feed); `ZALAK_MOCK=true` keeps the sample feeds in development.
 
 ### Stage B: statuses
 
-- [ ] `getStatusFeed` calls `/status-tray` (ring order, `has_unseen`, `following` from the API) and the platform ring.
-- [ ] `StatusRow`: rings lit by `has_unseen`, the platform ring first, hide when the feature is off or the tray is empty.
-- [ ] Status page `/status`: load `GET /status-tray/{slug}` for the opened ring, `GET /platform-statuses` for the
+- [x] `getStatusFeed` calls `/status-tray` (ring order, `has_unseen`, `following` from the API) and the platform ring.
+- [x] `StatusRow`: rings lit by `has_unseen`, the platform ring first, hide when the feature is off or the tray is empty.
+- [x] Status page `/status`: load `GET /status-tray/{slug}` for the opened ring, `GET /platform-statuses` for the
       platform ring; open on the first unseen post.
-- [ ] `status-viewer.tsx`: timer = 5–15 s for a photo (default 7 s) or `duration_seconds` for a video; report seen
+- [x] `status-viewer.tsx`: timer = 5–15 s for a photo (default 7 s) or `duration_seconds` for a video; report seen
       through a server action `markSeenAction(type, ids)` after about 1 s on screen (batched); keep the localStorage
       seen set only as an instant, optimistic mirror.
-- [ ] Like and unlike through server actions; a guest opens the login dialog (existing `LoginProvider`); update counts.
-- [ ] Link button opens the linked offer, catalog item or shop; hidden when `link` is `null`.
-- [ ] Follow pill reuses the existing follow action; initial state from `following`.
+- [x] Like and unlike through server actions; a guest opens the login dialog (existing `LoginProvider`); update counts.
+- [x] Link button opens the linked offer, catalog item or shop; hidden when `link` is `null`.
+- [x] Follow pill reuses the existing follow action; initial state from `following`.
 
 ### Stage C: reels (Zalak)
 
@@ -136,3 +136,13 @@ Work on this plan can start before these are done, against the local API for sta
 - Workers: no cross-request shared promises or timers (see `patches/next@16.4.0.patch` notes); the device-key cookie is
   read per request.
 - Video cost and size: the API enforces the caps; the site only plays what it is given.
+
+## 7. Progress notes
+
+- Stage A and B are done and checked against the local API (`php -S 127.0.0.1:8000`, migrated, `RajkotDemoSeeder` and
+  `StatusReelsDemoSeeder`): rings with the platform's ring first, the viewer, like (guest gets the login popup), seen
+  (ring turns grey and moves to the end of the tray after reload).
+- Also done early because statuses can be video: HLS playback in `ClipMedia` (`hls.js`, loaded on demand). Demo videos
+  are placeholders, so playback itself is untested until a real Stream video exists.
+- The tray's `latest_at` is local time without a zone (India); the mapper reads it as +05:30.
+- Home Zalak shelf and `/zalak` are still the sample feed (Stage C).

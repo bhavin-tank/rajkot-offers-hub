@@ -3,6 +3,7 @@ import { canonicalAreaUrl } from "@/lib/areas";
 import { defaultLocale, LOCALE_COOKIE, languageSwitchEnabled, localizePath, splitLocale } from "@/lib/i18n/config";
 import { clearSessionCookies, setSessionCookies } from "@/lib/auth/cookies";
 import { renewSession } from "@/lib/auth/proxy-session";
+import { DEVICE_COOKIE, deviceCookieOptions } from "@/lib/api/device";
 import { hasUnknownSlug, shopRoute } from "@/lib/known-paths";
 
 /** Pages that read the signed-in user; the session is renewed before they render. */
@@ -45,9 +46,12 @@ export async function proxy(request: NextRequest) {
   }
 
   const session = SESSION_PAGES.has(path) ? await renewSession(request) : null;
+  // A visitor with no account is remembered by a random key, so the API can tell which statuses and reels they have seen.
+  const needsDeviceKey = !request.cookies.has(DEVICE_COOKIE);
   const withSession = (response: NextResponse) => {
     if (session === "signed-out") clearSessionCookies(response.cookies);
     else if (session) setSessionCookies(response.cookies, session);
+    if (needsDeviceKey) response.cookies.set(DEVICE_COOKIE, crypto.randomUUID(), deviceCookieOptions());
     return response;
   };
   const forward = { request: { headers: request.headers } };

@@ -2,7 +2,7 @@
 
 import { ArrowLeftRight } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { markStatusSeen, markTourDone, useTourPending } from "@/hooks/use-zalak-memory";
+import { markStatusSeen, markTourDone, reportSeen, ringSeenKey, useTourPending } from "@/hooks/use-zalak-memory";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import type { ZalakStory } from "@/lib/zalak/types";
@@ -32,7 +32,12 @@ const MAX_TICK_MS = 100;
 export function StatusViewer({ stories, start = 0 }: { stories: ZalakStory[]; start?: number }) {
   const t = useT();
   const close = useClose();
-  const [pos, setPos] = useState({ s: Math.min(Math.max(start, 0), Math.max(stories.length - 1, 0)), c: 0, dir: null as Direction });
+  const [pos, setPos] = useState(() => {
+    const s = Math.min(Math.max(start, 0), Math.max(stories.length - 1, 0));
+    // Open on the first post not watched yet, like a stories bar does.
+    const c = Math.max(stories[s]?.clips.findIndex((item) => item.seen === false) ?? 0, 0);
+    return { s, c, dir: null as Direction };
+  });
   const [holding, setHolding] = useState(false);
   const [muted, setMuted] = useState(true);
   const [tourStep, setTourStep] = useState(0);
@@ -97,11 +102,25 @@ export function StatusViewer({ stories, start = 0 }: { stories: ZalakStory[]; st
     return () => cancelAnimationFrame(frame);
   }, [pos.s, pos.c, paused, clip]);
 
-  // A watched status turns its ring grey on the home page.
+  // A watched status turns its ring grey on the home page. A sample post counts when opened; a real one once it has
+  // been on screen for a moment (the API remembers it), and the ring goes grey here when its last post is reached.
   const storyId = story?.id;
+  const live = story?.live;
+  const clipId = clip?.id;
+  const last = Boolean(story && pos.c === story.clips.length - 1);
   useEffect(() => {
-    if (storyId) markStatusSeen(storyId);
-  }, [storyId]);
+    if (!story || !storyId) return;
+    if (!live) {
+      markStatusSeen(storyId);
+      return;
+    }
+    const timer = setTimeout(() => {
+      reportSeen("status", clipId);
+      if (last) markStatusSeen(ringSeenKey(story));
+    }, 800);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storyId, live, clipId, last]);
 
   // Keyboard for desktop.
   useEffect(() => {

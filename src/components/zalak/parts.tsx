@@ -1,21 +1,24 @@
 "use client";
 
-import { Bookmark, ChevronDown, ChevronUp, Heart, Share2, Store, Volume2, VolumeX, X, type LucideIcon } from "lucide-react";
+import { Bookmark, ChevronDown, ChevronUp, Heart, Share2, Volume2, VolumeX, X, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Link } from "@/components/i18n/link";
+import { useLogin } from "@/components/auth/login-dialog";
 import { useToggleSave } from "@/components/offers/save-button";
 import { buttonClass } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { useLikedStories } from "@/hooks/use-zalak-memory";
+import { setLikeAction } from "@/lib/actions/zalak";
 import { formatDistance } from "@/lib/format";
 import { localizePath } from "@/lib/i18n/config";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { offerPath, shopPath } from "@/lib/paths";
 import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
-import type { ZalakClip, ZalakKind, ZalakStory } from "@/lib/zalak/types";
+import type { ZalakClip, ZalakKind, ZalakLink, ZalakStory } from "@/lib/zalak/types";
+import { ShopAvatar } from "./avatar";
 
 /**
  * The look shared by reels and statuses: the black stage, the shop at the top, the offer and the actions
@@ -142,8 +145,41 @@ interface ClipMediaProps {
   priority?: boolean;
 }
 
+const HLS = /\.m3u8(\?|$)/;
+
 export function ClipMedia({ clip, paused, muted, still, priority }: ClipMediaProps) {
   const video = useRef<HTMLVideoElement>(null);
+  const streamed = clip.kind === "video" && HLS.test(clip.src);
+
+  // The API's videos are HLS streams: Safari plays them as they are, other browsers through hls.js (loaded only when needed).
+  useEffect(() => {
+    const el = video.current;
+    if (!el || !streamed) return;
+    if (el.canPlayType("application/vnd.apple.mpegurl")) {
+      el.src = clip.src;
+      return;
+    }
+    let player: { destroy: () => void } | undefined;
+    let gone = false;
+    void import("hls.js").then(({ default: Hls }) => {
+      if (gone) return;
+      if (!Hls.isSupported()) {
+        el.src = clip.src;
+        return;
+      }
+      const hls = new Hls({ maxBufferLength: 10 });
+      player = hls;
+      hls.loadSource(clip.src);
+      hls.attachMedia(el);
+      // A stream that cannot be played leaves the poster showing instead of retrying forever.
+      hls.on(Hls.Events.ERROR, (_event, data) => data.fatal && hls.destroy());
+    });
+    return () => {
+      gone = true;
+      player?.destroy();
+    };
+  }, [clip.src, streamed]);
+
   useEffect(() => {
     const el = video.current;
     if (!el) return;
@@ -152,7 +188,7 @@ export function ClipMedia({ clip, paused, muted, still, priority }: ClipMediaPro
   }, [paused, clip]);
 
   if (clip.kind === "video") {
-    return <video ref={video} src={clip.src} poster={clip.poster} muted={muted} loop autoPlay={!paused} playsInline preload="metadata" className="size-full object-cover" />;
+    return <video ref={video} src={streamed ? undefined : clip.src} poster={clip.poster} muted={muted} loop autoPlay={!paused} playsInline preload="metadata" className="size-full object-cover" />;
   }
   return (
     <Image
@@ -182,6 +218,9 @@ interface OverlayProps {
 /** Everything drawn over the picture. It lets touches through to the picture except on its own buttons. */
 export function Overlay({ story, kind, clip, bars, muted, onMute, onClose }: OverlayProps) {
   const t = useT();
+  // A status says its own thing and points at its own place; a sample post uses the offer it was made from.
+  const text = clip.caption ?? story.title;
+  const target: ZalakLink | undefined = clip.link ?? (story.offer ? { href: offerPath({ businessSlug: story.offer.businessSlug, urlSlug: story.offer.urlSlug }), kind: "offer" } : undefined);
   return (
     <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between px-3 pt-[calc(env(safe-area-inset-top)+10px)] pb-[calc(env(safe-area-inset-bottom)+14px)]">
       <div className="flex flex-col gap-3">
@@ -193,18 +232,15 @@ export function Overlay({ story, kind, clip, bars, muted, onMute, onClose }: Ove
       <div className="flex flex-col gap-3">
         <div className="flex items-end gap-3">
           <div className="min-w-0 flex-1 pb-1 text-white">
-            {story.caption && <span className="mb-2 inline-block rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold">{story.caption}</span>}
-            <h2 className="line-clamp-2 text-lg leading-snug font-semibold">{story.title}</h2>
+            {!clip.caption && story.caption && <span className="mb-2 inline-block rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold">{story.caption}</span>}
+            {text && <h2 className="line-clamp-2 text-lg leading-snug font-semibold">{text}</h2>}
           </div>
-          <Rail story={story} muted={muted} onMute={onMute} />
+          <Rail story={story} clip={clip} muted={muted} onMute={onMute} />
         </div>
 
-        {story.offer && (
-          <Link
-            href={offerPath({ businessSlug: story.offer.businessSlug, urlSlug: story.offer.urlSlug })}
-            className={buttonClass({ variant: "primary", block: true, className: "pointer-events-auto" })}
-          >
-            {t("View offer")}
+        {target && (
+          <Link href={target.href} className={buttonClass({ variant: "primary", block: true, className: "pointer-events-auto" })}>
+            {target.kind === "offer" ? t("View offer") : t("Visit shop")}
           </Link>
         )}
       </div>
@@ -215,7 +251,8 @@ export function Overlay({ story, kind, clip, bars, muted, onMute, onClose }: Ove
 function Header({ story, kind, clip, onClose }: { story: ZalakStory; kind: ZalakKind; clip: ZalakClip; onClose: () => void }) {
   const t = useT();
   const now = useNow();
-  const ago = story.postedAt && now ? Math.floor((now - new Date(story.postedAt).getTime()) / 3_600_000) : null;
+  const posted = clip.postedAt ?? story.postedAt;
+  const ago = posted && now ? Math.max(Math.floor((now - new Date(posted).getTime()) / 3_600_000), 0) : null;
   const detail =
     kind === "status"
       ? ago === null
@@ -228,16 +265,16 @@ function Header({ story, kind, clip, onClose }: { story: ZalakStory; kind: Zalak
         : null;
   return (
     <div className="pointer-events-auto flex items-center gap-2.5 text-white">
-      <Link href={shopPath(story.shop.slug)} className="flex min-w-0 flex-1 items-center gap-2.5">
+      <Link href={story.shop.platform ? "/" : shopPath(story.shop.slug)} className="flex min-w-0 flex-1 items-center gap-2.5">
         <span className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white/20">
-          {story.shop.logo ? <Image src={story.shop.logo} alt="" fill sizes="40px" className="object-cover" /> : <Store size={18} aria-hidden />}
+          <ShopAvatar shop={story.shop} sizes="40px" />
         </span>
         <span className="min-w-0">
           <span className="block truncate text-sm font-semibold">{story.shop.name}</span>
           <span className="block truncate text-xs text-white/85">{[detail, story.distanceKm === undefined ? null : formatDistance(story.distanceKm, t), story.shop.areaName].filter(Boolean).join(" · ")}</span>
         </span>
       </Link>
-      <FollowPill slug={story.shop.slug} />
+      {!story.shop.platform && <FollowPill slug={story.shop.slug} />}
       <button type="button" aria-label={t("Close")} onClick={onClose} className="-mr-1 flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full hover:bg-white/15">
         <X size={24} aria-hidden />
       </button>
@@ -263,21 +300,50 @@ function FollowPill({ slug }: { slug: string }) {
   );
 }
 
-function Rail({ story, muted, onMute }: { story: ZalakStory; muted: boolean; onMute?: () => void }) {
+/** A post's like: the API's when the post came from it (a guest is asked to log in), this browser's own for the sample posts. */
+function useLike(story: ZalakStory, clip: ZalakClip) {
+  const t = useT();
+  const toast = useToast();
+  const login = useLogin();
+  const memory = useLikedStories();
+  const [mine, setMine] = useState<Record<string, { liked: boolean; likes: number }>>({});
+  const id = clip.id;
+  const api = story.live && id !== undefined;
+
+  if (!api || !id) {
+    const liked = memory.isLiked(story.id);
+    return { liked, likes: liked ? 1 : 0, toggle: () => memory.toggle(story.id) };
+  }
+
+  const current = mine[id] ?? { liked: clip.liked ?? false, likes: clip.likes ?? 0 };
+
+  async function send(want: boolean, retry: boolean) {
+    const before = mine[id!] ?? { liked: clip.liked ?? false, likes: clip.likes ?? 0 };
+    setMine((all) => ({ ...all, [id!]: { liked: want, likes: Math.max(0, before.likes + (want === before.liked ? 0 : want ? 1 : -1)) } }));
+    const result = await setLikeAction(story.kind, id!, want);
+    if (result === "ok") return;
+    setMine((all) => ({ ...all, [id!]: before }));
+    if (result === "signed-out" && retry) login.prompt(() => void send(want, false));
+    else toast(t("Could not save. Please try again."));
+  }
+
+  return { liked: current.liked, likes: current.likes, toggle: () => void send(!current.liked, true) };
+}
+
+function Rail({ story, clip, muted, onMute }: { story: ZalakStory; clip: ZalakClip; muted: boolean; onMute?: () => void }) {
   const t = useT();
   const toast = useToast();
   const locale = useLocale();
-  const { isLiked, toggle } = useLikedStories();
-  const liked = isLiked(story.id);
+  const { liked, likes, toggle } = useLike(story, clip);
 
   function share() {
-    const path = story.offer ? offerPath({ businessSlug: story.offer.businessSlug, urlSlug: story.offer.urlSlug }) : shopPath(story.shop.slug);
+    const path = clip.link?.href ?? (story.offer ? offerPath({ businessSlug: story.offer.businessSlug, urlSlug: story.offer.urlSlug }) : story.shop.platform ? "/" : shopPath(story.shop.slug));
     const url = `${site.url}${localizePath(locale, path)}`;
     // The phone's share sheet is not part of the page, so the viewer is held for as long as it is open.
     return whileHeld(async () => {
       try {
         if (navigator.share) {
-          await navigator.share({ title: story.title, url });
+          await navigator.share({ title: clip.caption ?? story.title ?? story.shop.name, url });
           return;
         }
         await navigator.clipboard.writeText(url);
@@ -290,8 +356,7 @@ function Rail({ story, muted, onMute }: { story: ZalakStory; muted: boolean; onM
 
   return (
     <div className="pointer-events-auto flex flex-col items-center gap-5 pb-1">
-      {/* Mock: the count is this browser's own like until the API counts them. */}
-      <RailButton label={t("Like")} count={liked ? 1 : 0} pressed={liked} onClick={() => toggle(story.id)}>
+      <RailButton label={t("Like")} count={likes} pressed={liked} onClick={toggle}>
         <Heart size={30} strokeWidth={1.8} aria-hidden className={cn(liked && "fill-primary text-primary")} />
       </RailButton>
       {story.offer && <SaveRail slug={story.offer.slug} />}

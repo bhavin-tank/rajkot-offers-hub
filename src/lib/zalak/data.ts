@@ -2,6 +2,7 @@ import { getBusiness } from "@/lib/data/businesses";
 import { getNear } from "@/lib/data/locations";
 import { getFeaturedOffers, getLatestOffers, getOffersPage } from "@/lib/data/offers";
 import type { OfferSummary } from "@/types";
+import { getStatusRings, getStatusStories } from "./api";
 import { CLIP_MAX_SECONDS, CLIP_MIN_SECONDS, type ZalakClip, type ZalakShop, type ZalakStory } from "./types";
 
 /**
@@ -77,8 +78,24 @@ export async function getZalakFeed(limit = 12, offset = 0): Promise<ZalakStory[]
   return offers.map((offer, i) => toStory("reel", offer, offset + i, all, logos));
 }
 
-/** One status per shop that has something today, for the row on the home page. */
-export async function getStatusFeed(limit = 8): Promise<ZalakStory[]> {
+/** Sample feeds are for development only: set ZALAK_MOCK=true. Otherwise the API is the only source. */
+function mock() {
+  return process.env.ZALAK_MOCK === "true";
+}
+
+/** The rings for the row on the home page: one per shop (and the platform) with something live. */
+export async function getStatusFeed(limit = 20): Promise<ZalakStory[]> {
+  return mock() ? mockStatusFeed(Math.min(limit, 8)) : getStatusRings(limit);
+}
+
+/** Rings with their posts for the status viewer, opened on the shop (or the platform) that was tapped. */
+export async function getStatusViewer(open?: { shop?: string; platform?: boolean }): Promise<{ stories: ZalakStory[]; start: number }> {
+  if (!mock()) return getStatusStories(open);
+  const stories = await mockStatusFeed(8);
+  return { stories, start: Math.max(stories.findIndex((story) => story.shop.slug === open?.shop), 0) };
+}
+
+async function mockStatusFeed(limit: number): Promise<ZalakStory[]> {
   const all = await pool();
   const seen = new Set<string>();
   const offers = all.filter((offer) => !seen.has(offer.businessSlug) && seen.add(offer.businessSlug)).slice(0, limit);

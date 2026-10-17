@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { reportSeenAction } from "@/lib/actions/zalak";
 
 /**
  * What this browser remembers about Zalak: which statuses it has watched (the ring on the home page turns
@@ -42,6 +43,11 @@ function useKey(key: string, server = "") {
 
 const split = (raw: string) => new Set(raw ? raw.split(",") : []);
 
+/** What the local memory files a ring under: a ring with a newer post than the one watched lights up again. */
+export function ringSeenKey(story: { id: string; postedAt: string; live?: boolean }) {
+  return story.live ? `${story.id}@${story.postedAt}` : story.id;
+}
+
 /** Ids of the statuses that were watched. */
 export function useSeenStatuses() {
   return split(useKey(SEEN_KEY));
@@ -52,6 +58,15 @@ export function markStatusSeen(id: string) {
   if (seen.has(id)) return;
   seen.add(id);
   write(SEEN_KEY, [...seen].slice(-100).join(","));
+}
+
+const reported = new Set<string>();
+
+/** Tells the API a status or reel was on screen. Once per post per page visit; the API remembers it for the viewer. */
+export function reportSeen(type: "status" | "reel", id: string | undefined) {
+  if (!id || reported.has(id)) return;
+  reported.add(id);
+  void reportSeenAction(type, [id]);
 }
 
 export function useLikedStories() {

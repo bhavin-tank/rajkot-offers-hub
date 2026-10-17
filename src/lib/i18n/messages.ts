@@ -599,6 +599,7 @@ export const gu = {
   "Status": "સ્ટેટસ",
   "Profile": "પ્રોફાઇલ",
   "View offer": "ઑફર જુઓ",
+  "Visit shop": "દુકાન જુઓ",
   "Like": "લાઇક",
   "Previous": "પાછળ",
   "Mute": "અવાજ બંધ",
