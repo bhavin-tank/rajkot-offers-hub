@@ -26,11 +26,11 @@ export function ProfileCard({ name, mobile, email }: { name: string | null; mobi
         onClick={() => setOpen(true)}
         className="flex w-full cursor-pointer items-center gap-4 rounded-2xl border border-line bg-white p-4 text-left transition-colors hover:bg-surface"
       >
-        <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-soft text-lg font-bold text-primary">
+        <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-primary-soft text-base lg:text-lg font-bold text-primary">
           {initials(name, "R")}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-lg leading-snug font-semibold">{name || t("Add your name")}</span>
+          <span className="block truncate text-base lg:text-lg leading-snug font-semibold">{name || t("Add your name")}</span>
           {mobile && (
             <span className="block text-sm text-muted">
               <span className="sr-only">{t("Mobile")}: </span>

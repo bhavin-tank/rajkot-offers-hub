@@ -79,7 +79,7 @@ function Intro({ onLogin }: { onLogin: () => void }) {
     <div className="flex flex-col gap-6">
       <div className="rounded-2xl bg-ink p-6 text-white">
         <p className="text-sm text-white/70">{t("Rajkot Offers Hub rewards")}</p>
-        <p className="mt-1 text-2xl leading-snug font-bold">{t("Earn points every time you shop local.")}</p>
+        <p className="mt-1 text-xl lg:text-2xl leading-snug font-bold">{t("Earn points every time you shop local.")}</p>
         <Button className="mt-5 bg-white text-ink hover:bg-white/90" block onClick={onLogin}>
           {t("Log in to see your points")}
         </Button>
@@ -91,7 +91,7 @@ function Intro({ onLogin }: { onLogin: () => void }) {
               <Icon size={20} aria-hidden />
             </span>
             <div>
-              <p className="text-[15px] font-medium">{title}</p>
+              <p className="text-sm lg:text-[15px] font-medium">{title}</p>
               <p className="text-[13px] text-muted">{hint}</p>
             </div>
           </li>
@@ -215,7 +215,7 @@ function RewardsTab({ data, reload }: { data: RewardsOverview; reload: () => Pro
                     <Gift size={20} aria-hidden />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[15px] font-medium">{code.reward.title}</span>
+                    <span className="block truncate text-sm lg:text-[15px] font-medium">{code.reward.title}</span>
                     <span className="block font-mono text-sm tracking-widest text-muted">{code.code}</span>
                   </span>
                   <Badge variant="neutral" size="xs">
@@ -241,7 +241,7 @@ function RewardsTab({ data, reload }: { data: RewardsOverview; reload: () => Pro
                     <Gift size={22} aria-hidden />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[15px] leading-snug font-semibold">{reward.title}</p>
+                    <p className="text-sm lg:text-[15px] leading-snug font-semibold">{reward.title}</p>
                     <p className="text-[13px] text-muted">
                       {reward.value_label ?? t(KIND[reward.kind])}
                       {" · "}
@@ -344,8 +344,8 @@ function ConfirmSheet({
     >
       {reward && (
         <div className="flex flex-col gap-3">
-          <p className="text-lg font-semibold">{reward.title}</p>
-          {reward.description && <p className="text-[15px] text-muted">{reward.description}</p>}
+          <p className="text-base lg:text-lg font-semibold">{reward.title}</p>
+          {reward.description && <p className="text-sm lg:text-[15px] text-muted">{reward.description}</p>}
           <dl className="grid grid-cols-2 gap-3 rounded-xl bg-surface p-4 text-sm">
             <dt className="text-muted">{t("Costs")}</dt>
             <dd className="text-right font-semibold">{t("{points} pts", { points: reward.points_cost.toLocaleString("en-IN") })}</dd>
@@ -491,13 +491,13 @@ function HistoryTab({ data }: { data: RewardsOverview }) {
                   {gain ? <Plus size={18} aria-hidden /> : <Minus size={18} aria-hidden />}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[15px] font-medium">{tx.business && tx.type === "earn" ? t("Bill at {shop}", { shop: tx.business.name }) : t(TX_TITLE[tx.type])}</p>
+                  <p className="truncate text-sm lg:text-[15px] font-medium">{tx.business && tx.type === "earn" ? t("Bill at {shop}", { shop: tx.business.name }) : t(TX_TITLE[tx.type])}</p>
                   <p className="text-[13px] text-muted">
                     {formatShortDate(day(tx.created_at), locale)}
                     {tx.expires_at && gain ? ` · ${t("expires {date}", { date: formatShortDate(day(tx.expires_at), locale) })}` : ""}
                   </p>
                 </div>
-                <span className={cn("shrink-0 text-[15px] font-semibold", gain ? "text-success" : "text-ink")}>
+                <span className={cn("shrink-0 text-sm lg:text-[15px] font-semibold", gain ? "text-success" : "text-ink")}>
                   {gain ? "+" : "−"}
                   {Math.abs(tx.points).toLocaleString("en-IN")}
                 </span>

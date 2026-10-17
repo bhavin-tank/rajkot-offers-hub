@@ -75,7 +75,7 @@ export function SavedShops({ kind = "shop" }: { kind?: "shop" | "follow" }) {
           <Link href={shopPath(shop.slug)} className="flex min-w-0 flex-1 items-center gap-3">
             <ShopAvatar logo={shop.logo} className="size-14 shrink-0" />
             <span className="min-w-0">
-              <span className="block truncate text-[15px] font-semibold">{shop.name}</span>
+              <span className="block truncate text-sm lg:text-[15px] font-semibold">{shop.name}</span>
               <span className="block truncate text-sm text-muted">{t("{category} • {area}, Rajkot", { category: shop.categoryName, area: shop.areaName })}</span>
             </span>
           </Link>

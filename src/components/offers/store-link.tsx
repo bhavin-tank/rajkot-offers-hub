@@ -39,7 +39,7 @@ export function StoreLink({ href, name, outlets }: StoreLinkProps) {
               <Link href={href} onClick={() => setOpen(false)} className="flex items-center gap-3 rounded-2xl border border-line p-4 transition-colors hover:bg-surface">
                 <MapPin size={20} aria-hidden className="shrink-0 text-muted" />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[15px] font-semibold">
+                  <span className="block text-sm lg:text-[15px] font-semibold">
                     {outlet.name}
                     {outlet.isMain && !/main/i.test(outlet.name) && <span className="ml-2 text-xs font-medium text-muted">{t("Main outlet")}</span>}
                   </span>

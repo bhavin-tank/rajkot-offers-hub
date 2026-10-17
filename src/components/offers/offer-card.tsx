@@ -55,17 +55,17 @@ export function OfferCard({
             offer.imageIsLogo ? "object-contain p-8" : "object-cover",
           )}
         />
-        <Badge variant={expired ? "expired" : "offer"} className="absolute top-3 left-3">
+        <Badge variant={expired ? "expired" : "offer"} className="absolute top-2.5 left-2.5 lg:top-3 lg:left-3">
           {expired ? t("Expired") : offer.badge}
         </Badge>
       </div>
-      <div className={cn("flex flex-col gap-1.5 px-4 pt-4 pb-[18px]", expired && "opacity-65")}>
-        <h3 className="line-clamp-2 text-base leading-[1.45] font-semibold">
+      <div className={cn("flex flex-col gap-1 px-3.5 pt-3 pb-3.5 lg:gap-1.5 lg:px-4 lg:pt-4 lg:pb-[18px]", expired && "opacity-65")}>
+        <h3 className="line-clamp-2 text-[15px] leading-[1.4] font-semibold lg:text-base lg:leading-[1.45]">
           <Link href={offerPath(offer)} className="after:absolute after:inset-0 after:content-['']">
             {offer.title}
           </Link>
         </h3>
-        <p className="text-sm text-muted">
+        <p className="text-[13px] text-muted lg:text-sm">
           {offer.businessName}
           {offer.distanceKm !== undefined && (
             <>
@@ -74,7 +74,7 @@ export function OfferCard({
             </>
           )}
         </p>
-        <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] text-muted">
+        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted lg:mt-1.5 lg:text-[13px]">
           <span className="inline-flex items-center gap-1">
             <MapPin size={14} aria-hidden />
             {offer.areaName}
@@ -96,7 +96,7 @@ export function OfferCard({
           )}
         </p>
         {offer.minSpend && (
-          <p className="flex items-center gap-1 text-[13px] text-muted">
+          <p className="flex items-center gap-1 text-xs text-muted lg:text-[13px]">
             <Tag size={14} aria-hidden />
             {t("On bills of {amount} or more", { amount: formatRupees(offer.minSpend) })}
           </p>
@@ -113,8 +113,8 @@ export function OfferCardSkeleton({ className }: { className?: string }) {
   return (
     <div aria-hidden className={cn("overflow-hidden rounded-2xl border border-line bg-white", className)}>
       <Skeleton className="aspect-[16/9] rounded-none sm:aspect-[4/3]" />
-      <div className="flex flex-col gap-1.5 px-4 pt-4 pb-[18px]">
-        <div className="flex h-[46px] flex-col justify-center gap-2">
+      <div className="flex flex-col gap-1 px-3.5 pt-3 pb-3.5 lg:gap-1.5 lg:px-4 lg:pt-4 lg:pb-[18px]">
+        <div className="flex h-[42px] lg:h-[46px] flex-col justify-center gap-2">
           <Skeleton className="h-3.5 w-full" />
           <Skeleton className="h-3.5 w-3/5" />
         </div>

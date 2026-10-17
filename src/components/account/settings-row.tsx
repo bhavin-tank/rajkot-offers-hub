@@ -34,7 +34,7 @@ function RowBody({ icon: Icon, title, hint, badge, tone = "default", arrow = tru
         <Icon size={20} strokeWidth={1.8} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
-        <span className={cn("block text-[15px] leading-snug font-semibold", tone === "danger" && "text-danger")}>{title}</span>
+        <span className={cn("block text-sm lg:text-[15px] leading-snug font-semibold", tone === "danger" && "text-danger")}>{title}</span>
         {hint && <span className="mt-0.5 block text-[13px] leading-snug text-muted">{hint}</span>}
       </span>
       {badge}

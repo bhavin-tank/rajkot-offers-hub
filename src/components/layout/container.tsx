@@ -43,11 +43,11 @@ export async function SectionHeader({ title, href, linkLabel, className, as: Tag
   const t = await getT();
   return (
     <div className={cn("mb-4 flex items-baseline justify-between gap-4 lg:mb-7", className)}>
-      <Tag className="text-xl leading-[1.3] font-semibold lg:text-[28px]">{title}</Tag>
+      <Tag className="text-lg leading-[1.3] font-semibold lg:text-[28px]">{title}</Tag>
       {href && (
         <Link
           href={href}
-          className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline lg:text-[15px]"
+          className="inline-flex shrink-0 items-center gap-1 text-[13px] font-semibold text-primary hover:underline lg:text-[15px]"
         >
           {linkLabel ?? t("See all")}
           <ArrowRight size={16} aria-hidden />
@@ -60,8 +60,8 @@ export async function SectionHeader({ title, href, linkLabel, className, as: Tag
 export function PageTitle({ title, subtitle, className }: { title: string; subtitle?: ReactNode; className?: string }) {
   return (
     <div className={className}>
-      <h1 className="text-[28px] leading-[1.25] font-bold lg:text-[40px] lg:leading-[1.2]">{title}</h1>
-      {subtitle && <p className="mt-1.5 text-[15px] text-muted lg:mt-2 lg:text-[17px]">{subtitle}</p>}
+      <h1 className="text-2xl leading-[1.25] font-bold lg:text-[40px] lg:leading-[1.2]">{title}</h1>
+      {subtitle && <p className="mt-1.5 text-sm text-muted lg:mt-2 lg:text-[17px]">{subtitle}</p>}
     </div>
   );
 }

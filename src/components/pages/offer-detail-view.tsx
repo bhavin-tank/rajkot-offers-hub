@@ -169,7 +169,7 @@ async function OfferContent({ slug }: { slug: string }) {
             <div className="flex min-w-0 items-start gap-4 lg:items-center">
                             <ShopAvatar logo={business.logo} className="hidden size-20 shrink-0 lg:flex" />
               <div className="min-w-0">
-                <h1 className={cn("text-[22px] leading-snug font-semibold lg:text-[28px] lg:leading-tight", expired && "text-muted")}>{offer.title}</h1>
+                <h1 className={cn("text-xl leading-snug font-semibold lg:text-[28px] lg:leading-tight", expired && "text-muted")}>{offer.title}</h1>
                 {/* On a phone only the rating shows here; the header's store icon leads to the shop. */}
                 <p className={cn("mt-1 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted lg:flex lg:text-[15px]", offer.rating ? "flex" : "hidden")}>
                   <Link href={shopPath(business.slug)} className="hidden font-medium text-ink hover:underline lg:inline">
@@ -243,7 +243,7 @@ async function OfferContent({ slug }: { slug: string }) {
           <section className="overflow-hidden rounded-2xl border border-line bg-white">
             <OutletMap outlets={pins} className="h-[220px]" />
             <div className="flex flex-col gap-1 p-6">
-              <p className="text-[15px] leading-relaxed font-medium">{offer.address}</p>
+              <p className="text-sm lg:text-[15px] leading-relaxed font-medium">{offer.address}</p>
               {offer.validAt.length > 0 && (
                 <ul className="text-sm text-muted">
                   {offer.validAt.map((branch) => (

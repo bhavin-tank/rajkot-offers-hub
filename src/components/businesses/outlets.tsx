@@ -49,12 +49,12 @@ export async function OutletSideCards({ outlets, contact, path, storeHref }: { o
                 )}
                 <div className="min-w-0 flex-1">
                   {many && (
-                    <p className="text-[15px] font-semibold">
+                    <p className="text-sm lg:text-[15px] font-semibold">
                       {outlet.name}
                       {outlet.isMain && !/main/i.test(outlet.name) && <span className="ml-2 text-xs font-medium text-muted">{t("Main outlet")}</span>}
                     </p>
                   )}
-                  <p className={many ? "mt-0.5 text-sm leading-relaxed text-muted" : "text-[15px] leading-relaxed font-medium"}>{outlet.address}</p>
+                  <p className={many ? "mt-0.5 text-sm leading-relaxed text-muted" : "text-sm lg:text-[15px] leading-relaxed font-medium"}>{outlet.address}</p>
                 </div>
               </div>
               {(!statusInRow || outlet.rating) && (
