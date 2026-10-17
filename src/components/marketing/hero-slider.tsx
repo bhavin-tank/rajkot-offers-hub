@@ -60,7 +60,7 @@ export function HeroSlider({ slides, autoplayMs, loop, className }: HeroSliderPr
           const el = event.currentTarget;
           setIndex(Math.round(el.scrollLeft / el.clientWidth));
         }}
-        className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden rounded-2xl bg-surface"
+        className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto overflow-y-hidden bg-surface lg:rounded-2xl"
       >
         {slides.map((slide, i) => (
           <li key={slide.id} aria-roledescription="slide" className="aspect-[16/9] w-full shrink-0 snap-center sm:aspect-[2/1] lg:aspect-[3/1]">

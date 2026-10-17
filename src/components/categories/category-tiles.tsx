@@ -12,12 +12,16 @@ export function categoryHref(slug: string) {
   return `/categories/${slug}`;
 }
 
-/** Round icon + label; 4 columns on a phone and 8 on desktop, so every category shows without scrolling. */
+/** Categories shown on the home page: three rows, which is 12 on a phone (4 columns) and 24 on desktop (8). */
+const HOME_PHONE_COUNT = 12;
+const HOME_DESKTOP_COUNT = 24;
+
+/** Round icon + label in three rows; the rest are one tap away on the categories page. */
 export function CategoryIconRow({ categories }: { categories: CategoryWithCount[] }) {
   return (
     <ul className="grid grid-cols-4 gap-x-3 gap-y-5 lg:grid-cols-8 lg:gap-6">
-      {categories.map((c) => (
-        <li key={c.slug}>
+      {categories.slice(0, HOME_DESKTOP_COUNT).map((c, i) => (
+        <li key={c.slug} className={i >= HOME_PHONE_COUNT ? "hidden lg:block" : undefined}>
           <Link href={categoryHref(c.slug)} className="group flex flex-col items-center gap-2 text-center">
             <span className="flex size-[60px] items-center justify-center rounded-full bg-surface transition-colors group-hover:bg-canvas lg:size-[76px]">
               <CategoryIcon name={c.icon} className="size-6 lg:size-[30px]" />

@@ -47,10 +47,10 @@ export function ViewToggle({ className }: { className?: string }) {
   );
 }
 
-/** On a phone the switch floats above the bottom menu, so it stays in reach while the list scrolls. */
+/** On a phone the switch floats in the middle, above the bottom menu and clear of its raised Zalak button, so it stays in reach while the list scrolls. */
 export function FloatingViewToggle() {
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom)+0.75rem)] z-30 flex justify-center lg:hidden">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom)+2.25rem)] z-30 flex justify-center lg:hidden">
       <ViewToggle className="pointer-events-auto h-11 rounded-full shadow-card" />
     </div>
   );

@@ -57,7 +57,7 @@ export default async function PrivacyPage() {
           title: "Location",
           body: (
             <p>
-              &quot;Near me&quot; only uses your location when you tap &quot;Use my location&quot;. We round it to about
+              &quot;Near me&quot; only uses your location when you tap &quot;Offers near me&quot;. We round it to about
               100 metres, keep it in a cookie in your own browser, and send it with offer lists only to sort them by distance. It is
               not saved to your account. You can remove it any time with &quot;Clear&quot; in the location menu.
             </p>

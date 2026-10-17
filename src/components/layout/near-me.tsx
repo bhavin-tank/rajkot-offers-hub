@@ -69,7 +69,7 @@ export function NearMe({ near, onLocated, onCleared }: { near?: Near; onLocated:
       )}
       <Button type="button" variant="outline" block onClick={locateByGps} disabled={busy}>
         <LocateFixed size={18} aria-hidden />
-        {locating ? t("Finding you…") : t("Use my location")}
+        {locating ? t("Finding you…") : t("Offers near me")}
       </Button>
       {error && (
         <p role="alert" className="text-sm text-danger">

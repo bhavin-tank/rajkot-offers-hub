@@ -52,16 +52,16 @@ export async function DesktopHeader({ className }: { className?: string }) {
   );
 }
 
-/** Mobile header (56px): logo, language toggle and city pill; the account is in the bottom menu. */
+/** Mobile header (56px): logo, language toggle, city pill and the notification bell; the account is in the bottom menu. */
 export function MobileHeader() {
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-white/95 transition-shadow [html[data-scrolled]_&]:shadow-header backdrop-blur lg:hidden">
+    <header className="sticky top-0 z-30 border-b border-line bg-white/95 backdrop-blur lg:hidden">
       <div className="flex h-14 items-center justify-between px-5">
         <Logo priority />
         <div className="flex items-center gap-2">
-          <NotificationBell />
           <LanguageToggle />
           <LocationPill />
+          <NotificationBell />
         </div>
       </div>
     </header>

@@ -10,6 +10,7 @@ import { OFFER_TYPES, SORT_OPTIONS, VALIDITY_OPTIONS, filtersToQuery } from "@/l
 import { getT } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 import { OfferResults } from "./offer-results";
+import { StickyChips } from "./sticky-chips";
 import { FloatingViewToggle, ViewProvider, ViewToggle } from "./view-toggle";
 
 export interface ChipOption {
@@ -164,13 +165,13 @@ export async function OffersExplorer({
           </div>
         )}
         {!nothingYet && (
-          <div className={"sticky top-14 z-20 -mx-5 flex flex-col gap-3 border-b border-line bg-white px-5 py-3 lg:static lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0"}>
+          <StickyChips>
             {/* On desktop the switch ends the chip row; on a phone it floats above the bottom menu. */}
             <div className="lg:flex lg:items-start lg:justify-between lg:gap-4">
               {chipRow}
               {hasResults && <ViewToggle className="hidden lg:flex" />}
             </div>
-          </div>
+          </StickyChips>
         )}
         <div>{results}</div>
       </div>
