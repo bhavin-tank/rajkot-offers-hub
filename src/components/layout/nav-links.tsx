@@ -64,7 +64,7 @@ function ScratchDot() {
 }
 
 /** Mobile tab bar, fixed to the bottom of the screen. */
-export function BottomNav({ rewards }: { rewards?: boolean }) {
+export function BottomNav({ rewards, zalak: withZalak = true }: { rewards?: boolean; zalak?: boolean }) {
   const pathname = usePathname();
   const { area } = useParams<{ area?: string }>();
   const t = useT();
@@ -74,8 +74,8 @@ export function BottomNav({ rewards }: { rewards?: boolean }) {
       data-bottom-bar
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
-      <ul className="grid h-16 grid-cols-5">
-        {(rewards ? bottomNavWithRewards : bottomNav).map(({ href, label, icon: Icon, raised }) => {
+      <ul className="grid h-16 auto-cols-fr grid-flow-col">
+        {(rewards ? bottomNavWithRewards : bottomNav).filter((tab) => withZalak || tab !== zalak).map(({ href, label, icon: Icon, raised }) => {
           const active = isActive(pathname, href, area);
           return (
             <li key={href}>

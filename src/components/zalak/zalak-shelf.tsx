@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { Store } from "lucide-react";
 import { Link } from "@/components/i18n/link";
 import type { ZalakStory } from "@/lib/zalak/types";
+import { ShopAvatar } from "./avatar";
 
 /** The Zalak shelf on the home page: tall reel cards that open the viewer on that reel. */
 export function ZalakShelf({ stories }: { stories: ZalakStory[] }) {
@@ -13,17 +13,25 @@ export function ZalakShelf({ stories }: { stories: ZalakStory[] }) {
             href={`/zalak?start=${encodeURIComponent(story.id)}`}
             className="group relative block aspect-[9/16] overflow-hidden rounded-2xl bg-skeleton"
           >
-            <Image
-              src={story.clips[0].src}
-              alt=""
-              fill
-              sizes="(min-width: 1024px) 190px, 165px"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+            {story.clips[0].kind === "video" ? (
+              // A video's still comes from the video host, whose address changes per account: shown as it is.
+              story.clips[0].poster && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={story.clips[0].poster} alt="" loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105" />
+              )
+            ) : (
+              <Image
+                src={story.clips[0].src}
+                alt=""
+                fill
+                sizes="(min-width: 1024px) 190px, 165px"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            )}
             <span aria-hidden className="absolute inset-0 bg-linear-to-b from-black/35 via-transparent via-40% to-black/80" />
             <span className="absolute top-2 left-2 flex max-w-[calc(100%-1rem)] items-center gap-1.5 text-[11px] font-semibold text-white">
               <span className="relative flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full border-[1.5px] border-white bg-white/25">
-                {story.shop.logo ? <Image src={story.shop.logo} alt="" fill sizes="24px" className="object-cover" /> : <Store size={12} aria-hidden />}
+                <ShopAvatar shop={story.shop} sizes="24px" iconSize={12} />
               </span>
               <span className="truncate">{story.shop.name}</span>
             </span>

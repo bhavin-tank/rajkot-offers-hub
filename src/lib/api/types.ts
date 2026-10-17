@@ -329,3 +329,76 @@ export interface LoyaltyReferral {
   earned_points: number;
   invited_by: { id: string; status: string; invited_by: string; applied_at: string; activated_at: string | null } | null;
 }
+
+/** Where tapping a status or reel goes: always one of the posting business's own things. */
+export interface ContentLink {
+  type: "business" | "catalog_item" | "promotion";
+  id?: string;
+  slug?: string;
+}
+
+export interface StatusPost {
+  id: string;
+  kind: "image" | "video";
+  caption: string | null;
+  link: ContentLink | null;
+  image: { url: string; thumb_url: string | null } | null;
+  video: { hls_url: string; poster_url: string | null; duration_seconds: number } | null;
+  is_seen: boolean;
+  is_liked: boolean;
+  likes_count: number;
+  expires_at: string;
+  created_at: string;
+}
+
+export interface StatusAuthor {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  logo_thumb_url?: string | null;
+}
+
+/** One ring of the status tray: a business with something live. */
+export interface StatusRing {
+  business: StatusAuthor;
+  live_count: number;
+  unseen_count: number;
+  has_unseen: boolean;
+  latest_at: string;
+  following: boolean;
+}
+
+export interface StatusTray {
+  data: StatusRing[];
+  /** The platform's own ring, ahead of the shops; null when it has nothing live. */
+  platform: { slug: string; name: string; short_name: string; live_count: number; unseen_count: number; has_unseen: boolean; latest_at: string } | null;
+}
+
+export interface StatusPlay {
+  business?: StatusAuthor;
+  platform?: { slug: string; name: string; short_name: string };
+  data: StatusPost[];
+}
+
+export interface ReelCard {
+  id: string;
+  caption: string | null;
+  link: ContentLink | null;
+  video: { duration_seconds: number; width: number | null; height: number | null; hls_url: string; poster_url: string | null };
+  author:
+    | { type: "business"; id: string; name: string; slug: string; logo_url: string | null; logo_thumb_url?: string | null }
+    | { type: "platform"; slug: string; name: string; short_name: string };
+  is_featured: boolean;
+  likes_count: number;
+  is_liked: boolean;
+  is_saved: boolean;
+  is_following: boolean;
+  published_at: string;
+}
+
+export interface ReelPage {
+  data: ReelCard[];
+  /** `feed_token` keeps the order still across the pages of one scroll. */
+  meta: { current_page: number; last_page: number; feed_token?: string; all_seen?: boolean };
+}

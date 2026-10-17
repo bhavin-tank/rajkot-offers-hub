@@ -16,7 +16,7 @@ import { site } from "@/lib/site";
 import { NearYou } from "@/components/offers/near-you";
 import { StatusRow } from "@/components/zalak/status-row";
 import { ZalakShelf } from "@/components/zalak/zalak-shelf";
-import { getStatusFeed, getZalakFeed } from "@/lib/zalak/data";
+import { getReelFeed, getStatusFeed } from "@/lib/zalak/data";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getT();
@@ -54,7 +54,7 @@ async function HomeSections() {
     getHeroSlides(),
     // Never let the new feeds take the home page down with them.
     getStatusFeed().catch(() => []),
-    getZalakFeed().catch(() => []),
+    getReelFeed(1, 8).then((feed) => feed.stories).catch(() => []),
     getAreas().catch(() => []),
   ]);
   const homeCategories = categories.filter((c) => c.inHomeRow);

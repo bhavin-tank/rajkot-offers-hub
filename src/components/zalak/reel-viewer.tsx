@@ -2,28 +2,31 @@
 
 import { ArrowLeftRight, ArrowUpDown } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { markTourDone, useTourPending } from "@/hooks/use-zalak-memory";
+import { markTourDone, reportReelEvent, reportSeen, useTourPending } from "@/hooks/use-zalak-memory";
 import { moreReelsAction } from "@/lib/actions/zalak";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import type { ZalakStory } from "@/lib/zalak/types";
 import { ClipMedia, EmptyStage, Overlay, Scrim, Shell, StoryArrows, Tour, useClose, useModalOpen } from "./parts";
 
-/** How many reels each load brings, and how close to the end the visitor gets before the next load starts. */
-const PAGE = 6;
+/** How close to the end the visitor gets before the next page of reels is fetched. */
 const LOAD_AHEAD = 3;
+/** How long a reel is on screen before it counts as seen. */
+const SEEN_AFTER_MS = 1000;
 
 /**
  * Zalak: a feed of reels. Scroll (or swipe up) for the next shop's reel, swipe sideways for another angle of the
  * same one. Nothing plays or moves on by itself, and the bars at the top only show which angle you are on. The
  * browser does the scrolling and snapping, so it feels native; only the reels near the screen load their pictures.
  */
-export function ReelViewer({ initial, start = 0 }: { initial: ZalakStory[]; start?: number }) {
+export function ReelViewer({ initial, start = 0, feed: more }: { initial: ZalakStory[]; start?: number; feed?: { token?: string; hasMore: boolean } }) {
   const t = useT();
   const close = useClose();
   const feed = useRef<HTMLDivElement>(null);
   const [stories, setStories] = useState(initial);
-  const [hasMore, setHasMore] = useState(initial.length >= PAGE);
+  const [hasMore, setHasMore] = useState(more?.hasMore ?? false);
+  // The page fetched last and the token that keeps the order still across pages.
+  const paging = useRef({ page: 1, token: more?.token });
   const loading = useRef(false);
   const first = Math.min(Math.max(start, 0), Math.max(initial.length - 1, 0));
   const [active, setActive] = useState(first);
@@ -39,6 +42,18 @@ export function ReelViewer({ initial, start = 0 }: { initial: ZalakStory[]; star
   const story = stories[active];
   const angle = Math.min(angles[active] ?? 0, Math.max((story?.clips.length ?? 1) - 1, 0));
 
+  // A reel counts as seen (so it is not served again) and as watched once it has been on screen for a moment.
+  const activeId = stories[active]?.id;
+  const activeLive = stories[active]?.live;
+  useEffect(() => {
+    if (!activeId || !activeLive) return;
+    const timer = setTimeout(() => {
+      reportSeen("reel", activeId);
+      reportReelEvent(activeId, "view");
+    }, SEEN_AFTER_MS);
+    return () => clearTimeout(timer);
+  }, [activeId, activeLive]);
+
   // Open on the reel that was tapped.
   useLayoutEffect(() => {
     const el = feed.current;
@@ -48,14 +63,15 @@ export function ReelViewer({ initial, start = 0 }: { initial: ZalakStory[]; star
   const loadMore = useCallback(async () => {
     if (loading.current || !hasMore) return;
     loading.current = true;
-    const next = await moreReelsAction(stories.length, PAGE);
+    const next = await moreReelsAction(paging.current.page + 1, paging.current.token);
+    paging.current = { page: paging.current.page + 1, token: next.token ?? paging.current.token };
     setStories((current) => {
       const known = new Set(current.map((reel) => reel.id));
-      return [...current, ...next.filter((reel) => !known.has(reel.id))];
+      return [...current, ...next.stories.filter((reel) => !known.has(reel.id))];
     });
-    if (next.length < PAGE) setHasMore(false);
+    if (!next.hasMore || next.stories.length === 0) setHasMore(false);
     loading.current = false;
-  }, [hasMore, stories.length]);
+  }, [hasMore]);
 
   function onFeedScroll() {
     const el = feed.current;
@@ -131,7 +147,16 @@ export function ReelViewer({ initial, start = 0 }: { initial: ZalakStory[]; star
               >
                 {reel.clips.map((item, c) => (
                   <div key={c} className="relative h-full w-full min-w-full shrink-0 snap-start snap-always overflow-hidden bg-black">
-                    {near && <ClipMedia clip={item} still muted={muted} paused={modalOpen || s !== active || c !== (angles[s] ?? 0)} priority={s === first && c === 0} />}
+                    {near && (
+                      <ClipMedia
+                        clip={item}
+                        still
+                        muted={muted}
+                        paused={modalOpen || s !== active || c !== (angles[s] ?? 0)}
+                        priority={s === first && c === 0}
+                        onComplete={reel.live ? () => reportReelEvent(reel.id, "complete") : undefined}
+                      />
+                    )}
                   </div>
                 ))}
               </div>

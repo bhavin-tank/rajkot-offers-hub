@@ -1,9 +1,12 @@
 "use client";
 
-import { Bell, Bookmark, Gift, Heart, KeyRound, Ticket, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { Bell, BellRing, Bookmark, Gift, Heart, KeyRound, Ticket, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { ChangeMpinForm, DeleteAccountForm, NameForm } from "@/components/auth/account-forms";
 import { Sheet } from "@/components/ui/sheet";
+import { useToast } from "@/components/ui/toast";
+import { loadFollowingPushAction, setFollowingPushAction } from "@/lib/actions/notifications";
+import { cn } from "@/lib/utils";
 import { useFollowedShops, useSavedOffers } from "@/hooks/use-saved";
 import { useUnread } from "@/hooks/use-unread";
 import { useT } from "@/lib/i18n/client";
@@ -76,7 +79,54 @@ export function NotificationsGroup() {
         hint={unread > 0 ? t("{count} new", { count: unread }) : t("New offers from shops you follow")}
         badge={unread > 0 ? <RowBadge>{unread}</RowBadge> : undefined}
       />
+      <FollowingPushRow />
     </SettingsGroup>
+  );
+}
+
+/** Phone alerts for what the shops you follow post. Off only silences the alert: the notification still lands in the list. */
+function FollowingPushRow() {
+  const t = useT();
+  const toast = useToast();
+  const [on, setOn] = useState<boolean | null>(null);
+  useEffect(() => {
+    let alive = true;
+    void loadFollowingPushAction().then((value) => alive && setOn(value));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  // Hidden until the account's choice is known (and for anyone it cannot be read for).
+  if (on === null) return null;
+
+  async function toggle() {
+    const want = !on;
+    setOn(want);
+    if (!(await setFollowingPushAction(want))) {
+      setOn(!want);
+      toast(t("Could not save. Please try again."));
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      onClick={() => void toggle()}
+      className="flex w-full cursor-pointer items-center gap-3.5 px-4 py-3.5 text-left transition-colors hover:bg-surface"
+    >
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary">
+        <BellRing size={20} strokeWidth={1.8} aria-hidden />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm leading-snug font-semibold lg:text-[15px]">{t("Alerts from shops you follow")}</span>
+        <span className="mt-0.5 block text-[13px] leading-snug text-muted">{t("New offers, statuses and reels, as phone alerts")}</span>
+      </span>
+      <span aria-hidden className={cn("flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors", on ? "bg-primary" : "bg-line-strong")}>
+        <span className={cn("size-5 rounded-full bg-white shadow transition-transform", on && "translate-x-5")} />
+      </span>
+    </button>
   );
 }
 

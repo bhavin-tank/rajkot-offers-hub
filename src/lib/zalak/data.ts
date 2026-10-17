@@ -2,6 +2,7 @@ import { getBusiness } from "@/lib/data/businesses";
 import { getNear } from "@/lib/data/locations";
 import { getFeaturedOffers, getLatestOffers, getOffersPage } from "@/lib/data/offers";
 import type { OfferSummary } from "@/types";
+import { getReel, getReelPage, getStatusRings, getStatusStories, reelsAvailable, type ReelFeed } from "./api";
 import { CLIP_MAX_SECONDS, CLIP_MIN_SECONDS, type ZalakClip, type ZalakShop, type ZalakStory } from "./types";
 
 /**
@@ -77,8 +78,45 @@ export async function getZalakFeed(limit = 12, offset = 0): Promise<ZalakStory[]
   return offers.map((offer, i) => toStory("reel", offer, offset + i, all, logos));
 }
 
-/** One status per shop that has something today, for the row on the home page. */
-export async function getStatusFeed(limit = 8): Promise<ZalakStory[]> {
+/** Sample feeds are for development only: set ZALAK_MOCK=true. Otherwise the API is the only source. */
+function mock() {
+  return process.env.ZALAK_MOCK === "true";
+}
+
+/** Whether Zalak (the reel feed) is on for this platform. When it is not, its tab, shelf and page are not shown. */
+export async function zalakEnabled(): Promise<boolean> {
+  return mock() || reelsAvailable();
+}
+
+/** A page of the reel feed. With the API the order is the viewer's own and `token` keeps it still while they scroll. */
+export async function getReelFeed(page = 1, perPage = 12, token?: string): Promise<ReelFeed> {
+  if (!mock()) return getReelPage(page, perPage, token);
+  const stories = await getZalakFeed(perPage, (page - 1) * perPage);
+  return { stories, hasMore: stories.length === perPage };
+}
+
+/** The first page of reels, opened on `startId` when that reel is not on it (a shared link, an older card). */
+export async function getReelViewer(startId?: string): Promise<{ feed: ReelFeed; start: number }> {
+  const feed = await getReelFeed(1, 12);
+  const at = startId ? feed.stories.findIndex((story) => story.id === startId) : -1;
+  if (at >= 0 || !startId || mock()) return { feed, start: Math.max(at, 0) };
+  const reel = await getReel(startId).catch(() => undefined);
+  return reel ? { feed: { ...feed, stories: [reel, ...feed.stories] }, start: 0 } : { feed, start: 0 };
+}
+
+/** The rings for the row on the home page: one per shop (and the platform) with something live. */
+export async function getStatusFeed(limit = 20): Promise<ZalakStory[]> {
+  return mock() ? mockStatusFeed(Math.min(limit, 8)) : getStatusRings(limit);
+}
+
+/** Rings with their posts for the status viewer, opened on the shop (or the platform) that was tapped. */
+export async function getStatusViewer(open?: { shop?: string; platform?: boolean }): Promise<{ stories: ZalakStory[]; start: number }> {
+  if (!mock()) return getStatusStories(open);
+  const stories = await mockStatusFeed(8);
+  return { stories, start: Math.max(stories.findIndex((story) => story.shop.slug === open?.shop), 0) };
+}
+
+async function mockStatusFeed(limit: number): Promise<ZalakStory[]> {
   const all = await pool();
   const seen = new Set<string>();
   const offers = all.filter((offer) => !seen.has(offer.businessSlug) && seen.add(offer.businessSlug)).slice(0, limit);

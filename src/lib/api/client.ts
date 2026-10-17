@@ -52,6 +52,10 @@ export interface ApiRequest {
    * and count all visitors as one. Never set inside a cached read.
    */
   client?: string | null;
+  /** Extra headers, e.g. the guest's device key. */
+  headers?: Record<string, string>;
+  /** Never cached, even as a guest read: the answer is different for every viewer. */
+  fresh?: boolean;
 }
 
 function search(query: Query = {}) {
@@ -64,8 +68,8 @@ function search(query: Query = {}) {
   return params.size ? `?${params}` : "";
 }
 
-export async function api<T>(path: string, { query, method = "GET", body, token, client }: ApiRequest = {}): Promise<T> {
-  const headers: Record<string, string> = { Accept: "application/json" };
+export async function api<T>(path: string, { query, method = "GET", body, token, client, headers: extra, fresh }: ApiRequest = {}): Promise<T> {
+  const headers: Record<string, string> = { Accept: "application/json", ...extra };
   // A FormData body (a file upload) sets its own multipart Content-Type.
   const upload = typeof FormData !== "undefined" && body instanceof FormData;
   if (body !== undefined && !upload) headers["Content-Type"] = "application/json";
@@ -82,7 +86,7 @@ export async function api<T>(path: string, { query, method = "GET", body, token,
     body: body === undefined ? undefined : upload ? (body as FormData) : JSON.stringify(body),
     // Guest reads are shared by every visitor, so they are cached for a minute (the API caches too).
     // Anything personal, or that changes data, is never cached.
-    ...(method === "GET" && !token && !client ? { next: { revalidate: GUEST_REVALIDATE_SECONDS } } : { cache: "no-store" as const }),
+    ...(method === "GET" && !token && !client && !fresh ? { next: { revalidate: GUEST_REVALIDATE_SECONDS } } : { cache: "no-store" as const }),
   });
   if (response.status === 204) return undefined as T;
 
