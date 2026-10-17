@@ -58,7 +58,7 @@ export function ActivityGroup({ rewards }: { rewards: boolean }) {
     <SettingsGroup title={t("Your activity")}>
       <SettingsLink href="/saved" icon={Bookmark} title={t("Saved offers and shops")} hint={t("{count} offers saved", { count: count(offers.saved.length, offers.ready) })} />
       <SettingsLink href="/saved?tab=following" icon={Heart} title={t("Shops you follow")} hint={t("{count} shops followed", { count: count(follows.saved.length, follows.ready) })} />
-      <SettingsLink href="/account#codes" icon={Ticket} title={t("My offer codes")} hint={t("Codes you claimed on offers")} />
+      <SettingsLink href="/account/codes" icon={Ticket} title={t("My offer codes")} hint={t("Codes you claimed on offers")} />
       {rewards && <SettingsLink href="/rewards" icon={Gift} title={t("Points and reward codes")} hint={t("Scratch cards, rewards and history")} />}
     </SettingsGroup>
   );

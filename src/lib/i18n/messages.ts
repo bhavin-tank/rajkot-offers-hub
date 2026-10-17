@@ -593,6 +593,7 @@ export const gu = {
   "That invite code doesn't look right.": "આ ઇન્વાઇટ કોડ સાચો લાગતો નથી.",
   "Enter your profile link or username.": "તમારી પ્રોફાઇલ લિંક કે યુઝરનેમ લખો.",
   "Bigger bills can also give you a scratch card.": "મોટા બિલ પર સ્ક્રૅચ કાર્ડ પણ મળી શકે.",
+  "No offer codes yet": "હજી કોઈ ઓફર કોડ નથી",
 } as const;
 
 export type MessageKey = keyof typeof gu;

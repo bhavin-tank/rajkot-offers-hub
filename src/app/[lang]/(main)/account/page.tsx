@@ -5,11 +5,10 @@ import { Suspense } from "react";
 import { ActivityGroup, DeleteRow, NotificationsGroup, ProfileCard, SecurityGroup } from "@/components/account/account-rows";
 import { PointsCard } from "@/components/account/points-card";
 import { SettingsButton, SettingsGroup } from "@/components/account/settings-row";
-import { MyCodes } from "@/components/auth/my-codes";
 import { Container } from "@/components/layout/container";
 import { AccountSkeleton } from "@/components/layout/page-skeleton";
 import { logoutAction } from "@/lib/actions/auth";
-import { accessToken, getSession } from "@/lib/auth/session";
+import { getSession } from "@/lib/auth/session";
 import { getT } from "@/lib/i18n/server";
 import { loyaltyEnabled } from "@/lib/rewards/enabled";
 
@@ -22,7 +21,6 @@ async function Account() {
   const [t, session] = await Promise.all([getT(), getSession()]);
   if (session.status !== "signed-in") redirect("/login?next=/account");
   const { user } = session;
-  const token = await accessToken();
   const rewards = loyaltyEnabled();
   const mobile = user.phone_number ? `${user.country_code ?? ""} ${user.phone_number}`.trim() : null;
   return (
@@ -32,7 +30,6 @@ async function Account() {
       <ActivityGroup rewards={rewards} />
       <NotificationsGroup />
       <SecurityGroup />
-      {token && <MyCodes token={token} />}
       <SettingsGroup title={t("Account")}>
         <form action={logoutAction.bind(null, false)}>
           <SettingsButton type="submit" icon={LogOut} tone="danger" arrow={false} title={t("Log out")} hint={t("Of Rajkot Offers Hub on this phone")} />
