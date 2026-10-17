@@ -31,6 +31,8 @@ export interface ZalakStory {
   caption?: string;
   /** The offer the "View offer" button opens, when the post is about one. */
   offer?: { slug: string; urlSlug: string; businessSlug: string };
+  /** Km from the visitor to the shop's nearest outlet, when they have shared a location. */
+  distanceKm?: number;
   /** ISO time it was posted. */
   postedAt: string;
   /** ISO time a status disappears. */

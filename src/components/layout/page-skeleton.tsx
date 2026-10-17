@@ -172,28 +172,34 @@ function ShopSections() {
 /** The categories page: title, the category tiles, and the areas. */
 export function CategoriesSkeleton() {
   return (
-    <Container aria-busy="true" className="flex flex-col gap-8 pt-6 pb-10 lg:gap-14 lg:pt-12 lg:pb-20">
-      <PageTitleSkeleton />
-      <div className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-8">
-        {Array.from({ length: 12 }, (_, i) => (
-          <div key={i} className="flex flex-col gap-2.5">
-            <Skeleton className="aspect-square rounded-2xl" />
-            <div className="flex h-[43px] flex-col justify-between lg:h-[45px]">
-              <Skeleton className="h-4 w-3/4 lg:h-[18px]" />
-              <Skeleton className="h-3.5 w-1/3" />
+    <>
+      {/* The phone's top bar (the page draws its own). */}
+      <div className="h-[57px] border-b border-line lg:hidden" />
+      <Container aria-busy="true" className="flex flex-col gap-8 pt-5 pb-10 lg:gap-14 lg:pt-12 lg:pb-20">
+        <div className="hidden lg:block">
+          <PageTitleSkeleton />
+        </div>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-8">
+          {Array.from({ length: 12 }, (_, i) => (
+            <div key={i} className="flex flex-col gap-2.5">
+              <Skeleton className="aspect-square rounded-2xl" />
+              <div className="flex h-[43px] flex-col justify-between lg:h-[45px]">
+                <Skeleton className="h-4 w-3/4 lg:h-[18px]" />
+                <Skeleton className="h-3.5 w-1/3" />
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
-      <div>
-        <Skeleton className="mb-4 h-[26px] w-44 lg:mb-6 lg:h-[39px] lg:w-64" />
-        <div className="no-scrollbar -mx-5 flex gap-2 overflow-hidden px-5 lg:mx-0 lg:flex-wrap lg:gap-3 lg:px-0">
-          {[96, 120, 88, 110, 104, 92, 116, 100, 108, 96, 112, 90, 118, 104].map((width, i) => (
-            <Skeleton key={i} className="h-[38px] shrink-0 rounded-full lg:h-10" style={{ width }} />
           ))}
         </div>
-      </div>
-    </Container>
+        <div>
+          <Skeleton className="mb-4 h-[26px] w-44 lg:mb-6 lg:h-[39px] lg:w-64" />
+          <div className="no-scrollbar -mx-5 flex gap-2 overflow-hidden px-5 lg:mx-0 lg:flex-wrap lg:gap-3 lg:px-0">
+            {[96, 120, 88, 110, 104, 92, 116, 100, 108, 96, 112, 90, 118, 104].map((width, i) => (
+              <Skeleton key={i} className="h-[38px] shrink-0 rounded-full lg:h-10" style={{ width }} />
+            ))}
+          </div>
+        </div>
+      </Container>
+    </>
   );
 }
 
@@ -201,11 +207,13 @@ export function CategoriesSkeleton() {
  * The home page below its introduction (which needs no data): the category row, today's offers, the
  * new offers and the call to action for shops.
  */
+/** The home sections take turns, grey then white, counting only those on the page (some come and go). */
+export const ALTERNATING_SECTIONS = "[&>section:nth-of-type(odd)]:bg-surface [&>section:nth-of-type(even)]:bg-white";
+
 export function HomeSectionsSkeleton() {
   return (
-    <div aria-busy="true">
-      <Section className="pt-0 lg:pt-0">
-        <SectionHeaderSkeleton />
+    <div aria-busy="true" className={ALTERNATING_SECTIONS}>
+      <Section compact className="py-4 lg:py-6">
         <ul className="flex gap-4 overflow-hidden lg:gap-6" aria-hidden>
           {Array.from({ length: 8 }, (_, i) => (
             <li key={i} className="flex w-[68px] shrink-0 flex-col items-center gap-1.5 lg:w-20">
@@ -216,11 +224,22 @@ export function HomeSectionsSkeleton() {
         </ul>
       </Section>
 
-      <Section className="pt-0 lg:pt-0">
+      <Section compact>
+        <SectionHeaderSkeleton link />
+        <ul className="flex gap-3 overflow-hidden lg:grid lg:grid-cols-6 lg:gap-5" aria-hidden>
+          {Array.from({ length: 6 }, (_, i) => (
+            <li key={i} className="w-[calc((100vw-2.75rem)/2.08)] shrink-0 lg:w-auto">
+              <Skeleton className="aspect-[9/16] rounded-2xl" />
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section compact>
         <SectionHeaderSkeleton />
         <ul className="grid grid-cols-4 gap-x-3 gap-y-5 lg:grid-cols-8 lg:gap-6" aria-hidden>
-          {Array.from({ length: 16 }, (_, i) => (
-            <li key={i} className="flex flex-col items-center gap-2">
+          {Array.from({ length: 24 }, (_, i) => (
+            <li key={i} className={cn("flex flex-col items-center gap-2", i >= 12 && "hidden lg:flex")}>
               <Skeleton className="size-[60px] rounded-full lg:size-[76px]" />
               <div className="flex h-[15px] items-center lg:h-[18px]">
                 <Skeleton className="h-2.5 w-12 lg:w-14" />
@@ -230,18 +249,16 @@ export function HomeSectionsSkeleton() {
         </ul>
       </Section>
 
-      <Section className="pt-0 lg:pt-0">
-        <SectionHeaderSkeleton link />
-        <ul className="flex gap-3 overflow-hidden lg:grid lg:grid-cols-6 lg:gap-5" aria-hidden>
-          {Array.from({ length: 6 }, (_, i) => (
-            <li key={i} className="w-[138px] shrink-0 lg:w-auto">
-              <Skeleton className="aspect-[9/16] rounded-2xl" />
-            </li>
+      <Section compact>
+        <SectionHeaderSkeleton />
+        <div className="no-scrollbar -mx-5 flex gap-2 overflow-hidden px-5 lg:mx-0 lg:flex-wrap lg:gap-3 lg:px-0">
+          {[110, 128, 96, 118, 104, 124, 100, 116, 108, 120].map((width, i) => (
+            <Skeleton key={i} className="h-[38px] shrink-0 rounded-full lg:h-10" style={{ width }} />
           ))}
-        </ul>
+        </div>
       </Section>
 
-      <Section tone="surface">
+      <Section>
         <SectionHeaderSkeleton link />
         <OfferCarouselSkeleton />
       </Section>
@@ -254,7 +271,7 @@ export function HomeSectionsSkeleton() {
         </div>
       </Section>
 
-      <Section tone="surface">
+      <Section>
         <Skeleton className="h-[400px] rounded-2xl lg:h-[402px]" />
       </Section>
     </div>

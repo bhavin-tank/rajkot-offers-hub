@@ -9,6 +9,7 @@ import { useToggleSave } from "@/components/offers/save-button";
 import { buttonClass } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { useLikedStories } from "@/hooks/use-zalak-memory";
+import { formatDistance } from "@/lib/format";
 import { localizePath } from "@/lib/i18n/config";
 import { useLocale, useT } from "@/lib/i18n/client";
 import { offerPath, shopPath } from "@/lib/paths";
@@ -27,6 +28,41 @@ export function useNow() {
     () => () => {},
     () => Math.floor(Date.now() / 60_000) * 60_000,
     () => 0,
+  );
+}
+
+/** Things happening outside the page that should hold the viewer, like the phone's own share sheet. */
+let holds = 0;
+const holdListeners = new Set<() => void>();
+
+/** Holds the viewer for as long as `task` runs. */
+async function whileHeld<T>(task: () => Promise<T>) {
+  holds++;
+  holdListeners.forEach((listener) => listener());
+  try {
+    return await task();
+  } finally {
+    holds--;
+    holdListeners.forEach((listener) => listener());
+  }
+}
+
+function subscribeHolds(onChange: () => void) {
+  const observer = new MutationObserver(onChange);
+  observer.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["open"] });
+  holdListeners.add(onChange);
+  return () => {
+    observer.disconnect();
+    holdListeners.delete(onChange);
+  };
+}
+
+/** Whether something is open on top of the viewer: a sheet or dialog (the login), or the share sheet. The viewer holds still while one is. */
+export function useModalOpen() {
+  return useSyncExternalStore(
+    subscribeHolds,
+    () => holds > 0 || document.querySelector("dialog[open]") !== null,
+    () => false,
   );
 }
 
@@ -198,7 +234,7 @@ function Header({ story, kind, clip, onClose }: { story: ZalakStory; kind: Zalak
         </span>
         <span className="min-w-0">
           <span className="block truncate text-sm font-semibold">{story.shop.name}</span>
-          <span className="block truncate text-xs text-white/85">{[detail, story.shop.areaName].filter(Boolean).join(" · ")}</span>
+          <span className="block truncate text-xs text-white/85">{[detail, story.distanceKm === undefined ? null : formatDistance(story.distanceKm, t), story.shop.areaName].filter(Boolean).join(" · ")}</span>
         </span>
       </Link>
       <FollowPill slug={story.shop.slug} />
@@ -234,19 +270,22 @@ function Rail({ story, muted, onMute }: { story: ZalakStory; muted: boolean; onM
   const { isLiked, toggle } = useLikedStories();
   const liked = isLiked(story.id);
 
-  async function share() {
+  function share() {
     const path = story.offer ? offerPath({ businessSlug: story.offer.businessSlug, urlSlug: story.offer.urlSlug }) : shopPath(story.shop.slug);
     const url = `${site.url}${localizePath(locale, path)}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: story.title, url });
-        return;
+    // The phone's share sheet is not part of the page, so the viewer is held for as long as it is open.
+    return whileHeld(async () => {
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: story.title, url });
+          return;
+        }
+        await navigator.clipboard.writeText(url);
+        toast(t("Link copied"));
+      } catch (error) {
+        if ((error as DOMException).name !== "AbortError") toast(t("Could not share. Please try again."));
       }
-      await navigator.clipboard.writeText(url);
-      toast(t("Link copied"));
-    } catch (error) {
-      if ((error as DOMException).name !== "AbortError") toast(t("Could not share. Please try again."));
-    }
+    });
   }
 
   return (

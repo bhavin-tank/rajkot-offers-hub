@@ -7,7 +7,7 @@ import { moreReelsAction } from "@/lib/actions/zalak";
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import type { ZalakStory } from "@/lib/zalak/types";
-import { ClipMedia, EmptyStage, Overlay, Scrim, Shell, StoryArrows, Tour, useClose } from "./parts";
+import { ClipMedia, EmptyStage, Overlay, Scrim, Shell, StoryArrows, Tour, useClose, useModalOpen } from "./parts";
 
 /** How many reels each load brings, and how close to the end the visitor gets before the next load starts. */
 const PAGE = 6;
@@ -33,6 +33,8 @@ export function ReelViewer({ initial, start = 0 }: { initial: ZalakStory[]; star
   const [tourStep, setTourStep] = useState(0);
   const tourPending = useTourPending("reel");
   const showTour = tourPending && tourStep < 2 && stories.length > 0;
+  // A dialog on top (the login after tapping Follow) stops the video and the keys.
+  const modalOpen = useModalOpen();
 
   const story = stories[active];
   const angle = Math.min(angles[active] ?? 0, Math.max((story?.clips.length ?? 1) - 1, 0));
@@ -85,6 +87,7 @@ export function ReelViewer({ initial, start = 0 }: { initial: ZalakStory[]; star
   // Keyboard for desktop.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (modalOpen) return;
       if (event.key === "ArrowDown") goStory(1);
       else if (event.key === "ArrowUp") goStory(-1);
       else if (event.key === "ArrowRight") goAngle(1);
@@ -128,7 +131,7 @@ export function ReelViewer({ initial, start = 0 }: { initial: ZalakStory[]; star
               >
                 {reel.clips.map((item, c) => (
                   <div key={c} className="relative h-full w-full min-w-full shrink-0 snap-start snap-always overflow-hidden bg-black">
-                    {near && <ClipMedia clip={item} still muted={muted} paused={s !== active || c !== (angles[s] ?? 0)} priority={s === first && c === 0} />}
+                    {near && <ClipMedia clip={item} still muted={muted} paused={modalOpen || s !== active || c !== (angles[s] ?? 0)} priority={s === first && c === 0} />}
                   </div>
                 ))}
               </div>

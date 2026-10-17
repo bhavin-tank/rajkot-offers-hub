@@ -6,7 +6,7 @@ import { markStatusSeen, markTourDone, useTourPending } from "@/hooks/use-zalak-
 import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import type { ZalakStory } from "@/lib/zalak/types";
-import { ClipMedia, EmptyStage, Overlay, Scrim, Shell, StoryArrows, Tour, useClose } from "./parts";
+import { ClipMedia, EmptyStage, Overlay, Scrim, Shell, StoryArrows, Tour, useClose, useModalOpen } from "./parts";
 
 type Direction = "up" | "down" | "left" | "right" | null;
 
@@ -38,7 +38,9 @@ export function StatusViewer({ stories, start = 0 }: { stories: ZalakStory[]; st
   const [tourStep, setTourStep] = useState(0);
   const tourPending = useTourPending("status");
   const showTour = tourPending && tourStep < 1 && stories.length > 0;
-  const paused = holding || showTour;
+  // A dialog on top (the login after tapping Follow) holds the post where it is.
+  const modalOpen = useModalOpen();
+  const paused = holding || showTour || modalOpen;
 
   const story = stories[pos.s];
   const clip = story?.clips[pos.c];
@@ -104,6 +106,7 @@ export function StatusViewer({ stories, start = 0 }: { stories: ZalakStory[]; st
   // Keyboard for desktop.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
+      if (modalOpen) return;
       if (event.key === "ArrowDown") nextStory();
       else if (event.key === "ArrowUp") previousStory();
       else if (event.key === "ArrowRight") nextClip();

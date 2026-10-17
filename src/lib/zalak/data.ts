@@ -1,5 +1,6 @@
 import { getBusiness } from "@/lib/data/businesses";
-import { getFeaturedOffers, getLatestOffers } from "@/lib/data/offers";
+import { getNear } from "@/lib/data/locations";
+import { getFeaturedOffers, getLatestOffers, getOffersPage } from "@/lib/data/offers";
 import type { OfferSummary } from "@/types";
 import { CLIP_MAX_SECONDS, CLIP_MIN_SECONDS, type ZalakClip, type ZalakShop, type ZalakStory } from "./types";
 
@@ -18,11 +19,15 @@ function clipSeconds(seed: string) {
   return CLIP_MIN_SECONDS + (hash % (CLIP_MAX_SECONDS - CLIP_MIN_SECONDS + 1));
 }
 
+/** Offers with a photo, deduplicated: nearest first when the visitor shared a location, else featured then newest. */
 async function pool() {
-  const [featured, latest] = await Promise.all([getFeaturedOffers(12), getLatestOffers(12)]);
+  const near = await getNear();
+  const candidates = near
+    ? (await Promise.all([1, 2, 3].map((page) => getOffersPage({ near, sort: "nearest" }, page)))).flatMap((result) => result.items)
+    : (await Promise.all([getFeaturedOffers(12), getLatestOffers(12)])).flat();
   const seen = new Set<string>();
   const offers: OfferSummary[] = [];
-  for (const offer of [...featured, ...latest]) {
+  for (const offer of candidates) {
     if (seen.has(offer.id) || offer.imageIsLogo || offer.images.length === 0) continue;
     seen.add(offer.id);
     offers.push(offer);
@@ -57,6 +62,7 @@ function toStory(kind: ZalakStory["kind"], offer: OfferSummary, index: number, o
     title: offer.title,
     caption: offer.badge,
     offer: { slug: offer.slug, urlSlug: offer.urlSlug, businessSlug: offer.businessSlug },
+    distanceKm: offer.distanceKm,
     postedAt,
     expiresAt: kind === "status" ? new Date(new Date(postedAt).getTime() + DAY_MS).toISOString() : undefined,
     clips,
