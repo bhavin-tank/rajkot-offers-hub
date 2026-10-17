@@ -19,6 +19,7 @@ import { site } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import type { ZalakClip, ZalakKind, ZalakLink, ZalakStory } from "@/lib/zalak/types";
 import { ShopAvatar } from "./avatar";
+import { ReportButton } from "./report";
 
 /**
  * The look shared by reels and statuses: the black stage, the shop at the top, the offer and the actions
@@ -304,6 +305,7 @@ function Header({ story, kind, clip, onClose }: { story: ZalakStory; kind: Zalak
         </span>
       </Link>
       {!story.shop.platform && <FollowPill slug={story.shop.slug} />}
+      <ReportButton story={story} clip={clip} />
       <button type="button" aria-label={t("Close")} onClick={onClose} className="-mr-1 flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full hover:bg-white/15">
         <X size={24} aria-hidden />
       </button>

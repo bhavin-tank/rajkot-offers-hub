@@ -61,3 +61,25 @@ export async function reelEventAction(id: string, type: "view" | "complete" | "s
     if (!(error instanceof ApiError) || error.status >= 500) console.error("[reel-event]", error);
   }
 }
+
+export type ReportReason = "inappropriate" | "misleading" | "spam" | "copyright" | "other";
+const REASONS: ReportReason[] = ["inappropriate", "misleading", "spam", "copyright", "other"];
+
+/** Reports a status or reel. "own" is the poster's own shop, "gone" a post that is no longer showing, "limit" too many reports for now. */
+export async function reportContentAction(kind: "status" | "reel", id: string, reason: ReportReason, note?: string): Promise<"ok" | "signed-out" | "own" | "gone" | "limit" | "error"> {
+  if ((kind !== "status" && kind !== "reel") || typeof id !== "string" || !UUID.test(id) || !REASONS.includes(reason)) return "error";
+  const text = typeof note === "string" ? note.trim().slice(0, 1000) : "";
+  const path = `/${kind === "status" ? "statuses" : "reels"}/${id}/reports`;
+  try {
+    const result = await withSession((token) => api(path, { method: "POST", body: { reason, ...(text ? { note: text } : {}) }, token, client: null }));
+    return result === "signed-out" ? "signed-out" : "ok";
+  } catch (error) {
+    if (error instanceof ApiError) {
+      if (error.status === 404) return "gone";
+      if (error.status === 422) return "own";
+      if (error.status === 429) return "limit";
+    }
+    console.error("[report]", error);
+    return "error";
+  }
+}

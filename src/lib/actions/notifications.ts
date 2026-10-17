@@ -30,18 +30,25 @@ interface ApiNotification {
   type: string | null;
   title: string | null;
   body: string | null;
-  action: { type?: string; resource?: string; arguments?: { id?: string } } | null;
+  action: { type?: string; resource?: string; arguments?: { id?: string; business_slug?: string } } | null;
   read_at: string | null;
   created_at: string;
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const SHOP = /^[a-z0-9][a-z0-9-]{0,120}$/i;
 const PER_PAGE = 30;
 
 /** An offer opens its page ("/offers/<anything>-<id>" goes to the offer's own address); points, rewards and tasks open Rewards. */
 function hrefOf(action: ApiNotification["action"], type: string | null) {
   if (type?.startsWith("loyalty.")) return "/rewards";
   const id = action?.arguments?.id;
+  // A shop you follow posted: its status opens the status viewer on that shop, its reel opens Zalak on that reel.
+  if (action?.type === "screen" && action.resource === "status") {
+    const shop = action.arguments?.business_slug;
+    return typeof shop === "string" && SHOP.test(shop) ? `/status?shop=${encodeURIComponent(shop)}` : "/";
+  }
+  if (action?.type === "screen" && action.resource === "reel") return typeof id === "string" && UUID.test(id) ? `/zalak?start=${id}` : "/zalak";
   return action?.type === "screen" && action.resource === "promotion" && typeof id === "string" && UUID.test(id) ? `/offers/offer-${id}` : null;
 }
 
@@ -81,6 +88,28 @@ export async function markReadAction(id?: string): Promise<boolean> {
     return result !== "signed-out";
   } catch (error) {
     console.error("[notifications]", error);
+    return false;
+  }
+}
+
+/** Whether the visitor wants a push when a shop they follow posts (a new offer, status or reel). Null for a guest or when it cannot be read. */
+export async function loadFollowingPushAction(): Promise<boolean | null> {
+  try {
+    const result = await withSession((token) => api<{ data: { following?: boolean } }>("/user/notification-preferences", { token, client: null }));
+    return result === "signed-out" ? null : (result.data.following ?? true);
+  } catch {
+    return null;
+  }
+}
+
+/** Turns those pushes on or off. The notification itself still lands in the list: muted is not lost. */
+export async function setFollowingPushAction(on: boolean): Promise<boolean> {
+  if (typeof on !== "boolean") return false;
+  try {
+    const result = await withSession((token) => api("/user/notification-preferences", { method: "PUT", body: { following: on }, token, client: null }));
+    return result !== "signed-out";
+  } catch (error) {
+    console.error("[notification-preferences]", error);
     return false;
   }
 }

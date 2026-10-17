@@ -109,9 +109,11 @@ Work on this plan can start before these are done, against the local API for sta
 
 ### Stage D: extras (second PR if the first is already big)
 
-- [ ] Report: a "Report" item in the viewer menu (reason list, `POST .../reports`).
-- [ ] Notification settings: a "Vendors I follow" switch for the new `following` preference
+- [x] Report: a "Report" item in the viewer menu (reason list, `POST .../reports`).
+- [x] Notification settings (Account, Preferences): a "Vendors I follow" switch for the new `following` preference
       (`GET` and `PUT /user/notification-preferences`); the runbook asks every customer app to ship this before launch.
+      The site has no web push, so this switch governs the account's phone alerts; the feed keeps every notification.
+      Also: `status.posted` and `reel.posted` notifications now open the status viewer or the reel.
 - [ ] Saved reels list (`GET /saved-reels`) in Saved, if the product wants it.
 
 ### Stage E: check and ship
@@ -152,3 +154,5 @@ Work on this plan can start before these are done, against the local API for sta
 - Reels are counted as watched even while the first-time tour is up (a few seconds); fine for now.
 - Local API tip: after seeding, run `php artisan cache:clear` with the same env if every route answers 404 (the platform
   host lookup was cached stale).
+- Stage D done: report sheet checked in the browser (guest gets the login popup; a signed-in submit and the alerts switch
+  were not exercised, as that needs a real login).
