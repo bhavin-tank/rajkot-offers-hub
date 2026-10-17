@@ -380,3 +380,25 @@ export interface StatusPlay {
   platform?: { slug: string; name: string; short_name: string };
   data: StatusPost[];
 }
+
+export interface ReelCard {
+  id: string;
+  caption: string | null;
+  link: ContentLink | null;
+  video: { duration_seconds: number; width: number | null; height: number | null; hls_url: string; poster_url: string | null };
+  author:
+    | { type: "business"; id: string; name: string; slug: string; logo_url: string | null; logo_thumb_url?: string | null }
+    | { type: "platform"; slug: string; name: string; short_name: string };
+  is_featured: boolean;
+  likes_count: number;
+  is_liked: boolean;
+  is_saved: boolean;
+  is_following: boolean;
+  published_at: string;
+}
+
+export interface ReelPage {
+  data: ReelCard[];
+  /** `feed_token` keeps the order still across the pages of one scroll. */
+  meta: { current_page: number; last_page: number; feed_token?: string; all_seen?: boolean };
+}

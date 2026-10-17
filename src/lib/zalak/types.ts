@@ -20,6 +20,8 @@ export interface ZalakClip {
   link?: ZalakLink;
   liked?: boolean;
   likes?: number;
+  /** The viewer saved this reel. */
+  saved?: boolean;
   /** The viewer has already watched it. */
   seen?: boolean;
   /** ISO time this post went up, when each post has its own. */

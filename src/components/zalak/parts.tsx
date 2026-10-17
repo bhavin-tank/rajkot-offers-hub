@@ -9,8 +9,8 @@ import { useLogin } from "@/components/auth/login-dialog";
 import { useToggleSave } from "@/components/offers/save-button";
 import { buttonClass } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import { useLikedStories } from "@/hooks/use-zalak-memory";
-import { setLikeAction } from "@/lib/actions/zalak";
+import { reportReelEvent, useLikedStories } from "@/hooks/use-zalak-memory";
+import { setReactionAction } from "@/lib/actions/zalak";
 import { formatDistance } from "@/lib/format";
 import { localizePath } from "@/lib/i18n/config";
 import { useLocale, useT } from "@/lib/i18n/client";
@@ -143,12 +143,15 @@ interface ClipMediaProps {
   muted: boolean;
   still?: boolean;
   priority?: boolean;
+  /** A video reached its end (it loops, so this is once per play-through). */
+  onComplete?: () => void;
 }
 
 const HLS = /\.m3u8(\?|$)/;
 
-export function ClipMedia({ clip, paused, muted, still, priority }: ClipMediaProps) {
+export function ClipMedia({ clip, paused, muted, still, priority, onComplete }: ClipMediaProps) {
   const video = useRef<HTMLVideoElement>(null);
+  const finished = useRef(false);
   const streamed = clip.kind === "video" && HLS.test(clip.src);
 
   // The API's videos are HLS streams: Safari plays them as they are, other browsers through hls.js (loaded only when needed).
@@ -188,7 +191,29 @@ export function ClipMedia({ clip, paused, muted, still, priority }: ClipMediaPro
   }, [paused, clip]);
 
   if (clip.kind === "video") {
-    return <video ref={video} src={streamed ? undefined : clip.src} poster={clip.poster} muted={muted} loop autoPlay={!paused} playsInline preload="metadata" className="size-full object-cover" />;
+    return (
+      <video
+        ref={video}
+        src={streamed ? undefined : clip.src}
+        poster={clip.poster}
+        muted={muted}
+        loop
+        autoPlay={!paused}
+        playsInline
+        preload="metadata"
+        onTimeUpdate={(event) => {
+          // The video loops, so it never ends: near the end counts once, and again after it has come round.
+          const el = event.currentTarget;
+          if (!onComplete || !Number.isFinite(el.duration)) return;
+          if (el.currentTime < 1) finished.current = false;
+          else if (!finished.current && el.currentTime >= el.duration - 0.35) {
+            finished.current = true;
+            onComplete();
+          }
+        }}
+        className="size-full object-cover"
+      />
+    );
   }
   return (
     <Image
@@ -239,7 +264,11 @@ export function Overlay({ story, kind, clip, bars, muted, onMute, onClose }: Ove
         </div>
 
         {target && (
-          <Link href={target.href} className={buttonClass({ variant: "primary", block: true, className: "pointer-events-auto" })}>
+          <Link
+            href={target.href}
+            onClick={() => story.kind === "reel" && story.live && reportReelEvent(story.id, "link_tap")}
+            className={buttonClass({ variant: "primary", block: true, className: "pointer-events-auto" })}
+          >
             {target.kind === "offer" ? t("View offer") : t("Visit shop")}
           </Link>
         )}
@@ -300,45 +329,47 @@ function FollowPill({ slug }: { slug: string }) {
   );
 }
 
-/** A post's like: the API's when the post came from it (a guest is asked to log in), this browser's own for the sample posts. */
-function useLike(story: ZalakStory, clip: ZalakClip) {
+/** A post's like or save: the API's when the post came from it (a guest is asked to log in), this browser's own like for the sample posts. */
+function useReaction(story: ZalakStory, clip: ZalakClip, reaction: "like" | "save") {
   const t = useT();
   const toast = useToast();
   const login = useLogin();
   const memory = useLikedStories();
-  const [mine, setMine] = useState<Record<string, { liked: boolean; likes: number }>>({});
+  const [mine, setMine] = useState<Record<string, { on: boolean; count: number }>>({});
   const id = clip.id;
-  const api = story.live && id !== undefined;
 
-  if (!api || !id) {
-    const liked = memory.isLiked(story.id);
-    return { liked, likes: liked ? 1 : 0, toggle: () => memory.toggle(story.id) };
+  if (!story.live || !id) {
+    const liked = reaction === "like" && memory.isLiked(story.id);
+    return { on: liked, count: liked ? 1 : 0, toggle: () => memory.toggle(story.id) };
   }
 
-  const current = mine[id] ?? { liked: clip.liked ?? false, likes: clip.likes ?? 0 };
+  const start = reaction === "like" ? { on: clip.liked ?? false, count: clip.likes ?? 0 } : { on: clip.saved ?? false, count: 0 };
+  const key = `${reaction}:${id}`;
+  const current = mine[key] ?? start;
 
   async function send(want: boolean, retry: boolean) {
-    const before = mine[id!] ?? { liked: clip.liked ?? false, likes: clip.likes ?? 0 };
-    setMine((all) => ({ ...all, [id!]: { liked: want, likes: Math.max(0, before.likes + (want === before.liked ? 0 : want ? 1 : -1)) } }));
-    const result = await setLikeAction(story.kind, id!, want);
+    const before = mine[key] ?? start;
+    setMine((all) => ({ ...all, [key]: { on: want, count: Math.max(0, before.count + (want === before.on || reaction === "save" ? 0 : want ? 1 : -1)) } }));
+    const result = await setReactionAction(story.kind, id!, reaction, want);
     if (result === "ok") return;
-    setMine((all) => ({ ...all, [id!]: before }));
+    setMine((all) => ({ ...all, [key]: before }));
     if (result === "signed-out" && retry) login.prompt(() => void send(want, false));
     else toast(t("Could not save. Please try again."));
   }
 
-  return { liked: current.liked, likes: current.likes, toggle: () => void send(!current.liked, true) };
+  return { on: current.on, count: current.count, toggle: () => void send(!current.on, true) };
 }
 
 function Rail({ story, clip, muted, onMute }: { story: ZalakStory; clip: ZalakClip; muted: boolean; onMute?: () => void }) {
   const t = useT();
   const toast = useToast();
   const locale = useLocale();
-  const { liked, likes, toggle } = useLike(story, clip);
+  const like = useReaction(story, clip, "like");
 
   function share() {
     const path = clip.link?.href ?? (story.offer ? offerPath({ businessSlug: story.offer.businessSlug, urlSlug: story.offer.urlSlug }) : story.shop.platform ? "/" : shopPath(story.shop.slug));
     const url = `${site.url}${localizePath(locale, path)}`;
+    if (story.kind === "reel" && story.live) reportReelEvent(story.id, "share");
     // The phone's share sheet is not part of the page, so the viewer is held for as long as it is open.
     return whileHeld(async () => {
       try {
@@ -356,10 +387,10 @@ function Rail({ story, clip, muted, onMute }: { story: ZalakStory; clip: ZalakCl
 
   return (
     <div className="pointer-events-auto flex flex-col items-center gap-5 pb-1">
-      <RailButton label={t("Like")} count={likes} pressed={liked} onClick={toggle}>
-        <Heart size={30} strokeWidth={1.8} aria-hidden className={cn(liked && "fill-primary text-primary")} />
+      <RailButton label={t("Like")} count={like.count} pressed={like.on} onClick={like.toggle}>
+        <Heart size={30} strokeWidth={1.8} aria-hidden className={cn(like.on && "fill-primary text-primary")} />
       </RailButton>
-      {story.offer && <SaveRail slug={story.offer.slug} />}
+      {story.live && story.kind === "reel" ? <SaveReelRail story={story} clip={clip} /> : story.offer && <SaveRail slug={story.offer.slug} />}
       <RailButton label={t("Share")} onClick={share}>
         <Share2 size={28} strokeWidth={1.8} aria-hidden />
       </RailButton>
@@ -369,6 +400,16 @@ function Rail({ story, clip, muted, onMute }: { story: ZalakStory; clip: ZalakCl
         </RailButton>
       )}
     </div>
+  );
+}
+
+function SaveReelRail({ story, clip }: { story: ZalakStory; clip: ZalakClip }) {
+  const t = useT();
+  const save = useReaction(story, clip, "save");
+  return (
+    <RailButton label={save.on ? t("Saved") : t("Save")} pressed={save.on} onClick={save.toggle}>
+      <Bookmark size={28} strokeWidth={1.8} aria-hidden className={cn(save.on && "fill-primary text-primary")} />
+    </RailButton>
   );
 }
 

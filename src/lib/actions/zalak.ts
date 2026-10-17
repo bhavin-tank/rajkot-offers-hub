@@ -3,16 +3,22 @@
 import { api, ApiError } from "@/lib/api/client";
 import { deviceHeaders } from "@/lib/api/device";
 import { accessToken, withSession } from "@/lib/auth/session";
-import { getZalakFeed } from "@/lib/zalak/data";
+import { getReelFeed } from "@/lib/zalak/data";
 import type { ZalakStory } from "@/lib/zalak/types";
 
-/** The next reels of the Zalak feed, for the infinite scroll. An empty list means the feed has ended; a failure also ends it quietly. */
-export async function moreReelsAction(offset: number, limit = 6): Promise<ZalakStory[]> {
-  if (!Number.isInteger(offset) || offset < 0 || limit < 1 || limit > 24) return [];
+export interface MoreReels {
+  stories: ZalakStory[];
+  token?: string;
+  hasMore: boolean;
+}
+
+/** The next page of reels, for the infinite scroll. A failure ends the feed quietly. */
+export async function moreReelsAction(page: number, token?: string): Promise<MoreReels> {
+  if (!Number.isInteger(page) || page < 2 || page > 200 || (token !== undefined && (typeof token !== "string" || token.length > 200))) return { stories: [], hasMore: false };
   try {
-    return await getZalakFeed(limit, offset);
+    return await getReelFeed(page, 12, token);
   } catch {
-    return [];
+    return { stories: [], hasMore: false };
   }
 }
 
@@ -31,17 +37,27 @@ export async function reportSeenAction(type: "status" | "reel", ids: string[]): 
   }
 }
 
-/** Likes or unlikes a status or a reel. "signed-out" means the visitor has to log in first. */
-export async function setLikeAction(kind: "status" | "reel", id: string, liked: boolean): Promise<"ok" | "signed-out" | "error"> {
-  if ((kind !== "status" && kind !== "reel") || typeof id !== "string" || !UUID.test(id)) return "error";
-  const path = `/${kind === "status" ? "statuses" : "reels"}/${id}/like`;
+/** Likes or saves (or takes back) a status or a reel; a status can only be liked. "signed-out" means the visitor has to log in first. */
+export async function setReactionAction(kind: "status" | "reel", id: string, reaction: "like" | "save", on: boolean): Promise<"ok" | "signed-out" | "error"> {
+  if ((kind !== "status" && kind !== "reel") || (reaction !== "like" && reaction !== "save") || (kind === "status" && reaction === "save") || typeof id !== "string" || !UUID.test(id)) return "error";
+  const path = `/${kind === "status" ? "statuses" : "reels"}/${id}/${reaction}`;
   try {
-    const result = await withSession((token) => api(path, { method: liked ? "POST" : "DELETE", token, client: null }));
+    const result = await withSession((token) => api(path, { method: on ? "POST" : "DELETE", token, client: null }));
     return result === "signed-out" ? "signed-out" : "ok";
   } catch (error) {
-    // Unliking something that has since gone is already what was asked for.
-    if (!liked && error instanceof ApiError && error.status === 404) return "ok";
-    console.error("[like]", error);
+    // Taking back something that has since gone is already what was asked for.
+    if (!on && error instanceof ApiError && error.status === 404) return "ok";
+    console.error("[reaction]", error);
     return "error";
+  }
+}
+
+/** Counts what a viewer did with a reel (watched it, finished it, shared it, tapped its link). The API counts each once per viewer a day. Never throws. */
+export async function reelEventAction(id: string, type: "view" | "complete" | "share" | "link_tap"): Promise<void> {
+  if (typeof id !== "string" || !UUID.test(id) || !["view", "complete", "share", "link_tap"].includes(type)) return;
+  try {
+    await api(`/reels/${id}/events`, { method: "POST", body: { type }, headers: await deviceHeaders(), token: await accessToken(), client: null });
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status >= 500) console.error("[reel-event]", error);
   }
 }

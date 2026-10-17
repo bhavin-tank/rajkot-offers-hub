@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { reportSeenAction } from "@/lib/actions/zalak";
+import { reelEventAction, reportSeenAction } from "@/lib/actions/zalak";
 
 /**
  * What this browser remembers about Zalak: which statuses it has watched (the ring on the home page turns
@@ -67,6 +67,19 @@ export function reportSeen(type: "status" | "reel", id: string | undefined) {
   if (!id || reported.has(id)) return;
   reported.add(id);
   void reportSeenAction(type, [id]);
+}
+
+const counted = new Set<string>();
+
+/** Counts what the viewer did with a reel: once per reel per page visit for watching and finishing (the API also limits it to once a day). */
+export function reportReelEvent(id: string | undefined, type: "view" | "complete" | "share" | "link_tap") {
+  if (!id) return;
+  if (type === "view" || type === "complete") {
+    const key = `${type}:${id}`;
+    if (counted.has(key)) return;
+    counted.add(key);
+  }
+  void reelEventAction(id, type);
 }
 
 export function useLikedStories() {

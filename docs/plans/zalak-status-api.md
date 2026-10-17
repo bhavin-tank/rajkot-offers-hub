@@ -93,18 +93,18 @@ Work on this plan can start before these are done, against the local API for sta
 
 ### Stage C: reels (Zalak)
 
-- [ ] `getZalakFeed` and `moreReelsAction` use `/reels` with `page` and `feed_token` (kept in the client between loads);
+- [x] `getZalakFeed` and `moreReelsAction` use `/reels` with `page` and `feed_token` (kept in the client between loads);
       stop `all_seen` from showing a "you're all caught up" dead end: the API cycles seen reels, so just keep scrolling.
-- [ ] HLS player in `ClipMedia`: native HLS on Safari, `hls.js` (dynamic import, exact version, loaded only in the
+- [x] HLS player in `ClipMedia`: native HLS on Safari, `hls.js` (dynamic import, exact version, loaded only in the
       viewer) elsewhere; poster from `poster_url`; plays only when the reel is active and no dialog is open; mute
       toggle stays; pause on hidden tab.
-- [ ] Seen after about 1 s on screen (batched `POST /feed-views`); events: `view` when active, `complete` at the end,
+- [x] Seen after about 1 s on screen (batched `POST /feed-views`); events: `view` when active, `complete` at the end,
       `share` on share, `link_tap` on the link button (server action, fire and forget).
-- [ ] Like and save through server actions; the rail shows real counts (`likes_count`, `saves_count` not shown to
+- [x] Like and save through server actions; the rail shows real counts (`likes_count`, `saves_count` not shown to
       the public, so only likes); a guest sees the login dialog.
-- [ ] Zalak shelf on Home and the `/zalak` page: category chips from `/reels/categories` (optional, second pass),
-      `/reels/featured` for the Home shelf.
-- [ ] Feature off (404): hide the Zalak tab (bottom nav and desktop), the Home shelf, and answer `/zalak` with a
+- [x] Zalak shelf on Home and the `/zalak` page use `/reels` (first page). Not done: category chips from
+      `/reels/categories` and the `/reels/featured` shelf (second pass).
+- [x] Feature off (404): hide the Zalak tab (bottom nav and desktop), the Home shelf, and answer `/zalak` with a
       normal not-found page.
 
 ### Stage D: extras (second PR if the first is already big)
@@ -145,4 +145,10 @@ Work on this plan can start before these are done, against the local API for sta
 - Also done early because statuses can be video: HLS playback in `ClipMedia` (`hls.js`, loaded on demand). Demo videos
   are placeholders, so playback itself is untested until a real Stream video exists.
 - The tray's `latest_at` is local time without a zone (India); the mapper reads it as +05:30.
-- Home Zalak shelf and `/zalak` are still the sample feed (Stage C).
+- Stage C done and checked against the local API: `/zalak` reels from `/reels` with `feed_token` paging (tested with a
+  page size of 4), view and seen after 1 s on screen, like and save (guest gets the login popup), share, link tap and
+  completion events, Zalak tab hidden when `/reels/categories` answers 404, `/zalak` answers 404 then.
+- Opening `/zalak?start=<id>` for a reel that is not on the first page loads it with `GET /reels/{id}` first.
+- Reels are counted as watched even while the first-time tour is up (a few seconds); fine for now.
+- Local API tip: after seeding, run `php artisan cache:clear` with the same env if every route answers 404 (the platform
+  host lookup was cached stale).

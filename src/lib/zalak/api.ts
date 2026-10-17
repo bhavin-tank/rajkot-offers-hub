@@ -1,9 +1,9 @@
 import { api, ApiError } from "@/lib/api/client";
 import { deviceHeaders } from "@/lib/api/device";
-import type { ContentLink, StatusPlay, StatusPost, StatusRing, StatusTray } from "@/lib/api/types";
+import type { ContentLink, ReelCard, ReelPage, StatusPlay, StatusPost, StatusRing, StatusTray } from "@/lib/api/types";
 import { accessToken } from "@/lib/auth/session";
 import { offerPath, shopPath } from "@/lib/paths";
-import { CLIP_MAX_SECONDS, CLIP_MIN_SECONDS, type ZalakClip, type ZalakLink, type ZalakStory } from "./types";
+import { CLIP_MAX_SECONDS, CLIP_MIN_SECONDS, type ZalakClip, type ZalakLink, type ZalakShop, type ZalakStory } from "./types";
 
 /**
  * Statuses and reels from the BSurefy API. Everything here is per viewer (which rings are lit, what is liked),
@@ -114,4 +114,57 @@ export async function getStatusStories(open?: { shop?: string; platform?: boolea
   const played = (await Promise.all(window.map((ring) => playRing(ring).catch(() => undefined)))).filter((story): story is ZalakStory => Boolean(story));
   const start = at < 0 ? 0 : played.findIndex((story) => story.id === rings[at].id);
   return { stories: played, start: Math.max(start, 0) };
+}
+
+function reelStory(reel: ReelCard): ZalakStory {
+  const { author } = reel;
+  const shop: ZalakShop =
+    author.type === "platform"
+      ? { slug: PLATFORM_RING, name: author.short_name || author.name, platform: true }
+      : { slug: author.slug, name: author.name, logo: author.logo_thumb_url ?? author.logo_url ?? undefined };
+  const clip: ZalakClip = {
+    id: reel.id,
+    kind: "video",
+    src: reel.video.hls_url,
+    poster: reel.video.poster_url ?? undefined,
+    seconds: Math.max(1, Math.ceil(reel.video.duration_seconds)),
+    link: linkFor(reel.link, author.type === "business" ? author.slug : undefined),
+    liked: reel.is_liked,
+    likes: reel.likes_count,
+    saved: reel.is_saved,
+  };
+  return { id: reel.id, kind: "reel", live: true, shop, title: reel.caption ?? "", postedAt: reel.published_at, clips: [clip] };
+}
+
+export interface ReelFeed {
+  stories: ZalakStory[];
+  /** Send it back with the next page so the order does not shift while reels are reported seen. */
+  token?: string;
+  hasMore: boolean;
+}
+
+/** One page of the reel feed, in the viewer's own order: unseen first, the shops they follow leading. */
+export async function getReelPage(page = 1, perPage = 12, token?: string): Promise<ReelFeed> {
+  const result = await orOff(api<ReelPage>("/reels", { query: { page, per_page: perPage, feed_token: token }, ...(await viewer()) }), undefined);
+  if (!result) return { stories: [], hasMore: false };
+  return { stories: result.data.map(reelStory), token: result.meta.feed_token, hasMore: result.meta.current_page < result.meta.last_page };
+}
+
+/** One reel by id, for a shared link or a card that is no longer on the first page. */
+export async function getReel(id: string): Promise<ZalakStory | undefined> {
+  const result = await orOff(api<{ data: ReelCard }>(`/reels/${encodeURIComponent(id)}`, await viewer()).catch((error) => {
+    if (error instanceof ApiError && (error.status === 404 || error.status === 422)) return undefined;
+    throw error;
+  }), undefined);
+  return result ? reelStory(result.data) : undefined;
+}
+
+/** Whether this platform has reels switched on: the chips answer 404 when it has not. A failure other than that keeps the screen. */
+export async function reelsAvailable(): Promise<boolean> {
+  try {
+    await api("/reels/categories");
+    return true;
+  } catch (error) {
+    return !(error instanceof ApiError && error.status === 404);
+  }
 }

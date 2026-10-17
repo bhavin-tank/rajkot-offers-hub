@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { CategoryBanner } from "@/components/categories/category-tiles";
 import { Breadcrumb, Container, SectionHeader } from "@/components/layout/container";
 import { MobileTopBar } from "@/components/layout/header";
-import { BottomNav } from "@/components/layout/nav-links";
+import { SiteBottomNav } from "@/components/layout/bottom-nav";
 import { OfferCarousel } from "@/components/offers/offer-card";
 import { OffersExplorer } from "@/components/offers/offers-explorer";
 import { OfferListSkeleton } from "@/components/offers/offers-skeleton";
@@ -46,7 +46,7 @@ async function CategoryContent({ slug, area, searchParams }: { slug: string; are
           <CategoryOffers slug={category.slug} area={area} subcategories={category.subcategories} searchParams={searchParams} />
         </Suspense>
       </Container>
-      <BottomNav />
+      <SiteBottomNav />
     </div>
   );
 }
@@ -147,7 +147,7 @@ function CategoryPageSkeleton() {
         <Skeleton className="h-40 rounded-2xl lg:h-[280px]" />
         <OfferListSkeleton />
       </Container>
-      <BottomNav />
+      <SiteBottomNav />
     </div>
   );
 }
